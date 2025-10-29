@@ -1,0 +1,66 @@
+/* src/components/Header/Header.css */
+header {
+    background-color: var(--white);
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 10px;
+}
+
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 30px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--accent-blue);
+}
+
+.nav-links .fa-chevron-down {
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-actions a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-actions .fa-search {
+    font-size: 20px;
+}
+
+
+/* Responsive (Bạn có thể thêm phần này nếu muốn) */
+@media (max-width: 1024px) {
+    .nav-links, .nav-actions a:not(.btn-primary) {
+        display: none;
+    }
+}
