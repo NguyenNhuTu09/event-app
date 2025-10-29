@@ -1,66 +1,225 @@
-/* src/components/Header/Header.css */
 header {
     background-color: var(--white);
     border-bottom: 1px solid #e0e0e0;
-    padding: 15px 10px;
+    padding: 0 15px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1000;
 }
 
 header nav {
+    width: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+}
+
+.logo a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 24px;
+
+    display: flex;
     align-items: center;
+    gap: 8px;
 }
 
-.logo img {
-    height: 30px;
+.logo i {
+    color: #e63946;
+    font-size: 22px;
+    position: relative;
+    top: -1px;
 }
 
-.nav-links {
+/* --- MENU DESKTOP --- */
+.nav-links-desktop {
     list-style: none;
     display: flex;
     gap: 30px;
+    margin: 0;
+    padding: 0;
 }
 
-.nav-links a {
+.nav-links-desktop a {
     text-decoration: none;
     color: var(--text-color);
-    font-weight: bold;
+
     font-size: 16px;
     transition: color 0.3s;
 }
 
-.nav-links a:hover {
+.nav-links-desktop a:hover {
     color: var(--accent-blue);
-}
-
-.nav-links .fa-chevron-down {
-    font-size: 12px;
-    margin-left: 5px;
 }
 
 .nav-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 25px;
+}
+
+.nav-actions a:hover {
+    color: var(--accent-blue);
 }
 
 .nav-actions a {
     text-decoration: none;
     color: var(--text-color);
-    font-weight: bold;
+
+}
+
+
+
+/* --- CÀI ĐẶT CHO MOBILE --- */
+.mobile-menu {
+    display: none;
+}
+
+.mobile-menu-icon {
+    display: none;
+    /* Mặc định ẩn trên desktop */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.mobile-menu-icon .bar {
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-blue);
+    border-radius: 2px;
+    transition: all 0.3s ease-in-out;
+}
+
+.mobile-menu-icon .bar.open:nth-child(1) {
+    transform: translateY(11px) rotate(45deg);
+}
+
+.mobile-menu-icon .bar.open:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-icon .bar.open:nth-child(3) {
+    transform: translateY(-11px) rotate(-45deg);
+}
+
+
+/* --- MEDIA QUERY CHO RESPONSIVE --- */
+@media (max-width: 992px) {
+
+    /* Ẩn các thành phần của desktop */
+    .nav-links-desktop,
+    .nav-actions {
+        display: none;
+    }
+
+    /* Hiện nút 3 gạch */
+    .mobile-menu-icon {
+        display: flex;
+    }
+
+    /* Định dạng cho menu dropdown của mobile */
+    .mobile-menu {
+        display: flex;
+        /* Thay đổi từ none sang flex để hiển thị */
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        /* Khoảng cách giữa các link */
+        padding: 40px 20px;
+
+        position: fixed;
+        top: 80px;
+        right: -100%;
+        /* Mặc định ẩn ngoài màn hình */
+        width: 100%;
+        height: calc(100vh - 80px);
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(5px);
+        transition: right 0.4s ease-in-out;
+    }
+
+    /* Khi menu được mở (có class .active) */
+    .mobile-menu.active {
+        right: 0;
+        /* Trượt vào màn hình */
+    }
+
+    .mobile-menu a {
+        font-size: 22px;
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .mobile-menu {
+        width: 80%;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .mobile-menu hr {
+        width: 80%;
+        border: none;
+        border-top: 1px solid #ddd;
+    }
+}
+
+/* --- Language Switcher Styles --- */
+.language-switcher {
     display: flex;
     align-items: center;
     gap: 5px;
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    border-radius: 5px;
 }
 
-.nav-actions .fa-search {
-    font-size: 20px;
+.language-switcher button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: #888;
+    padding: 0;
+    font-size: 14px;
+    transition: color 0.3s;
 }
 
+.language-switcher button.active {
+    color: var(--primary-blue);
+}
 
-/* Responsive (Bạn có thể thêm phần này nếu muốn) */
-@media (max-width: 1024px) {
-    .nav-links, .nav-actions a:not(.btn-primary) {
+.language-switcher .lang-separator {
+    color: #ddd;
+}
+
+.language-switcher.mobile {
+    margin-top: 30px;
+    border: none;
+    gap: 20px;
+}
+
+.language-switcher.mobile button {
+    font-size: 16px;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+}
+
+.language-switcher.mobile button.active {
+    background-color: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+@media (max-width: 992px) {
+    .nav-actions .language-switcher {
         display: none;
     }
 }
