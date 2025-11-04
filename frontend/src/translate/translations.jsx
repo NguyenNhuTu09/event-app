@@ -58,6 +58,9 @@ const translations = {
         feature3Title: "Conference and Event Management",
         feature3Desc: "Simplify your event management process with a flexible, fully integrated solution.",
         learnMore: "Learn More >",
+        //customer
+        customerTitle: 'Customers Nationwide',
+        customerDesc: 'We serve customers nationwide with the best services.',
     },
     vi: {
         // Header
@@ -118,6 +121,9 @@ const translations = {
         feature3Title: "Quản Lý Hội Nghị và Sự Kiện",
         feature3Desc: "Đơn giản hóa quy trình quản lý sự kiện của bạn với một giải pháp linh hoạt, được tích hợp đầy đủ.",
         learnMore: "Tìm Hiểu Thêm >",
+        //customer
+        customerTitle: 'Khách hàng trên toàn quốc',
+        customerDesc: 'Chúng tôi phục vụ khách hàng trên toàn quốc với các dịch vụ tốt nhất.',
     }
 };
 

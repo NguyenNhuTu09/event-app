@@ -6,7 +6,6 @@ import ClientLayout from './container/ClientLayout';
 // import AdminLayout from './container/AdminLayout'; // Sẽ tạo sau
 
 import HomePage from './pages/HomePage';
-
 const SystemLoginPage = () => <div><h1>Trang Đăng Nhập Hệ Thống</h1></div>;
 const AdminDashboard = () => <div><h1>Trang Quản Trị - Dashboard</h1></div>;
 
@@ -19,6 +18,7 @@ function App() {
 
         <Route path={path.HOME} element={<ClientLayout />}>
           <Route index element={<HomePage />} />
+
 
         </Route>
 

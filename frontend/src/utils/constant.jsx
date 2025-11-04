@@ -1,7 +1,7 @@
 export const path = {
     // === CLIENT / PUBLIC FLOW ===
     HOME: '/',
-
+    // CUSTOMER: '/customer',
 
     // === ADMIN / SYSTEM FLOW ===
     SYSTEM: '/system',

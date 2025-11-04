@@ -27,6 +27,21 @@ const Features = () => {
             title: t.feature3Title,
             description: t.feature3Desc,
         },
+        {
+            image: eventImage,
+            title: t.feature3Title,
+            description: t.feature3Desc,
+        },
+        {
+            image: eventImage,
+            title: t.feature3Title,
+            description: t.feature3Desc,
+        },
+        {
+            image: eventImage,
+            title: t.feature3Title,
+            description: t.feature3Desc,
+        },
     ];
 
     return (

@@ -1,4 +1,3 @@
-/* src/components/Hero/Hero.css */
 .hero {
     background-color: var(--light-background);
     display: flex;
@@ -7,7 +6,7 @@
 
 .hero-content {
     flex: 1;
-    padding: 80px 60px;
+    padding: 80px 290px;
 }
 
 .ems-logo {
@@ -16,7 +15,7 @@
 }
 
 .hero-content h1 {
-    font-size: 48px;
+    font-size: 47px;
     font-weight: 900;
     color: var(--primary-blue);
     line-height: 1.2;
