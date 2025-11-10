@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.DTO.ChangePasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 import com.example.backend.Models.Entity.User;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -78,5 +81,32 @@ public class UserServiceImpl implements UserService {
         dto.setAvatarUrl(user.getAvatarUrl());
         dto.setRole(user.getRole());
         return dto;
+    }
+
+    @Override
+    public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
+
+        if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
+        }
+
+        if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
+
+        currentUser.setPassword(encodedNewPassword);
+        userRepository.save(currentUser);
+    }
+    
+    @Override
+    public UserResponseDTO findUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
+        return convertToDto(user);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.backend.Config;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.lang.NonNull;
@@ -27,13 +28,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private static final String[] WHITE_LIST_URL = {
+            "/api/auth/", // Bao gồm cả signin và signup
+            "/oauth2/",   // Bao gồm cả authorization và callback
+            "/swagger-ui/",
+            "/v3/api-docs/"
+    };
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
+        
+        String servletPath = request.getServletPath();
+        boolean isWhitelisted = Arrays.stream(WHITE_LIST_URL)
+                                       .anyMatch(path -> servletPath.startsWith(path));
+
+        if (isWhitelisted) {
+            filterChain.doFilter(request, response); // Cho phép yêu cầu đi tiếp mà không kiểm tra token
+            return;
+        }
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
