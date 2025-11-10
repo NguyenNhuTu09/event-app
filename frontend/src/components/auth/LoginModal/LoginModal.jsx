@@ -5,14 +5,14 @@ import { useAuth } from "../../../context/AuthContext";
 import translations from "../../../translate/translations";
 
 //  Màn hình chọn phương thức đăng nhập
-const OptionsView = ({ t, onEmailClick, onRegisterClick }) => (
+const OptionsView = ({ t, onEmailClick, onRegisterClick, onGoogleClick }) => (
     <>
         <div className="modal-header-polished">
             <div className="header-text"><h2>{t.loginOfferTitle}</h2></div>
         </div>
         <div className="modal-body-polished">
             <div className="login-providers">
-                <button className="provider-btn google">
+                <button className="provider-btn google" onClick={onGoogleClick}>
                     <i className="bi bi-google"></i>
                     <span className="provider-text">{t.loginWithGoogle}</span>
                     <span className="recent-badge">{t.recentlyUsed}</span>
@@ -247,6 +247,12 @@ const LoginModal = ({ isOpen, onClose }) => {
         setShowConfirmPassword(prev => !prev);
     }, []);
 
+    const handleGoogleLogin = () => {
+        // Redirect đến backend OAuth2 endpoint
+        const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        window.location.href = `${backendUrl}/oauth2/authorization/google`;
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
@@ -349,6 +355,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                         t={t}
                         onEmailClick={() => setModalView('emailForm')}
                         onRegisterClick={() => setModalView('registerForm')}
+                        onGoogleClick={handleGoogleLogin}
                     />
                 )}
 

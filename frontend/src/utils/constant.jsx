@@ -11,6 +11,14 @@ export const path = {
 
     // === ADMIN / SYSTEM FLOW ===
     SYSTEM: '/system',
-    LOGIN: '/login', // Trang đăng nhập cho admin
-    DASHBOARD: 'dashboard', // Route con của /system
+    ADMIN_LOGIN: '/admin/login', // Trang đăng nhập cho admin
+    ADMIN_DASHBOARD: '/system/dashboard',
+    ADMIN_USERS: '/system/users',
+    ADMIN_EVENTS: '/system/events',
+    ADMIN_CATEGORIES: '/system/categories',
+    ADMIN_REPORTS: '/system/reports',
+    ADMIN_SETTINGS: '/system/settings',
+
+    // === OAUTH2 ===
+    OAUTH2_REDIRECT: '/oauth2/redirect',
 };

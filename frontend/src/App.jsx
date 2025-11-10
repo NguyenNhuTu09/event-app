@@ -1,9 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { path } from './utils/constant';
 
 import ClientLayout from './container/ClientLayout';
-// import AdminLayout from './container/AdminLayout'; // Sẽ tạo sau
+import AdminLayout from './container/AdminLayout';
+import ProtectedRoute from './components/admin/ProtectedRoute';
 
 import HomePage from './pages/HomePage';
 import IndustriesPage from './pages/IndustriesPage';
@@ -12,9 +13,15 @@ import ResourcesPage from './pages/ResourcesPage';
 import SupportPage from './pages/SupportPage';
 import CompanyPage from './pages/CompanyPage';
 import ContactPage from './pages/ContactPage';
+import OAuth2RedirectPage from './pages/OAuth2RedirectPage';
 
-const SystemLoginPage = () => <div><h1>Trang Đăng Nhập Hệ Thống</h1></div>;
-const AdminDashboard = () => <div><h1>Trang Quản Trị - Dashboard</h1></div>;
+import AdminLogin from './pages/admin/login';
+import AdminDashboard from './pages/admin/dashboard';
+import ManageUsers from './pages/admin/users';
+import ManageEvents from './pages/admin/events';
+import ManageCategories from './pages/admin/categories';
+import AdminReports from './pages/admin/reports';
+import AdminSettings from './pages/admin/settings';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -34,11 +41,26 @@ function App() {
         </Route>
 
 
-        <Route path={path.LOGIN} element={<SystemLoginPage />} />
+        <Route path={path.OAUTH2_REDIRECT} element={<OAuth2RedirectPage />} />
 
-        <Route path={path.SYSTEM} /* element={<AdminLayout/>} */>
-          <Route path={path.DASHBOARD} element={<AdminDashboard />} />
-          {/* <Route path={path.MANAGE_EVENTS} element={<ManageEventsPage />} /> */}
+        {/* Admin Routes */}
+        <Route path={path.ADMIN_LOGIN} element={<AdminLogin />} />
+
+        <Route
+          path={path.SYSTEM}
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<ManageUsers />} />
+          <Route path="events" element={<ManageEvents />} />
+          <Route path="categories" element={<ManageCategories />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route index element={<Navigate to={path.ADMIN_DASHBOARD} replace />} />
         </Route>
 
         <Route path="*" element={<div><h1>404 - Page Not Found</h1></div>} />

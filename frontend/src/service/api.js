@@ -72,6 +72,27 @@ export const authAPI = {
         });
         return response;
     },
+
+    // Lấy thông tin user từ token
+    getCurrentUser: async () => {
+        return apiCall('/auth/me', {
+            method: 'GET',
+        });
+    },
+
+    // Xác thực token
+    verifyToken: async () => {
+        return apiCall('/auth/verify', {
+            method: 'GET',
+        });
+    },
+
+    // Đăng xuất
+    logout: async () => {
+        return apiCall('/auth/logout', {
+            method: 'POST',
+        });
+    },
 };
 
 export default authAPI;

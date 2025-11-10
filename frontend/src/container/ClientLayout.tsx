@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/header/Header';
 import LoginModal from '../components/auth/LoginModal/LoginModal';
-// import Footer from '../components/Footer/Footer'; 
+import Footer from '../components/footer/Footer';
+
 const ClientLayout = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -19,7 +20,7 @@ const ClientLayout = () => {
                 <Outlet />
             </main>
 
-            {/* <Footer /> */}
+            <Footer />
         </>
     );
 };
