@@ -42,6 +42,22 @@ const translations = {
         resendOtpButton: "Resend OTP in",
         updatePasswordButton: "Update Password",
         backToLogin: "Back to Login",
+        // Register Form Keys
+        registerTitle: "Create Account",
+        registerWithEmail: "Sign up with Email",
+        usernameLabel: "Username",
+        usernamePlaceholder: "Enter your username",
+        confirmPasswordLabelRegister: "Confirm Password",
+        confirmPasswordPlaceholderRegister: "Confirm your password",
+        registerButton: "Sign Up",
+        alreadyHaveAccount: "Already have an account?",
+        signInLink: "Sign In",
+        // Success/Error Messages
+        registerSuccess: "Registration successful! Please sign in.",
+        loginSuccess: "Login successful!",
+        // Header when logged in
+        logout: "Logout",
+        welcome: "Welcome",
 
         // Hero
         heroTitle: 'EMS Software: Desk, Room and Event Scheduling Made Easy',
@@ -105,6 +121,23 @@ const translations = {
         resendOtpButton: "Gửi lại mã sau",
         updatePasswordButton: "Cập nhật mật khẩu",
         backToLogin: "Quay lại Đăng nhập",
+        // Register Form Keys
+        registerTitle: "Tạo tài khoản",
+        registerWithEmail: "Đăng ký bằng Email",
+        usernameLabel: "Tên đăng nhập",
+        usernamePlaceholder: "Nhập tên đăng nhập",
+        confirmPasswordLabelRegister: "Xác nhận mật khẩu",
+        confirmPasswordPlaceholderRegister: "Xác nhận lại mật khẩu",
+        registerButton: "Đăng ký",
+        alreadyHaveAccount: "Đã có tài khoản?",
+        signInLink: "Đăng nhập",
+        // Success/Error Messages
+        registerSuccess: "Đăng ký thành công! Vui lòng đăng nhập.",
+        loginSuccess: "Đăng nhập thành công!",
+        // Header when logged in
+        logout: "Đăng xuất",
+        welcome: "Xin chào",
+
         // Hero
         heroTitle: 'Phần mềm EMS: Lên Lịch Bàn Làm Việc, Phòng Họp và Sự Kiện Dễ Dàng',
         heroSubtitle: 'Trải nghiệm tương lai của quản lý không gian với phần mềm lên lịch phòng và tài nguyên tiên tiến của chúng tôi. Từ đặt bàn làm việc đến lên lịch sự kiện, các giải pháp tích hợp của chúng tôi đảm bảo hoạt động trơn tru và tối ưu hóa việc sử dụng không gian cho mọi tổ chức.',

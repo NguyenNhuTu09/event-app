@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from "react";
 import './LoginModal.css';
 import { useLanguage } from "../../../context/LanguageContext";
+import { useAuth } from "../../../context/AuthContext";
 import translations from "../../../translate/translations";
 
 //  Màn hình chọn phương thức đăng nhập
-const OptionsView = ({ t, onEmailClick }) => (
+const OptionsView = ({ t, onEmailClick, onRegisterClick }) => (
     <>
         <div className="modal-header-polished">
             <div className="header-text"><h2>{t.loginOfferTitle}</h2></div>
@@ -21,6 +22,11 @@ const OptionsView = ({ t, onEmailClick }) => (
                     <span className="provider-text">{t.loginWithEmail}</span>
                 </button>
             </div>
+            <div style={{ textAlign: 'center', marginTop: '15px' }}>
+                <a href="#" className="other-options-link" onClick={(e) => { e.preventDefault(); onRegisterClick(); }}>
+                    {t.registerWithEmail}
+                </a>
+            </div>
             <a href="#" className="other-options-link">{t.otherOptions}</a>
             <p className="promo-text">{t.promoText}</p>
             <p className="legal-text">
@@ -34,7 +40,7 @@ const OptionsView = ({ t, onEmailClick }) => (
 );
 
 //  Màn hình form email/password
-const EmailFormView = ({ t, formData, showPassword, onInputChange, onShowPasswordToggle, onBackClick, onForgotPasswordClick }) => (
+const EmailFormView = ({ t, formData, showPassword, onInputChange, onShowPasswordToggle, onBackClick, onForgotPasswordClick, onSubmit, error, loading }) => (
     <>
         <div className="modal-header-form">
             <button className="back-button" onClick={onBackClick}>
@@ -43,20 +49,100 @@ const EmailFormView = ({ t, formData, showPassword, onInputChange, onShowPasswor
             <h2 className="title-login-email">{t.emailFormTitle}</h2>
         </div>
         <div className="modal-body-polished">
-            <form className="email-login-form" onSubmit={(e) => e.preventDefault()}>
+            {error && (
+                <div style={{
+                    padding: '10px',
+                    marginBottom: '15px',
+                    backgroundColor: '#fee',
+                    color: '#c33',
+                    borderRadius: '5px',
+                    fontSize: '14px'
+                }}>
+                    {error}
+                </div>
+            )}
+            <form className="email-login-form" onSubmit={onSubmit}>
                 <div className="form-group">
                     <label htmlFor="email">{t.emailLabel}</label>
-                    <input type="email" id="email" placeholder={t.emailPlaceholder} required value={formData.email} onChange={onInputChange} />
+                    <input type="email" id="email" placeholder={t.emailPlaceholder} required value={formData.email} onChange={onInputChange} disabled={loading} />
                 </div>
                 <div className="form-group">
                     <label htmlFor="password">{t.passwordLabel}</label>
                     <div className="password-wrapper">
-                        <input type={showPassword ? "text" : "password"} id="password" placeholder={t.passwordPlaceholder} required value={formData.password} onChange={onInputChange} />
+                        <input type={showPassword ? "text" : "password"} id="password" placeholder={t.passwordPlaceholder} required value={formData.password} onChange={onInputChange} disabled={loading} />
                         <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} onClick={onShowPasswordToggle}></i>
                     </div>
                     <a href="#" className="forgot-password-link" onClick={onForgotPasswordClick}>{t.forgotPassword}</a>
                 </div>
-                <button type="submit" className="btn-login-submit">{t.loginButton}</button>
+                <button type="submit" className="btn-login-submit" disabled={loading}>
+                    {loading ? '...' : t.loginButton}
+                </button>
+                <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
+                    <span>{t.alreadyHaveAccount} </span>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onBackClick(); }} style={{ color: '#007bff', textDecoration: 'none' }}>
+                        {t.signInLink}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </>
+);
+
+// Màn hình form đăng ký
+const RegisterFormView = ({ t, formData, showPassword, showConfirmPassword, onInputChange, onShowPasswordToggle, onShowConfirmPasswordToggle, onBackClick, onSubmit, error, loading }) => (
+    <>
+        <div className="modal-header-form">
+            <button className="back-button" onClick={onBackClick}>
+                <i className="bi bi-arrow-left"></i> {t.backButton}
+            </button>
+            <h2 className="title-login-email">{t.registerTitle}</h2>
+        </div>
+        <div className="modal-body-polished">
+            {error && (
+                <div style={{
+                    padding: '10px',
+                    marginBottom: '15px',
+                    backgroundColor: '#fee',
+                    color: '#c33',
+                    borderRadius: '5px',
+                    fontSize: '14px'
+                }}>
+                    {error}
+                </div>
+            )}
+            <form className="email-login-form" onSubmit={onSubmit}>
+                <div className="form-group">
+                    <label htmlFor="username">{t.usernameLabel}</label>
+                    <input type="text" id="username" placeholder={t.usernamePlaceholder} required value={formData.username} onChange={onInputChange} disabled={loading} />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="email">{t.emailLabel}</label>
+                    <input type="email" id="email" placeholder={t.emailPlaceholder} required value={formData.email} onChange={onInputChange} disabled={loading} />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password">{t.passwordLabel}</label>
+                    <div className="password-wrapper">
+                        <input type={showPassword ? "text" : "password"} id="password" placeholder={t.passwordPlaceholder} required value={formData.password} onChange={onInputChange} disabled={loading} />
+                        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} onClick={onShowPasswordToggle}></i>
+                    </div>
+                </div>
+                {/* Tạm thời comment nhập lại mật khẩu */}
+                {/* <div className="form-group">
+                    <label htmlFor="confirmPassword">{t.confirmPasswordLabelRegister}</label>
+                    <div className="password-wrapper">
+                        <input type={showConfirmPassword ? "text" : "password"} id="confirmPassword" placeholder={t.confirmPasswordPlaceholderRegister} required value={formData.confirmPassword} onChange={onInputChange} disabled={loading} />
+                        <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`} onClick={onShowConfirmPasswordToggle}></i>
+                    </div>
+                </div> */}
+                <button type="submit" className="btn-login-submit" disabled={loading}>
+                    {loading ? '...' : t.registerButton}
+                </button>
+                <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
+                    <span>{t.alreadyHaveAccount} </span>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onBackClick(); }} style={{ color: '#007bff', textDecoration: 'none' }}>
+                        {t.signInLink}
+                    </a>
+                </div>
             </form>
         </div>
     </>
@@ -137,19 +223,89 @@ const ForgotPasswordView = ({ t, onBackToLoginClick }) => {
 const LoginModal = ({ isOpen, onClose }) => {
     const { language } = useLanguage();
     const t = translations[language] || translations.vi;
+    const { login, register } = useAuth();
 
     const [modalView, setModalView] = useState('options');
     const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [formData, setFormData] = useState({ email: '', password: '', username: '', confirmPassword: '' });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState('');
 
     const handleInputChange = useCallback((e) => {
         const { id, value } = e.target;
         setFormData(prevData => ({ ...prevData, [id]: value }));
+        setError(''); // Clear error when user types
     }, []);
 
     const handleShowPasswordToggle = useCallback(() => {
         setShowPassword(prev => !prev);
     }, []);
+
+    const handleShowConfirmPasswordToggle = useCallback(() => {
+        setShowConfirmPassword(prev => !prev);
+    }, []);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const result = await login(formData.email, formData.password);
+            if (result.success) {
+                setSuccess(t.loginSuccess);
+                setTimeout(() => {
+                    handleClose();
+                }, 1000);
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError(err.message || 'Đăng nhập thất bại');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        // Tạm thời comment validation nhập lại mật khẩu
+        // Validate password match
+        // if (formData.password !== formData.confirmPassword) {
+        //     setError('Mật khẩu xác nhận không khớp');
+        //     return;
+        // }
+
+        // Validate password length
+        if (formData.password.length < 6) {
+            setError('Mật khẩu phải có ít nhất 6 ký tự');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const result = await register(formData.username, formData.email, formData.password);
+            if (result.success) {
+                setSuccess(t.registerSuccess);
+                setTimeout(() => {
+                    setModalView('emailForm');
+                    setFormData(prev => ({ email: prev.email, password: '', username: '', confirmPassword: '' }));
+                    setError('');
+                }, 2000);
+            } else {
+                setError(result.message);
+            }
+        } catch (err) {
+            setError(err.message || 'Đăng ký thất bại');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -161,8 +317,11 @@ const LoginModal = ({ isOpen, onClose }) => {
         onClose();
         setTimeout(() => {
             setModalView('options');
-            setFormData({ email: '', password: '' });
+            setFormData({ email: '', password: '', username: '', confirmPassword: '' });
             setShowPassword(false);
+            setShowConfirmPassword(false);
+            setError('');
+            setSuccess('');
         }, 300);
     };
 
@@ -171,10 +330,25 @@ const LoginModal = ({ isOpen, onClose }) => {
             <div className="modal-content-polished" onClick={handleModalContentClick}>
                 <button className="close-button" onClick={handleClose}>&times;</button>
 
+                {success && (
+                    <div style={{
+                        padding: '10px',
+                        marginBottom: '15px',
+                        backgroundColor: '#dfd',
+                        color: '#3a3',
+                        borderRadius: '5px',
+                        fontSize: '14px',
+                        textAlign: 'center'
+                    }}>
+                        {success}
+                    </div>
+                )}
+
                 {modalView === 'options' && (
                     <OptionsView
                         t={t}
                         onEmailClick={() => setModalView('emailForm')}
+                        onRegisterClick={() => setModalView('registerForm')}
                     />
                 )}
 
@@ -187,6 +361,25 @@ const LoginModal = ({ isOpen, onClose }) => {
                         onShowPasswordToggle={handleShowPasswordToggle}
                         onBackClick={() => setModalView('options')}
                         onForgotPasswordClick={() => setModalView('forgotPassword')}
+                        onSubmit={handleLogin}
+                        error={error}
+                        loading={loading}
+                    />
+                )}
+
+                {modalView === 'registerForm' && (
+                    <RegisterFormView
+                        t={t}
+                        formData={formData}
+                        showPassword={showPassword}
+                        showConfirmPassword={showConfirmPassword}
+                        onInputChange={handleInputChange}
+                        onShowPasswordToggle={handleShowPasswordToggle}
+                        onShowConfirmPasswordToggle={handleShowConfirmPasswordToggle}
+                        onBackClick={() => setModalView('options')}
+                        onSubmit={handleRegister}
+                        error={error}
+                        loading={loading}
                     />
                 )}
 

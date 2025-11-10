@@ -1,0 +1,81 @@
+.sakura-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.sakura-petal {
+    position: absolute;
+    top: -10%;
+    animation: sakura-fall linear infinite;
+    pointer-events: none;
+}
+
+.sakura-petal svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 2px rgba(255, 182, 193, 0.5));
+}
+
+@keyframes sakura-fall {
+    0% {
+        transform: translateY(-10%) translateX(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(50vh) translateX(50px) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) translateX(-50px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Hiệu ứng rơi với chuyển động ngẫu nhiên */
+.sakura-petal:nth-child(odd) {
+    animation-name: sakura-fall-left;
+}
+
+.sakura-petal:nth-child(even) {
+    animation-name: sakura-fall-right;
+}
+
+@keyframes sakura-fall-left {
+    0% {
+        transform: translateY(-10%) translateX(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(50vh) translateX(-30px) rotate(180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) translateX(30px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes sakura-fall-right {
+    0% {
+        transform: translateY(-10%) translateX(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(50vh) translateX(30px) rotate(-180deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) translateX(-30px) rotate(-360deg);
+        opacity: 0;
+    }
+}
+
+
+
+

@@ -6,6 +6,13 @@ import ClientLayout from './container/ClientLayout';
 // import AdminLayout from './container/AdminLayout'; // Sẽ tạo sau
 
 import HomePage from './pages/HomePage';
+import IndustriesPage from './pages/IndustriesPage';
+import SolutionsPage from './pages/SolutionsPage';
+import ResourcesPage from './pages/ResourcesPage';
+import SupportPage from './pages/SupportPage';
+import CompanyPage from './pages/CompanyPage';
+import ContactPage from './pages/ContactPage';
+
 const SystemLoginPage = () => <div><h1>Trang Đăng Nhập Hệ Thống</h1></div>;
 const AdminDashboard = () => <div><h1>Trang Quản Trị - Dashboard</h1></div>;
 
@@ -18,8 +25,12 @@ function App() {
 
         <Route path={path.HOME} element={<ClientLayout />}>
           <Route index element={<HomePage />} />
-
-
+          <Route path={path.INDUSTRIES} element={<IndustriesPage />} />
+          <Route path={path.SOLUTIONS} element={<SolutionsPage />} />
+          <Route path={path.RESOURCES} element={<ResourcesPage />} />
+          <Route path={path.SUPPORT} element={<SupportPage />} />
+          <Route path={path.COMPANY} element={<CompanyPage />} />
+          <Route path={path.CONTACT} element={<ContactPage />} />
         </Route>
 
 
