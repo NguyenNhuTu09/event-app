@@ -2,6 +2,7 @@ package com.example.backend.Service;
 
 import java.util.List;
 
+import com.example.backend.DTO.ChangePasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 
@@ -11,4 +12,6 @@ public interface UserService {
     UserResponseDTO getCurrentUserProfile();
     UserResponseDTO updateCurrentUserProfile(UserUpdateDTO userUpdateDTO);
     void deleteUser(Long id);
+    void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO);
+    UserResponseDTO findUserByEmail(String email);
 }

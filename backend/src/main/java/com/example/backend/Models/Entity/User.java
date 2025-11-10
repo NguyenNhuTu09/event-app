@@ -3,6 +3,7 @@ package com.example.backend.Models.Entity;
 import java.time.LocalDate;
 
 import com.example.backend.Models.Gender;
+import com.example.backend.Utils.AuthProvider;
 import com.example.backend.Utils.Role;
 
 import jakarta.persistence.Column;
@@ -29,7 +30,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = true, unique = true)
     private String password; 
     
     @Column(nullable = false, unique = true)
@@ -53,5 +54,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role;  
+
+    @Enumerated(EnumType.STRING) 
+    @Column(nullable = false)
+    private AuthProvider provider;
 }
