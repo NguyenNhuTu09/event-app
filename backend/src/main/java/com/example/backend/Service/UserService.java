@@ -14,4 +14,5 @@ public interface UserService {
     void deleteUser(Long id);
     void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO);
     UserResponseDTO findUserByEmail(String email);
+    // UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException;
 }

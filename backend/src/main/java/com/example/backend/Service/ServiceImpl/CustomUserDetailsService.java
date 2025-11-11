@@ -2,6 +2,7 @@ package com.example.backend.Service.ServiceImpl;
 
 import java.util.Collections;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority; // << Thêm import này
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,14 +24,14 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User không tồn tại với email: " + email));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(), 
                 user.getPassword(),
-                Collections.emptyList()
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())) 
         );
     }
 
     public User loadUserEntityByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User không tồn tại: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User không tồn tạiiiiii: " + username));
     }
 }

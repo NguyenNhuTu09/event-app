@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    // private final S3Service s3Service;
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -40,22 +41,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getCurrentUserProfile() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + userEmail));
         return convertToDto(user);
     }
 
     @Override
     public UserResponseDTO updateCurrentUserProfile(UserUpdateDTO userUpdateDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User userToUpdate = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User userToUpdate = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + userEmail));
         
         userToUpdate.setAddress(userUpdateDTO.getAddress());
         userToUpdate.setGender(userUpdateDTO.getGender());
         userToUpdate.setDateOfBirth(userUpdateDTO.getDateOfBirth());
         userToUpdate.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+        userToUpdate.setAvatarUrl(userUpdateDTO.getAvatarUrl());
 
         User updatedUser = userRepository.save(userToUpdate);
         return convertToDto(updatedUser);
@@ -85,20 +87,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
-
+        String user = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(user)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + user));
         if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
             throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
         }
-
         if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
             throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
         }
-
         String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
-
         currentUser.setPassword(encodedNewPassword);
         userRepository.save(currentUser);
     }
@@ -109,4 +107,26 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
         return convertToDto(user);
     }
+
+    // @Override
+    // public UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException {
+    //     String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    //     User currentUser = userRepository.findByUsername(username)
+    //             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
+        
+    //     if (currentUser.getAvatarS3Key() != null && !currentUser.getAvatarS3Key().isEmpty()) {
+    //         s3Service.deleteFile(currentUser.getAvatarS3Key());
+    //     }
+
+    //     String originalFileName = file.getOriginalFilename();
+    //     String key = "user_avatars/" + currentUser.getId() + "/" + UUID.randomUUID().toString() + "-" + originalFileName;
+
+    //     String avatarUrl = s3Service.uploadFile(file, key);
+
+    //     currentUser.setAvatarUrl(avatarUrl);
+    //     currentUser.setAvatarS3Key(key); 
+    //     User updatedUser = userRepository.save(currentUser);
+
+    //     return convertToDto(updatedUser);
+    // }
 }

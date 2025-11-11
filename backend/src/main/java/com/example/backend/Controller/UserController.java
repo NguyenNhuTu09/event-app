@@ -93,4 +93,21 @@ public class UserController {
             @RequestParam String email) {
         return ResponseEntity.ok(userService.findUserByEmail(email));
     }
+
+
+    // @PostMapping("/me/avatar")
+    // @Operation(summary = "Cập nhật ảnh đại diện cho người dùng hiện tại")
+    // public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
+    //     try {
+    //         if (file.isEmpty()) {
+    //             return new ResponseEntity<>("File ảnh không được để trống.", HttpStatus.BAD_REQUEST);
+    //         }
+    //         UserResponseDTO updatedUser = userService.updateCurrentUserAvatar(file);
+    //         return ResponseEntity.ok(updatedUser);
+    //     } catch (IOException e) {
+    //         return new ResponseEntity<>("Tải ảnh lên thất bại: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    //     } catch (Exception e) {
+    //         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    //     }
+    // }
 }
