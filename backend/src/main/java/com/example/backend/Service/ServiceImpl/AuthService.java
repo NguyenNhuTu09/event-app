@@ -1,12 +1,23 @@
 package com.example.backend.Service.ServiceImpl;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.DTO.RegistrationRequest;
+import com.example.backend.DTO.Request.LoginRequest;
+import com.example.backend.DTO.Request.RegistrationRequest;
+import com.example.backend.DTO.Request.TokenExchangeRequest;
+import com.example.backend.DTO.Response.JwtAuthenticationResponse;
+import com.example.backend.DTO.Response.JwtResponse;
+import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Service.JwtService;
+import com.example.backend.Service.OneTimeCodeService;
+import com.example.backend.Service.RefreshTokenService;
 import com.example.backend.Utils.AuthProvider;
 import com.example.backend.Utils.Role;
 
@@ -18,6 +29,11 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OneTimeCodeService oneTimeCodeService;
+    private final JwtService jwtService;
+    
+    private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
     public User registerNewUser(RegistrationRequest registrationRequest) {
         if (!registrationRequest.getPassword().equals(registrationRequest.getConfirmPassword())) {
@@ -57,4 +73,78 @@ public class AuthService {
                 return userRepository.save(newUser);
             });
     }
+    public JwtResponse exchangeCodeForJwt(TokenExchangeRequest request) {
+        String code = request.getRefreshToken();
+        String email = oneTimeCodeService.getEmailForCode(code);
+        
+        if (email == null) {
+            throw new RuntimeException("Mã không hợp lệ hoặc đã hết hạn.");
+        }
+        User userEntity = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
+        
+        String jwt = jwtService.generateToken(email);
+        return new JwtResponse(
+            jwt,
+            "Bearer",
+            userEntity.getId(),
+            userEntity.getUsername(),
+            userEntity.getEmail()
+        );
+    }
+
+    public JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user sau khi xác thực"));
+
+        String accessToken = jwtService.generateToken(user.getEmail());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+
+        UserResponseDTO userDto = new UserResponseDTO(
+            user.getId(), user.getUsername(), user.getEmail(), 
+            user.getAddress(), user.getGender(), user.getDateOfBirth(), 
+            user.getPhoneNumber(), user.getAvatarUrl(), user.getRole()
+        );
+
+        return JwtAuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userDto)
+                .build();
+    }
+    
+
+    public JwtAuthenticationResponse exchangeCodeForTokens(TokenExchangeRequest request) {
+        String code = request.getRefreshToken();
+        String email = oneTimeCodeService.getEmailForCode(code);
+        
+        if (email == null) {
+            throw new RuntimeException("Mã không hợp lệ hoặc đã hết hạn.");
+        }
+        
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
+
+        String accessToken = jwtService.generateToken(email);
+
+        String refreshToken = refreshTokenService.createRefreshToken(email);
+        
+        UserResponseDTO userDto = new UserResponseDTO(
+            user.getId(), user.getUsername(), user.getEmail(), 
+            user.getAddress(), user.getGender(), user.getDateOfBirth(), 
+            user.getPhoneNumber(), user.getAvatarUrl(), user.getRole()
+        );
+
+        return JwtAuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userDto)
+                .build();
+    }
+      
+
 }

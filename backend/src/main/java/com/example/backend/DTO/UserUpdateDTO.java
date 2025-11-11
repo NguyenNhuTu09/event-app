@@ -14,4 +14,5 @@ public class UserUpdateDTO {
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
     private LocalDate dateOfBirth;
     private String phoneNumber;
+    private String avatarUrl;
 }

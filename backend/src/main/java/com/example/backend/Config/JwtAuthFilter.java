@@ -2,19 +2,17 @@ package com.example.backend.Config;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService; 
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.backend.Models.Entity.User;
-import com.example.backend.Service.ServiceImpl.CustomUserDetailsService;
-import com.example.backend.Service.ServiceImpl.JwtService;
+import com.example.backend.Service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,10 +25,11 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService; 
+    
     private static final String[] WHITE_LIST_URL = {
-            "/api/auth/", // Bao gồm cả signin và signup
-            "/oauth2/",   // Bao gồm cả authorization và callback
+            "/api/auth/",
+            "/oauth2/",
             "/swagger-ui/",
             "/v3/api-docs/"
     };
@@ -44,15 +43,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String servletPath = request.getServletPath();
         boolean isWhitelisted = Arrays.stream(WHITE_LIST_URL)
                                        .anyMatch(path -> servletPath.startsWith(path));
-
         if (isWhitelisted) {
-            filterChain.doFilter(request, response); // Cho phép yêu cầu đi tiếp mà không kiểm tra token
+            filterChain.doFilter(request, response);
             return;
         }
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String username;
+        final String userEmail; // << Đổi tên biến cho rõ nghĩa
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -60,19 +58,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-
         try {
-            username = jwtService.getUsernameFromToken(jwt);
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User user = userDetailsService.loadUserEntityByUsername(username);
-                UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getUsername(), user.getPassword(), Collections.emptyList());
-
+            userEmail = jwtService.getUsernameFromToken(jwt);
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
-                            null, // không cần credentials
+                            null,
                             userDetails.getAuthorities()
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -81,9 +75,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi xác thực JWT: " + e.getMessage());
+            logger.error("Không thể xác thực JWT token", e);
         }
-
         filterChain.doFilter(request, response);
     }
 }
