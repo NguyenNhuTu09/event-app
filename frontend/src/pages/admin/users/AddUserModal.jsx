@@ -1,26 +1,14 @@
 import React, { useState } from 'react';
 import './AddUserModal.css';
 
-interface AddUserModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (userData: {
-        name: string;
-        email: string;
-        role: string;
-        password: string;
-    }) => void;
-    existingEmails?: string[];
-}
-
-const AddUserModal: React.FC<AddUserModalProps> = ({
+const AddUserModal = ({
     isOpen,
     onClose,
     onSubmit,
     existingEmails = [],
 }) => {
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         name: '',
@@ -30,7 +18,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
         confirmPassword: '',
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -46,7 +34,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     };
 
     const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
+        const newErrors = {};
 
         if (!formData.name.trim()) {
             newErrors.name = 'Tên không được để trống';
@@ -77,7 +65,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!validateForm()) {

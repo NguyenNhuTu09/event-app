@@ -2,11 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { path } from '../../utils/constant';
 
-interface ProtectedRouteProps {
-    children: React.ReactNode;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute = ({ children }) => {
     // Check if admin is logged in (hardcode)
     const adminToken = localStorage.getItem('adminToken');
     const adminUser = localStorage.getItem('adminUser');

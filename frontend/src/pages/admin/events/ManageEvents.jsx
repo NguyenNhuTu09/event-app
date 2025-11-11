@@ -72,7 +72,7 @@ const ManageEvents = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const getStatusClass = (status: string) => {
+    const getStatusClass = (status) => {
         return status.toLowerCase().replace(/\s/g, '-');
     };
 

@@ -1,0 +1,490 @@
+/* ============================================
+   RESOURCES PAGE - STYLES
+   ============================================ */
+
+.resources-page {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.resources-hero {
+    background: linear-gradient(135deg, #0A2240 0%, #007bff 100%);
+    color: #ffffff;
+    padding: 120px 20px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.resources-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.resources-hero .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 25px;
+    line-height: 1.2;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hero-description {
+    font-size: 1.3rem;
+    line-height: 1.8;
+    opacity: 0.95;
+}
+
+/* ============================================
+   SECTION 1 - CATEGORIES
+   ============================================ */
+.resources-categories {
+    padding: 100px 20px;
+    background-color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-header h2 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #0A2240;
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+.section-header p {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+/* Grid layout cho categories - 4 cột trên desktop */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.category-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s ease;
+    border: 2px solid transparent;
+}
+
+.category-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.2);
+    border-color: rgba(0, 123, 255, 0.2);
+}
+
+.category-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 25px;
+    background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 2.8rem;
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    transition: all 0.4s ease;
+}
+
+.category-card:hover .category-icon {
+    transform: rotate(5deg) scale(1.1);
+    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.4);
+}
+
+.category-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0A2240;
+    margin-bottom: 15px;
+}
+
+.category-card p {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.7;
+}
+
+/* ============================================
+   SECTION 2 - DOCUMENTS TABLE
+   ============================================ */
+.resources-documents {
+    padding: 100px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.documents-table-container {
+    margin-top: 50px;
+    overflow-x: auto;
+    /* Tạo shadow cho table khi scroll */
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    background: #ffffff;
+}
+
+.documents-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.documents-table thead {
+    background: linear-gradient(135deg, #0A2240 0%, #007bff 100%);
+    color: #ffffff;
+}
+
+.documents-table th {
+    padding: 20px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.documents-table tbody tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.documents-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.documents-table td {
+    padding: 25px 20px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.document-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.document-name i {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.document-name span {
+    font-weight: 600;
+    color: #0A2240;
+}
+
+/* Buttons cho download/view */
+.btn-download,
+.btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-download {
+    background: linear-gradient(135deg, #007bff, #00d4ff);
+    color: #ffffff;
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-view {
+    background: #ffffff;
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-view:hover {
+    background: #007bff;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* ============================================
+   SECTION 3 - MEDIA GALLERY
+   ============================================ */
+.resources-media {
+    padding: 100px 20px;
+    background-color: #ffffff;
+}
+
+/* Filter buttons */
+.media-filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 50px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 12px 30px;
+    border: 2px solid #007bff;
+    background: #ffffff;
+    color: #007bff;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(0, 123, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #007bff, #00d4ff);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* Masonry Grid Layout cho gallery */
+.media-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/* Tạo masonry effect với grid-auto-rows */
+.media-gallery .media-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    cursor: pointer;
+    background: #f8f9fa;
+}
+
+.media-gallery .media-item:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.3);
+}
+
+.media-gallery .media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Video placeholder */
+.video-placeholder {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #0A2240, #007bff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+
+.video-placeholder i {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.video-placeholder p {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Overlay khi hover */
+.media-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 25px;
+    color: #ffffff;
+    transform: translateY(100%);
+    transition: transform 0.4s ease;
+}
+
+.media-item:hover .media-overlay {
+    transform: translateY(0);
+}
+
+.media-overlay h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 2.8rem;
+    }
+
+    .hero-description {
+        font-size: 1.1rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.3rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+    }
+
+    .media-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .resources-hero {
+        padding: 100px 20px 60px;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .resources-categories,
+    .resources-documents,
+    .resources-media {
+        padding: 60px 20px;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+        font-size: 2rem;
+    }
+
+    .section-header p {
+        font-size: 1rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* Table responsive - scroll horizontal trên mobile */
+    .documents-table-container {
+        border-radius: 10px;
+    }
+
+    .documents-table {
+        font-size: 0.9rem;
+    }
+
+    .documents-table th,
+    .documents-table td {
+        padding: 15px 10px;
+    }
+
+    .media-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .filter-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.7rem;
+    }
+
+    .category-card {
+        padding: 30px 20px;
+    }
+
+    .category-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+    }
+
+    .media-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-download,
+    .btn-view {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+}
+

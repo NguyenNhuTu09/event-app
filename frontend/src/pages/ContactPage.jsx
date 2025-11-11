@@ -6,8 +6,8 @@ import './ContactPage.css';
 const ContactPage = () => {
     const { language } = useLanguage();
     const t = translations[language] || translations.vi;
-    const contactRef = useRef<HTMLDivElement>(null);
-    const formRef = useRef<HTMLDivElement>(null);
+    const contactRef = useRef(null);
+    const formRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -184,3 +184,4 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
+

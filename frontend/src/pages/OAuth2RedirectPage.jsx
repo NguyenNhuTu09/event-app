@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import authAPI from '../service/api';
 
 const OAuth2RedirectPage = () => {
     const [searchParams] = useSearchParams();
@@ -29,7 +28,6 @@ const OAuth2RedirectPage = () => {
             if (token && success === 'true') {
                 try {
                     // Xử lý token từ Google OAuth2
-                    // @ts-ignore - Type definition issue
                     const result = await loginWithGoogleToken(token);
                     if (result && result.success) {
                         // Redirect về trang chủ sau khi đăng nhập thành công

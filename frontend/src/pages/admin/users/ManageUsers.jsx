@@ -23,18 +23,13 @@ const ManageUsers = () => {
         return matchesSearch && matchesRole;
     });
 
-    const handleAddUser = (userData: {
-        name: string;
-        email: string;
-        role: string;
-        password: string;
-    }) => {
+    const handleAddUser = (userData) => {
         const newUser = {
             id: users.length + 1,
             name: userData.name,
             email: userData.email,
             role: userData.role,
-            status: 'Active' as const,
+            status: 'Active',
             joined: new Date().toISOString().split('T')[0],
             events: 0,
         };

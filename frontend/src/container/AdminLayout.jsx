@@ -48,7 +48,7 @@ const AdminLayout = () => {
         navigate(path.ADMIN_LOGIN);
     };
 
-    const isActive = (menuPath: string) => {
+    const isActive = (menuPath) => {
         return location.pathname === menuPath;
     };
 

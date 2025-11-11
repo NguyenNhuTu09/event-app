@@ -100,14 +100,14 @@ const AdminReports = () => {
         plugins: {
             legend: {
                 display: true,
-                position: 'top' as const,
+                position: 'top',
             },
             title: {
                 display: true,
                 text: 'Người dùng mới theo tháng',
                 font: {
                     size: 16,
-                    weight: 'bold' as const,
+                    weight: 'bold',
                 },
             },
         },
@@ -124,14 +124,14 @@ const AdminReports = () => {
         plugins: {
             legend: {
                 display: true,
-                position: 'top' as const,
+                position: 'top',
             },
             title: {
                 display: true,
                 text: 'Sự kiện theo tháng',
                 font: {
                     size: 16,
-                    weight: 'bold' as const,
+                    weight: 'bold',
                 },
             },
         },
@@ -148,14 +148,14 @@ const AdminReports = () => {
         plugins: {
             legend: {
                 display: true,
-                position: 'right' as const,
+                position: 'right',
             },
             title: {
                 display: true,
                 text: 'Phân bổ vai trò người dùng',
                 font: {
                     size: 16,
-                    weight: 'bold' as const,
+                    weight: 'bold',
                 },
             },
         },
@@ -167,14 +167,14 @@ const AdminReports = () => {
         plugins: {
             legend: {
                 display: true,
-                position: 'right' as const,
+                position: 'right',
             },
             title: {
                 display: true,
                 text: 'Trạng thái sự kiện',
                 font: {
                     size: 16,
-                    weight: 'bold' as const,
+                    weight: 'bold',
                 },
             },
         },
@@ -288,3 +288,4 @@ const AdminReports = () => {
 };
 
 export default AdminReports;
+
