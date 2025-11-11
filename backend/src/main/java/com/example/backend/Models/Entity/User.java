@@ -1,5 +1,6 @@
 package com.example.backend.Models.Entity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 import com.example.backend.Models.Gender;
@@ -59,4 +60,10 @@ public class User {
     @Enumerated(EnumType.STRING) 
     @Column(nullable = false)
     private AuthProvider provider;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expiry_date")
+    private Instant refreshTokenExpiryDate;
 }
