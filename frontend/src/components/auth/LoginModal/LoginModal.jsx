@@ -249,7 +249,9 @@ const LoginModal = ({ isOpen, onClose }) => {
 
     const handleGoogleLogin = () => {
         // Redirect đến backend OAuth2 endpoint
-        const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+        // OAuth2 endpoint không nằm trong /api, nên cần lấy base URL không có /api
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+        const backendUrl = apiBaseUrl.replace('/api', '');
         window.location.href = `${backendUrl}/oauth2/authorization/google`;
     };
 

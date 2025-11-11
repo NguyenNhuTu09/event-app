@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import authAPI from '../service/api';
 
 const OAuth2RedirectPage = () => {
     const [searchParams] = useSearchParams();
@@ -9,9 +10,8 @@ const OAuth2RedirectPage = () => {
 
     useEffect(() => {
         const processOAuth2 = async () => {
-            const token = searchParams.get('token');
+            const oneTimeCode = searchParams.get('token');
             const error = searchParams.get('error');
-            const success = searchParams.get('success');
 
             if (error) {
                 const errorMessage = searchParams.get('message') || 'Đăng nhập Google thất bại';
@@ -25,38 +25,60 @@ const OAuth2RedirectPage = () => {
                 return;
             }
 
-            if (token && success === 'true') {
-                try {
-                    // Xử lý token từ Google OAuth2
-                    const result = await loginWithGoogleToken(token);
-                    if (result && result.success) {
-                        // Redirect về trang chủ sau khi đăng nhập thành công
-                        navigate('/', {
-                            replace: true,
-                            state: {
-                                message: 'Đăng nhập Google thành công!'
-                            }
-                        });
-                    } else {
-                        navigate('/', {
-                            state: {
-                                error: (result && result.message) || 'Không thể xử lý token đăng nhập'
-                            }
-                        });
-                    }
-                } catch (err) {
-                    console.error('Error processing OAuth2 token:', err);
-                    navigate('/', {
-                        state: {
-                            error: 'Lỗi xử lý đăng nhập Google'
-                        }
-                    });
-                }
-            } else {
-                // Không có token hoặc success flag
+            if (!oneTimeCode) {
+                // Không có token
                 navigate('/', {
                     state: {
                         error: 'Thiếu thông tin đăng nhập'
+                    }
+                });
+                return;
+            }
+
+            try {
+                // Bước 1: Đổi oneTimeCode lấy JWT token
+                const jwtResponse = await authAPI.exchangeToken(oneTimeCode);
+                
+                if (!jwtResponse || !jwtResponse.token) {
+                    throw new Error('Không nhận được JWT token từ server');
+                }
+
+                // Bước 2: Lưu token và user info từ response
+                const userData = {
+                    id: jwtResponse.id,
+                    username: jwtResponse.username,
+                    email: jwtResponse.email,
+                };
+
+                localStorage.setItem('token', jwtResponse.token);
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                // Bước 3: Cập nhật AuthContext (không cần gọi API getCurrentUser nữa vì đã có user info)
+                const result = await loginWithGoogleToken(jwtResponse.token);
+                
+                if (result && result.success) {
+                    // Redirect về trang chủ sau khi đăng nhập thành công
+                    navigate('/', {
+                        replace: true,
+                        state: {
+                            message: 'Đăng nhập Google thành công!'
+                        }
+                    });
+                } else {
+                    navigate('/', {
+                        state: {
+                            error: (result && result.message) || 'Không thể xử lý đăng nhập'
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error processing OAuth2:', err);
+                // Xóa token nếu có lỗi
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/', {
+                    state: {
+                        error: err.message || 'Lỗi xử lý đăng nhập Google'
                     }
                 });
             }

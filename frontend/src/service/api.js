@@ -93,6 +93,14 @@ export const authAPI = {
             method: 'POST',
         });
     },
+
+    // Đổi oneTimeCode lấy JWT token (cho Google OAuth2)
+    exchangeToken: async (oneTimeCode) => {
+        return apiCall('/auth/token/exchange', {
+            method: 'POST',
+            body: JSON.stringify({ refreshToken: oneTimeCode }),
+        });
+    },
 };
 
 export default authAPI;

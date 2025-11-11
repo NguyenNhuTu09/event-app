@@ -73,29 +73,39 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const loginWithGoogleToken = async (token) => {
+    const loginWithGoogleToken = async (jwtToken) => {
         try {
-            // Lưu token tạm thời để có thể gọi API
-            localStorage.setItem('token', token);
-            setToken(token);
+            // Lưu token vào localStorage
+            localStorage.setItem('token', jwtToken);
+            setToken(jwtToken);
 
-            // Lấy thông tin user từ backend
-            const userData = await authAPI.getCurrentUser();
-            
-            // Lưu thông tin user
-            const userInfo = {
-                id: userData.id,
-                username: userData.username,
-                email: userData.email,
-                avatarUrl: userData.avatarUrl,
-                role: userData.role,
-            };
+            // Lấy thông tin user từ backend (nếu có endpoint)
+            try {
+                const userData = await authAPI.getCurrentUser();
+                
+                // Lưu thông tin user đầy đủ
+                const userInfo = {
+                    id: userData.id,
+                    username: userData.username,
+                    email: userData.email,
+                    avatarUrl: userData.avatarUrl,
+                    role: userData.role,
+                };
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(userInfo));
-
-            setToken(token);
-            setUser(userInfo);
+                localStorage.setItem('user', JSON.stringify(userInfo));
+                setUser(userInfo);
+            } catch (error) {
+                // Nếu không lấy được user info, vẫn giữ token
+                // User info có thể đã được lưu từ OAuth2RedirectPage
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    try {
+                        setUser(JSON.parse(storedUser));
+                    } catch (e) {
+                        console.warn('Could not parse stored user:', e);
+                    }
+                }
+            }
 
             return { success: true };
         } catch (error) {
@@ -107,7 +117,7 @@ export const AuthProvider = ({ children }) => {
             
             return { 
                 success: false, 
-                message: error.message || 'Không thể lấy thông tin người dùng từ token' 
+                message: error.message || 'Không thể xử lý đăng nhập Google' 
             };
         }
     };
