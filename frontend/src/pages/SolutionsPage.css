@@ -1,0 +1,899 @@
+.solutions-page {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    background-color: #1a1a1a;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Ensure images are responsive */
+.solutions-page img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ============================================
+   BANNER SECTION với GSAP Animation
+   ============================================ */
+.solutions-banner {
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 20px 80px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0A2240 0%, #007bff 50%, #00d4ff 100%);
+}
+
+.banner-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+.banner-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 50%);
+    animation: gradientShift 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+.banner-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.banner-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    animation: float 6s ease-in-out infinite;
+}
+
+.particle-1 {
+    width: 80px;
+    height: 80px;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.particle-2 {
+    width: 120px;
+    height: 120px;
+    top: 60%;
+    right: 15%;
+    animation-delay: 1s;
+}
+
+.particle-3 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+.particle-4 {
+    width: 100px;
+    height: 100px;
+    top: 30%;
+    right: 30%;
+    animation-delay: 1.5s;
+}
+
+.particle-5 {
+    width: 70px;
+    height: 70px;
+    bottom: 30%;
+    right: 10%;
+    animation-delay: 2.5s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-30px) translateX(20px) rotate(120deg);
+    }
+    66% {
+        transform: translateY(20px) translateX(-15px) rotate(240deg);
+    }
+}
+
+.banner-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #ffffff;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.banner-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+    line-height: 1.2;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.5px;
+}
+
+.banner-description {
+    font-size: 1.3rem;
+    line-height: 1.8;
+    opacity: 0.95;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   SECTION 1 - GIỚI THIỆU TỔNG QUAN
+   ============================================ */
+.solutions-intro {
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-header h2 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 25px;
+    line-height: 1.3;
+}
+
+.section-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+.intro-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.intro-feature {
+    text-align: center;
+    padding: 40px 30px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.intro-feature:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(216, 201, 123, 0.2);
+    border-color: rgba(216, 201, 123, 0.3);
+}
+
+.feature-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 25px;
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 2.8rem;
+    box-shadow: 0 8px 20px rgba(216, 201, 123, 0.3);
+}
+
+.intro-feature h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+.intro-feature p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+}
+
+/* ============================================
+   SECTION 2 - CÁC NHÓM GIẢI PHÁP
+   ============================================ */
+.solutions-list {
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+}
+
+.solutions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.solution-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.solution-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #d8c97b, #c4b567);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.solution-card:hover::before {
+    transform: scaleX(1);
+}
+
+.solution-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(216, 201, 123, 0.25);
+    border-color: rgba(216, 201, 123, 0.3);
+}
+
+.solution-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 3rem;
+    box-shadow: 0 10px 25px rgba(216, 201, 123, 0.3);
+    transition: all 0.4s ease;
+}
+
+.solution-card:hover .solution-icon {
+    transform: rotate(5deg) scale(1.1);
+    box-shadow: 0 15px 35px rgba(216, 201, 123, 0.4);
+}
+
+.solution-card h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.solution-description {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.solution-features {
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.solution-features h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #d8c97b;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.solution-features p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+/* ============================================
+   SECTION 3 - MÔ PHỎNG GIAO DIỆN (FLOW CHART)
+   ============================================ */
+.solutions-flow {
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+}
+
+.flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 40px;
+    padding: 30px 20px;
+}
+
+.flow-step {
+    flex: 0 0 auto;
+    width: 180px;
+    text-align: center;
+    padding: 35px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.flow-step:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(216, 201, 123, 0.25);
+    border-color: rgba(216, 201, 123, 0.3);
+}
+
+.flow-step-number {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #d8c97b, #c4b567);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(216, 201, 123, 0.4);
+}
+
+.flow-step-icon {
+    width: 80px;
+    height: 80px;
+    margin: 20px auto 20px;
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 2.5rem;
+    box-shadow: 0 8px 20px rgba(216, 201, 123, 0.3);
+}
+
+.flow-step h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.flow-step p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.flow-arrow {
+    font-size: 2.5rem;
+    color: #d8c97b;
+    display: flex;
+    align-items: center;
+    animation: arrowPulse 2s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+    0%, 100% {
+        transform: translateX(0);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateX(10px);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   SECTION 4 - CTA
+   ============================================ */
+.solutions-cta {
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.solutions-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-content h2 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cta-content p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    opacity: 0.95;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cta-primary {
+    background-color: #ffffff;
+    color: #0A2240;
+}
+
+.btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background-color: #f0f0f0;
+}
+
+.btn-cta-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.btn-cta-secondary:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Tablet Landscape / Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .banner-title {
+        font-size: 3rem;
+    }
+
+    .banner-description {
+        font-size: 1.2rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .solutions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px;
+    }
+
+    .intro-features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px;
+    }
+
+    .flow-container {
+        gap: 25px;
+    }
+
+    .flow-step {
+        width: 170px;
+    }
+}
+
+/* Tablet Portrait / iPad (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .banner-title {
+        font-size: 2.8rem;
+    }
+
+    .banner-description {
+        font-size: 1.1rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.3rem;
+    }
+
+    .solutions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .intro-features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .flow-container {
+        gap: 20px;
+    }
+
+    .flow-step {
+        width: 160px;
+    }
+
+    .flow-arrow {
+        transform: rotate(90deg);
+        font-size: 2rem;
+    }
+}
+
+/* Mobile Landscape / Small Tablet (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .solutions-banner {
+        min-height: 450px;
+        padding: 90px 20px 50px;
+    }
+
+    .banner-title {
+        font-size: 2.4rem;
+        line-height: 1.2;
+    }
+
+    .banner-description {
+        font-size: 1.05rem;
+    }
+
+    .solutions-intro,
+    .solutions-list,
+    .solutions-flow,
+    .solutions-cta {
+        padding: 50px 20px;
+    }
+
+    .section-header {
+        margin-bottom: 35px;
+    }
+
+    .section-header h2 {
+        font-size: 2.1rem;
+    }
+
+    .section-header p {
+        font-size: 1.05rem;
+    }
+
+    .intro-features {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .intro-feature {
+        padding: 35px 25px;
+    }
+
+    .solutions-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .solution-card {
+        padding: 35px 25px;
+    }
+
+    .flow-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .flow-step {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .flow-arrow {
+        transform: rotate(90deg);
+        font-size: 1.8rem;
+    }
+
+    .cta-content h2 {
+        font-size: 2.1rem;
+    }
+
+    .cta-content p {
+        font-size: 1.05rem;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .btn-cta {
+        justify-content: center;
+        padding: 16px 35px;
+    }
+}
+
+/* Mobile Portrait (max-width: 575px) */
+@media (max-width: 575px) {
+    .solutions-banner {
+        min-height: 400px;
+        padding: 80px 15px 40px;
+    }
+
+    .banner-title {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .banner-description {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .solutions-intro,
+    .solutions-list,
+    .solutions-flow,
+    .solutions-cta {
+        padding: 40px 15px;
+    }
+
+    .section-header {
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        font-size: 1.9rem;
+        line-height: 1.3;
+    }
+
+    .section-header p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .intro-features {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .intro-feature {
+        padding: 30px 20px;
+    }
+
+    .feature-icon {
+        width: 75px;
+        height: 75px;
+        font-size: 2.5rem;
+    }
+
+    .solutions-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .solution-card {
+        padding: 30px 20px;
+    }
+
+    .solution-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+    }
+
+    .flow-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 25px 15px;
+    }
+
+    .flow-step {
+        width: 100%;
+        max-width: 100%;
+        padding: 30px 20px;
+    }
+
+    .flow-step-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+    }
+
+    .flow-arrow {
+        transform: rotate(90deg);
+        font-size: 1.6rem;
+    }
+
+    .cta-content h2 {
+        font-size: 1.9rem;
+    }
+
+    .cta-content p {
+        font-size: 1rem;
+    }
+
+    .btn-cta {
+        padding: 15px 30px;
+        font-size: 1rem;
+        min-height: 44px; /* Touch target size */
+    }
+}
+
+/* Extra Small Mobile (max-width: 375px) - iPhone SE, small Android */
+@media (max-width: 375px) {
+    .solutions-banner {
+        min-height: 350px;
+        padding: 70px 12px 35px;
+    }
+
+    .banner-title {
+        font-size: 1.75rem;
+    }
+
+    .banner-description {
+        font-size: 0.95rem;
+    }
+
+    .solutions-intro,
+    .solutions-list,
+    .solutions-flow,
+    .solutions-cta {
+        padding: 35px 12px;
+    }
+
+    .section-header h2 {
+        font-size: 1.7rem;
+    }
+
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
+    .intro-feature {
+        padding: 25px 15px;
+    }
+
+    .feature-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 2.2rem;
+    }
+
+    .solution-card {
+        padding: 25px 15px;
+    }
+
+    .solution-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+    }
+
+    .flow-step {
+        padding: 25px 15px;
+    }
+
+    .flow-step-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .cta-content h2 {
+        font-size: 1.7rem;
+    }
+
+    .btn-cta {
+        padding: 14px 25px;
+        font-size: 0.95rem;
+    }
+}
+
+
+
+
+
+
+

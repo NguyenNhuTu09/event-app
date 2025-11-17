@@ -1,0 +1,347 @@
+/* ---  Modal  --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 10;
+}
+
+/* ---  Modal Styles  --- */
+.modal-content-polished {
+    background: #f7fcff;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.4s ease-out;
+    overflow: hidden;
+    position: relative;
+}
+
+.modal-header-polished {
+    background: linear-gradient(135deg, #e0f7ff 0%, #d4f2ff 100%);
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-login-email {
+    padding-top: 25px;
+}
+
+.header-text h2 {
+    color: #0A2240;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    max-width: 200px;
+}
+
+.header-illustration {
+    height: 80px;
+    object-fit: contain;
+}
+
+.modal-body-polished {
+    padding: 25px;
+    text-align: center;
+}
+
+.login-providers {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.provider-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 28px;
+    /* Bo tròn nhiều */
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.provider-btn:hover {
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.provider-btn i {
+    font-size: 22px;
+    margin-right: 15px;
+}
+
+.provider-btn .provider-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.provider-btn.google i {
+    color: #DB4437;
+}
+
+.provider-btn.email i {
+    color: #666;
+}
+
+.recent-badge {
+    background-color: #fce8e6;
+    color: #c53929;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+.other-options-link {
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 25px;
+    display: inline-block;
+}
+
+.promo-text {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.legal-text {
+    font-size: 13px;
+    color: #777;
+    line-height: 1.6;
+}
+
+.legal-text a {
+    color: #0A2240;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.modal-footer-polished {
+    background-color: #f0f8ff;
+    padding: 20px;
+    text-align: center;
+}
+
+.guest-link {
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ---   EMAIL FORM VIEW  --- */
+
+.modal-header-form {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    position: relative;
+}
+
+.modal-header-form h2 {
+    color: #0A2240;
+    font-size: 20px;
+    margin: 0;
+}
+
+.back-button {
+    position: absolute;
+    left: 15px;
+    top: 30%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.title-login-return {
+    padding-top: 25px;
+}
+
+.back-button i {
+    font-size: 18px;
+}
+
+.email-login-form {
+    text-align: left;
+}
+
+.email-login-form .form-group {
+    margin-bottom: 20px;
+}
+
+.email-login-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+
+.email-login-form input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.email-login-form input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.password-wrapper input {
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.password-wrapper input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 45px;
+}
+
+.password-wrapper i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+}
+
+.forgot-password-link {
+    display: block;
+    text-align: right;
+    margin-top: 8px;
+    color: #007bff;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-login-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.btn-login-submit:hover {
+    background-color: #0056b3;
+}
+
+/*OTP*/
+.otp-group {}
+
+.otp-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.otp-wrapper input {
+    flex-grow: 1;
+}
+
+.btn-otp {
+    padding: 0 15px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.btn-otp:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.btn-otp:disabled {
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+    color: #999;
+}
