@@ -12,10 +12,13 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Hardcode credentials
-    const ADMIN_CREDENTIALS = {
-        username: 'admin',
-        password: 'admin123',
+    // Hardcode credentials - Super Admin (Admin hệ thống)
+    const CREDENTIALS = {
+        'super-admin': {
+            username: 'admin',
+            password: 'admin123',
+            role: 'super-admin',
+        },
     };
 
     const handleInputChange = (e) => {
@@ -34,19 +37,28 @@ const AdminLogin = () => {
 
         // Simulate API call delay
         setTimeout(() => {
-            if (
-                formData.username === ADMIN_CREDENTIALS.username &&
-                formData.password === ADMIN_CREDENTIALS.password
-            ) {
-                // Store admin session (hardcode)
-                localStorage.setItem('adminToken', 'admin_token_hardcoded');
+            // Check credentials for all roles
+            let authenticatedUser = null;
+            for (const [key, cred] of Object.entries(CREDENTIALS)) {
+                if (
+                    formData.username === cred.username &&
+                    formData.password === cred.password
+                ) {
+                    authenticatedUser = cred;
+                    break;
+                }
+            }
+
+            if (authenticatedUser) {
+                // Store session (hardcode)
+                localStorage.setItem('adminToken', `${authenticatedUser.role}_token_hardcoded`);
                 localStorage.setItem('adminUser', JSON.stringify({
                     username: formData.username,
-                    role: 'admin',
+                    role: authenticatedUser.role,
                 }));
 
-                // Redirect to dashboard
-                navigate(path.ADMIN_DASHBOARD);
+                // Redirect to super-admin dashboard
+                navigate(path.SUPER_ADMIN_DASHBOARD);
             } else {
                 setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
             }
@@ -126,9 +138,9 @@ const AdminLogin = () => {
                     </button>
 
                     <div className="login-info">
-                        <p><strong>Thông tin đăng nhập (Hardcode):</strong></p>
-                        <p>Username: <code>admin</code></p>
-                        <p>Password: <code>admin123</code></p>
+                        <p><strong>Thông tin đăng nhập (Fake Data):</strong></p>
+                        <p><strong>Super Admin:</strong> <code>admin</code> / <code>admin123</code></p>
+                        <p><em>Lưu ý: Partner đăng nhập tại <a href={path.PARTNER_LOGIN} style={{color: '#3b82f6'}}>/partner/login</a></em></p>
                     </div>
                 </form>
             </div>
@@ -137,4 +149,8 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
+
+
+
 

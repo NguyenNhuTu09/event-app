@@ -1,16 +1,150 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../translate/translations';
 import './CompanyPage.css';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const CompanyPage = () => {
     const { language } = useLanguage();
     const t = translations[language] || translations.vi;
+    
+    // Refs cho GSAP animations
+    const heroRef = useRef(null);
+    const servicesRef = useRef(null);
+    const whyRef = useRef(null);
+    const aboutRef = useRef(null);
+    const contactRef = useRef(null);
+
+    // GSAP Animations
+    useEffect(() => {
+        // Animate hero section
+        const hero = heroRef.current;
+        if (hero) {
+            const title = hero.querySelector('.hero-title');
+            const description = hero.querySelector('.hero-description');
+            const tagline = hero.querySelector('.hero-tagline');
+            const button = hero.querySelector('.btn-primary');
+            
+            const tl = gsap.timeline();
+            
+            if (tagline) {
+                tl.fromTo(
+                    tagline,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+                );
+            }
+            
+            if (title) {
+                tl.fromTo(
+                    title,
+                    { opacity: 0, y: 50, scale: 0.9 },
+                    { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' },
+                    '-=0.3'
+                );
+            }
+            
+            if (description) {
+                tl.fromTo(
+                    description,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+                    '-=0.5'
+                );
+            }
+            
+            if (button) {
+                tl.fromTo(
+                    button,
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+                    '-=0.3'
+                );
+            }
+        }
+
+        // Animate sections khi scroll
+        const sections = [servicesRef, whyRef, aboutRef, contactRef];
+        sections.forEach((section) => {
+            if (section.current) {
+                gsap.fromTo(
+                    section.current,
+                    { opacity: 0, y: 60 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: section.current,
+                            start: 'top 80%',
+                            toggleActions: 'play none none reverse',
+                        },
+                    }
+                );
+            }
+        });
+
+        // Animate cards trong services và why sections
+        const serviceCards = servicesRef.current?.querySelectorAll('.service-card');
+        const whyCards = whyRef.current?.querySelectorAll('.why-card');
+        
+        if (serviceCards && serviceCards.length > 0) {
+            serviceCards.forEach((card, index) => {
+                gsap.fromTo(
+                    card,
+                    { opacity: 0, y: 40, scale: 0.9 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 85%',
+                            toggleActions: 'play none none reverse',
+                        },
+                        delay: index * 0.1,
+                    }
+                );
+            });
+        }
+        
+        if (whyCards && whyCards.length > 0) {
+            whyCards.forEach((card, index) => {
+                gsap.fromTo(
+                    card,
+                    { opacity: 0, y: 40, scale: 0.9 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 85%',
+                            toggleActions: 'play none none reverse',
+                        },
+                        delay: index * 0.1,
+                    }
+                );
+            });
+        }
+
+        return () => {
+            ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+        };
+    }, []);
 
     return (
         <div className="company-page">
             {/* Hero Section */}
-            <section className="company-hero">
+            <section className="company-hero" ref={heroRef}>
                 <div className="container">
                     <div className="hero-content">
                         <p className="hero-tagline">{t.companyTagline}</p>
@@ -22,7 +156,7 @@ const CompanyPage = () => {
             </section>
 
             {/* Services Section */}
-            <section className="company-services">
+            <section className="company-services" ref={servicesRef}>
                 <div className="container">
                     <div className="section-header">
                         <h2>{t.companyServicesTitle}</h2>
@@ -55,7 +189,7 @@ const CompanyPage = () => {
             </section>
 
             {/* Why Choose Us Section */}
-            <section className="company-why">
+            <section className="company-why" ref={whyRef}>
                 <div className="container">
                     <div className="section-header">
                         <h2>{t.companyWhyTitle}</h2>
@@ -87,7 +221,7 @@ const CompanyPage = () => {
             </section>
 
             {/* About Section */}
-            <section className="company-about">
+            <section className="company-about" ref={aboutRef}>
                 <div className="container">
                     <div className="about-content">
                         <div className="about-text">
@@ -100,7 +234,7 @@ const CompanyPage = () => {
             </section>
 
             {/* Contact Section */}
-            <section id="contact" className="company-contact">
+            <section id="contact" className="company-contact" ref={contactRef}>
                 <div className="container">
                     <div className="section-header">
                         <h2>{t.companyContactTitle}</h2>
@@ -136,4 +270,10 @@ const CompanyPage = () => {
 };
 
 export default CompanyPage;
+
+
+
+
+
+
 

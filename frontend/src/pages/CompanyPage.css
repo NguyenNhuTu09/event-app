@@ -1,6 +1,21 @@
 .company-page {
     width: 100%;
+    max-width: 100vw;
     overflow-x: hidden;
+    background-color: #1a1a1a;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Ensure images are responsive */
+.company-page img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Hero Section */
@@ -42,7 +57,7 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 20px;
-    opacity: 0.9;
+    opacity: 1;
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -52,13 +67,14 @@
     margin-bottom: 30px;
     line-height: 1.2;
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    opacity: 1;
 }
 
 .hero-description {
     font-size: 1.25rem;
     line-height: 1.8;
     margin-bottom: 40px;
-    opacity: 0.95;
+    opacity: 1;
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
@@ -90,30 +106,34 @@ a.btn-primary.cta-button-contact {
 
 /* Services Section */
 .company-services {
-    padding: 30px 20px;
-    background-color: #ffffff;
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+    opacity: 1;
 }
 
 .container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 50px;
 }
 
 .section-header h2 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 20px;
 }
 
 .section-header p {
     font-size: 1.2rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     max-width: 700px;
     margin: 0 auto;
     line-height: 1.6;
@@ -122,108 +142,115 @@ a.btn-primary.cta-button-contact {
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px;
-    margin-top: 50px;
+    gap: 30px;
+    margin-top: 40px;
 }
 
 .service-card {
     text-align: center;
     padding: 40px 30px;
     border-radius: 15px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    border: 1px solid rgba(0, 123, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .service-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(216, 201, 123, 0.2);
+    border-color: rgba(216, 201, 123, 0.3);
 }
 
 .service-icon {
     width: 80px;
     height: 80px;
     margin: 0 auto 25px;
-    background: linear-gradient(135deg, #007bff 0%, #0A2240 100%);
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-size: 2.5rem;
+    box-shadow: 0 8px 20px rgba(216, 201, 123, 0.3);
 }
 
 .service-card h3 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 15px;
 }
 
 .service-card p {
     font-size: 1rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.7;
 }
 
 /* Why Choose Us Section */
 .company-why {
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+    opacity: 1;
 }
 
 .why-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 40px;
-    margin-top: 50px;
+    gap: 30px;
+    margin-top: 40px;
 }
 
 .why-card {
     text-align: center;
     padding: 40px 30px;
-    background-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .why-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(216, 201, 123, 0.2);
+    border-color: rgba(216, 201, 123, 0.3);
 }
 
 .why-icon {
     width: 80px;
     height: 80px;
     margin: 0 auto 25px;
-    background: linear-gradient(135deg, #0A2240 0%, #007bff 100%);
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-size: 2.5rem;
+    box-shadow: 0 8px 20px rgba(216, 201, 123, 0.3);
 }
 
 .why-card h3 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 15px;
 }
 
 .why-card p {
     font-size: 1rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.7;
 }
 
 /* About Section */
 .company-about {
-    padding: 15px 20px;
-    background-color: #ffffff;
+    padding: 60px 20px;
+    background-color: #1a1a1a;
+    opacity: 1;
 }
 
 .about-content {
@@ -235,22 +262,23 @@ a.btn-primary.cta-button-contact {
 .about-text h2 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 30px;
 }
 
 .about-text p {
     font-size: 1.1rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.8;
     margin-bottom: 20px;
 }
 
 /* Contact Section */
 .company-contact {
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #0A2240 0%, #007bff 100%);
+    padding: 60px 20px;
+    background-color: #1a1a1a;
     color: #ffffff;
+    opacity: 1;
 }
 
 .company-contact .section-header h2 {
@@ -264,8 +292,8 @@ a.btn-primary.cta-button-contact {
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
-    margin-top: 50px;
+    gap: 30px;
+    margin-top: 40px;
 }
 
 .contact-card {
@@ -288,30 +316,68 @@ a.btn-primary.cta-button-contact {
     width: 70px;
     height: 70px;
     margin: 0 auto 25px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgb(216, 201, 123);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    color: #ffffff;
+    color: black;
 }
 
 .contact-card h3 {
     font-size: 1.3rem;
     font-weight: 700;
     margin-bottom: 15px;
-    color: #ffffff;
+    color: black;
 }
 
 .contact-card p {
     font-size: 1rem;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.9);
+    color: black;
 }
 
 /* Responsive */
-@media (max-width: 992px) {
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Tablet Landscape / Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .hero-title {
+        font-size: 3.5rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    .services-grid,
+    .why-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px;
+    }
+
+    .contact-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+}
+
+/* Tablet Portrait / iPad (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
     .hero-title {
         font-size: 3rem;
     }
@@ -322,18 +388,30 @@ a.btn-primary.cta-button-contact {
 
     .services-grid,
     .why-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 30px;
+    }
+
+    .contact-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .service-card,
+    .why-card {
+        padding: 35px 25px;
     }
 }
 
-@media (max-width: 768px) {
+/* Mobile Landscape / Small Tablet (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
     .company-hero {
-        padding: 100px 20px 60px;
+        padding: 90px 20px 50px;
     }
 
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2.6rem;
+        line-height: 1.2;
     }
 
     .hero-description {
@@ -344,19 +422,27 @@ a.btn-primary.cta-button-contact {
     .company-why,
     .company-about,
     .company-contact {
-        padding: 60px 20px;
+        padding: 50px 20px;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
     }
 
     .section-header h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
 
     .section-header p {
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
 
     .services-grid,
-    .why-grid,
+    .why-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
     .contact-grid {
         grid-template-columns: 1fr;
         gap: 25px;
@@ -365,26 +451,168 @@ a.btn-primary.cta-button-contact {
     .service-card,
     .why-card,
     .contact-card {
-        padding: 30px 20px;
+        padding: 35px 25px;
     }
 }
 
-@media (max-width: 480px) {
-    .hero-title {
-        font-size: 2rem;
+/* Mobile Portrait (max-width: 575px) */
+@media (max-width: 575px) {
+    .company-hero {
+        padding: 80px 15px 40px;
     }
 
     .hero-tagline {
-        font-size: 14px;
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+        line-height: 1.2;
+        margin-bottom: 20px;
     }
 
     .hero-description {
         font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    .company-services,
+    .company-why,
+    .company-about,
+    .company-contact {
+        padding: 40px 15px;
+    }
+
+    .section-header {
+        margin-bottom: 35px;
+    }
+
+    .section-header h2 {
+        font-size: 1.9rem;
+        line-height: 1.3;
+    }
+
+    .section-header p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .services-grid,
+    .why-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .service-card,
+    .why-card,
+    .contact-card {
+        padding: 30px 20px;
+    }
+
+    .service-icon,
+    .why-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+    }
+
+    .service-card h3,
+    .why-card h3 {
+        font-size: 1.3rem;
+    }
+
+    .service-card p,
+    .why-card p {
+        font-size: 0.95rem;
+    }
+
+    .about-text h2 {
+        font-size: 2rem;
+    }
+
+    .about-text p {
+        font-size: 1rem;
+    }
+
+    .contact-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+    }
+
+    .contact-card h3 {
+        font-size: 1.2rem;
     }
 
     .btn-primary {
-        padding: 12px 30px;
+        padding: 14px 28px;
         font-size: 1rem;
+        min-height: 44px;
+        /* Touch target size */
     }
 }
 
+/* Extra Small Mobile (max-width: 375px) - iPhone SE, small Android */
+@media (max-width: 375px) {
+    .company-hero {
+        padding: 70px 12px 35px;
+    }
+
+    .hero-tagline {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .hero-title {
+        font-size: 1.9rem;
+    }
+
+    .hero-description {
+        font-size: 0.95rem;
+    }
+
+    .company-services,
+    .company-why,
+    .company-about,
+    .company-contact {
+        padding: 35px 12px;
+    }
+
+    .section-header h2 {
+        font-size: 1.7rem;
+    }
+
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
+    .service-card,
+    .why-card,
+    .contact-card {
+        padding: 25px 15px;
+    }
+
+    .service-icon,
+    .why-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .about-text h2 {
+        font-size: 1.8rem;
+    }
+
+    .about-text p {
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+}

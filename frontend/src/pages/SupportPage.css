@@ -4,13 +4,30 @@
 
 .support-page {
     width: 100%;
+    max-width: 100vw;
     overflow-x: hidden;
+    background-color: #1a1a1a;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Ensure images are responsive */
+.support-page img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
 .container {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* ============================================
@@ -157,20 +174,20 @@
    ============================================ */
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 50px;
 }
 
 .section-header h2 {
     font-size: 2.8rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 20px;
     line-height: 1.3;
 }
 
 .section-header p {
     font-size: 1.2rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     max-width: 700px;
     margin: 0 auto;
     line-height: 1.8;
@@ -180,8 +197,8 @@
    FAQ SECTION
    ============================================ */
 .support-faq {
-    padding: 100px 20px;
-    background-color: #ffffff;
+    padding: 60px 20px;
+    background-color: #1a1a1a;
 }
 
 .faq-list {
@@ -190,8 +207,8 @@
 }
 
 .faq-item {
-    background: #ffffff;
-    border: 2px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     margin-bottom: 20px;
     overflow: hidden;
@@ -199,13 +216,13 @@
 }
 
 .faq-item:hover {
-    border-color: #007bff;
-    box-shadow: 0 5px 20px rgba(0, 123, 255, 0.1);
+    border-color: #d8c97b;
+    box-shadow: 0 5px 20px rgba(212, 165, 116, 0.1);
 }
 
 .faq-item.active {
-    border-color: #007bff;
-    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.15);
+    border-color: #d8c97b;
+    box-shadow: 0 8px 30px rgba(212, 165, 116, 0.15);
 }
 
 .faq-question {
@@ -220,17 +237,17 @@
     align-items: center;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #0A2240;
+    color: #ffffff;
     transition: all 0.3s ease;
 }
 
 .faq-question:hover {
-    color: #007bff;
+    color: #d8c97b;
 }
 
 .faq-question i {
     font-size: 1.2rem;
-    color: #007bff;
+    color: #d8c97b;
     transition: transform 0.3s ease;
 }
 
@@ -251,7 +268,7 @@
 }
 
 .faq-answer p {
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.8;
     font-size: 1rem;
     margin: 0;
@@ -261,17 +278,20 @@
    CONTACT FORM SECTION
    ============================================ */
 .support-form-section {
-    padding: 50px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 60px 20px;
+    background-color: #1a1a1a;
 }
 
 .support-form-container {
-    max-width: 800px;
+    max-width: 690px;
+    width: 100%;
     margin: 0 auto;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 50px 40px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
 }
 
 .form-header {
@@ -282,13 +302,13 @@
 .form-header h2 {
     font-size: 2.3rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 15px;
 }
 
 .form-header p {
     font-size: 1.1rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.7;
 }
 
@@ -344,13 +364,13 @@
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 10px;
     font-size: 1rem;
 }
 
 .form-group label i {
-    color: #007bff;
+    color: #d8c97b;
     font-size: 1.1rem;
 }
 
@@ -358,21 +378,26 @@
 .form-group select,
 .form-group textarea {
     padding: 14px 18px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     font-size: 1rem;
     font-family: inherit;
     transition: all 0.3s ease;
-    background: #ffffff;
-    color: #333;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+    border-color: #d8c97b;
+    box-shadow: 0 0 0 4px rgba(216, 201, 123, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .form-group textarea {
@@ -383,15 +408,20 @@
 .form-group select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 18px center;
     padding-right: 45px;
 }
 
+.form-group select option {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
 .btn-submit {
     padding: 16px 40px;
-    background: linear-gradient(135deg, #007bff, #00d4ff);
+    background: linear-gradient(135deg, #d8c97b, #c4b567);
     color: #ffffff;
     border: none;
     border-radius: 50px;
@@ -404,12 +434,12 @@
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
-    box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 5px 20px rgba(212, 165, 116, 0.3);
 }
 
 .btn-submit:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 8px 30px rgba(212, 165, 116, 0.4);
 }
 
 .btn-submit:disabled {
@@ -448,58 +478,58 @@
    CONTACT INFO SECTION
    ============================================ */
 .support-contact {
-    padding: 0 20px;
-    background-color: #ffffff;
+    padding: 60px 20px;
+    background-color: #1a1a1a;
 }
 
 .contact-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 
 .contact-info-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 40px 30px;
     text-align: center;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
     transition: all 0.4s ease;
-    border: 2px solid transparent;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .contact-info-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.2);
-    border-color: rgba(0, 123, 255, 0.2);
+    box-shadow: 0 15px 40px rgba(212, 165, 116, 0.2);
+    border-color: rgba(212, 165, 116, 0.3);
 }
 
 .contact-icon {
     width: 90px;
     height: 90px;
     margin: 0 auto 25px;
-    background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
+    background: linear-gradient(135deg, #d8c97b 0%, #c4b567 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-size: 2.5rem;
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(212, 165, 116, 0.3);
 }
 
 .contact-info-card h3 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #0A2240;
+    color: #ffffff;
     margin-bottom: 15px;
 }
 
 .contact-info-card p {
     font-size: 1rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.7;
     margin-bottom: 20px;
 }
@@ -508,25 +538,26 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #007bff;
+    color: #d8c97b;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .contact-link:hover {
-    color: #00d4ff;
+    color: #c4b567;
     gap: 12px;
 }
 
 /* Chat Support */
 .chat-support {
-    margin-top: 60px;
-    background: linear-gradient(135deg, #0A2240 0%, #007bff 100%);
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 40px;
     color: #ffffff;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chat-support-content {
@@ -583,7 +614,43 @@
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
-@media (max-width: 992px) {
+
+/* Large Desktop (1400px+) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+}
+
+/* Desktop (1200px - 1399px) */
+@media (max-width: 1399px) and (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Tablet Landscape / Small Desktop (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .support-hero-title {
+        font-size: 3rem;
+    }
+
+    .support-hero-description {
+        font-size: 1.2rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .contact-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+/* Tablet Portrait / iPad (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
     .support-hero-title {
         font-size: 2.8rem;
     }
@@ -601,64 +668,171 @@
     }
 
     .contact-info-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .support-form-container {
+        max-width: 690px;
+        padding: 45px 35px;
     }
 }
 
-@media (max-width: 768px) {
+/* Mobile Landscape / Small Tablet (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
     .support-hero {
-        padding: 100px 20px 60px;
+        padding: 90px 20px 50px;
+        min-height: 450px;
     }
 
     .support-hero-title {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
+        line-height: 1.2;
     }
 
     .support-hero-description {
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
 
     .support-faq,
     .support-form-section,
     .support-contact {
-        padding: 60px 20px;
+        padding: 50px 20px;
     }
 
     .section-header {
-        margin-bottom: 40px;
+        margin-bottom: 35px;
     }
 
     .section-header h2 {
-        font-size: 2rem;
+        font-size: 2.1rem;
     }
 
     .section-header p {
-        font-size: 1rem;
+        font-size: 1.05rem;
     }
 
     .support-form-container {
+        max-width: 690px;
+        padding: 40px 30px;
+    }
+
+    .form-header h2 {
+        font-size: 1.9rem;
+    }
+
+    .faq-question {
+        padding: 22px 25px;
+        font-size: 1.05rem;
+    }
+
+    .contact-info-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .chat-support {
         padding: 35px 25px;
+    }
+}
+
+/* Mobile Portrait (max-width: 575px) */
+@media (max-width: 575px) {
+    .support-hero {
+        padding: 80px 15px 40px;
+        min-height: 400px;
+    }
+
+    .support-hero-title {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .support-hero-description {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .support-faq,
+    .support-form-section,
+    .support-contact {
+        padding: 40px 15px;
+    }
+
+    .section-header {
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        font-size: 1.9rem;
+        line-height: 1.3;
+    }
+
+    .section-header p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .support-form-container {
+        max-width: 690px;
+        padding: 30px 20px;
+    }
+
+    .form-header {
+        margin-bottom: 30px;
     }
 
     .form-header h2 {
         font-size: 1.8rem;
     }
 
+    .form-header p {
+        font-size: 1rem;
+    }
+
+    .form-group label {
+        font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .btn-submit {
+        padding: 14px 35px;
+        font-size: 1rem;
+        min-height: 44px; /* Touch target size */
+    }
+
     .faq-question {
-        padding: 20px 25px;
+        padding: 20px 20px;
         font-size: 1rem;
     }
 
     .faq-answer {
-        padding: 0 25px 20px 25px;
+        padding: 0 20px 18px 20px;
     }
 
     .faq-item.active .faq-answer {
-        padding: 0 25px 20px 25px;
+        padding: 0 20px 18px 20px;
     }
 
     .contact-info-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .contact-info-card {
+        padding: 35px 25px;
+    }
+
+    .contact-icon {
+        width: 75px;
+        height: 75px;
+        font-size: 2.2rem;
     }
 
     .chat-support {
@@ -668,34 +842,86 @@
     .chat-support-content {
         flex-direction: column;
         text-align: center;
+        gap: 20px;
     }
 
     .chat-support-content>div {
         min-width: auto;
     }
+
+    .btn-chat {
+        padding: 14px 30px;
+        font-size: 0.95rem;
+        min-height: 44px; /* Touch target size */
+    }
 }
 
-@media (max-width: 480px) {
+/* Extra Small Mobile (max-width: 375px) - iPhone SE, small Android */
+@media (max-width: 375px) {
+    .support-hero {
+        padding: 70px 12px 35px;
+        min-height: 350px;
+    }
+
     .support-hero-title {
-        font-size: 1.8rem;
+        font-size: 1.75rem;
+    }
+
+    .support-hero-description {
+        font-size: 0.95rem;
+    }
+
+    .support-faq,
+    .support-form-section,
+    .support-contact {
+        padding: 35px 12px;
     }
 
     .section-header h2 {
         font-size: 1.7rem;
     }
 
+    .section-header p {
+        font-size: 0.9rem;
+    }
+
     .support-form-container {
-        padding: 25px 20px;
+        max-width: 690px;
+        padding: 25px 18px;
+    }
+
+    .form-header h2 {
+        font-size: 1.6rem;
     }
 
     .form-group input,
     .form-group select,
     .form-group textarea {
-        padding: 12px 15px;
+        padding: 11px 12px;
+        font-size: 0.9rem;
     }
 
     .btn-submit {
-        padding: 14px 30px;
-        font-size: 1rem;
+        padding: 12px 28px;
+        font-size: 0.95rem;
+    }
+
+    .faq-question {
+        padding: 18px 18px;
+        font-size: 0.95rem;
+    }
+
+    .contact-info-card {
+        padding: 30px 20px;
+    }
+
+    .contact-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 2rem;
+    }
+
+    .chat-support {
+        padding: 25px 18px;
     }
 }

@@ -11,3 +11,9 @@ const IndustriesPage = () => {
 
 export default IndustriesPage;
 
+
+
+
+
+
+

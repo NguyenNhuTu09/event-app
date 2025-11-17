@@ -47,7 +47,7 @@ const Features = () => {
     return (
         <section className="features-section">
             <div className="container">
-                <div className="section-header">
+                <div className="section-header-title">
                     <h2>{t.featuresTitle}</h2>
                     <p>{t.featuresSubtitle}</p>
                 </div>
