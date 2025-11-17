@@ -107,16 +107,24 @@
     font-size: 14px;
     transition: all 0.3s;
     outline: none;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+}
+
+.form-group input::placeholder {
+    color: #94a3b8 !important;
 }
 
 .form-group input:focus {
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    color: #000000 !important;
 }
 
 .form-group input:disabled {
-    background: #f1f5f9;
+    background: #f1f5f9 !important;
     cursor: not-allowed;
+    color: #000000 !important;
 }
 
 .login-button {
