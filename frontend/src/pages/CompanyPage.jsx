@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 const CompanyPage = () => {
     const { language } = useLanguage();
     const t = translations[language] || translations.vi;
-    
+
     // Refs cho GSAP animations
     const heroRef = useRef(null);
     const servicesRef = useRef(null);
@@ -27,9 +27,9 @@ const CompanyPage = () => {
             const description = hero.querySelector('.hero-description');
             const tagline = hero.querySelector('.hero-tagline');
             const button = hero.querySelector('.btn-primary');
-            
+
             const tl = gsap.timeline();
-            
+
             if (tagline) {
                 tl.fromTo(
                     tagline,
@@ -37,7 +37,7 @@ const CompanyPage = () => {
                     { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
                 );
             }
-            
+
             if (title) {
                 tl.fromTo(
                     title,
@@ -46,7 +46,7 @@ const CompanyPage = () => {
                     '-=0.3'
                 );
             }
-            
+
             if (description) {
                 tl.fromTo(
                     description,
@@ -55,7 +55,7 @@ const CompanyPage = () => {
                     '-=0.5'
                 );
             }
-            
+
             if (button) {
                 tl.fromTo(
                     button,
@@ -91,7 +91,7 @@ const CompanyPage = () => {
         // Animate cards trong services và why sections
         const serviceCards = servicesRef.current?.querySelectorAll('.service-card');
         const whyCards = whyRef.current?.querySelectorAll('.why-card');
-        
+
         if (serviceCards && serviceCards.length > 0) {
             serviceCards.forEach((card, index) => {
                 gsap.fromTo(
@@ -113,7 +113,7 @@ const CompanyPage = () => {
                 );
             });
         }
-        
+
         if (whyCards && whyCards.length > 0) {
             whyCards.forEach((card, index) => {
                 gsap.fromTo(
