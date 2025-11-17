@@ -107,12 +107,6 @@
     font-size: 14px;
     transition: all 0.3s;
     outline: none;
-    color: #000000;
-    background-color: #ffffff;
-}
-
-.form-group input::placeholder {
-    color: #94a3b8;
 }
 
 .form-group input:focus {
@@ -123,7 +117,6 @@
 .form-group input:disabled {
     background: #f1f5f9;
     cursor: not-allowed;
-    color: #000000;
 }
 
 .login-button {
