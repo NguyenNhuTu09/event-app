@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import './Hero.css';
-import heroImage from '../../assets/images/pexels-mat-brown-150387-1395967.jpg';
 import { useLanguage } from '../../context/LanguageContext';
 import translations from '../../translate/translations';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import LightBeamEffect from './LightBeamEffect';
+import heroBanner from '../../assets/images/pexels-mat-brown-150387-1395967 (1).jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,7 +62,7 @@ const Hero = () => {
         <section className="hero" ref={heroRef}>
             <div className="hero-background">
                 <img
-                    src={heroImage}
+                    src={heroBanner}
                     alt="Hero Banner"
                     className="hero-background-image"
                 />

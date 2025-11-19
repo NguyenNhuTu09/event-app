@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'; // Import auth hook
 import translations from '../../translate/translations'; // Import file dịch
 import { path } from '../../utils/constant';
 import LoginModal from '../auth/LoginModal/LoginModal';
+import logoImage from '../../assets/images/LOGO WEBIE ENENT-01.png';
 
 // Đăng ký ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -71,12 +72,15 @@ const Header = ({ onLoginClick }) => {
                     ease: 'power2.out'
                 });
                 // Shrink logo
-                gsap.to(logo, {
-                    fontSize: '20px',
-                    scale: 0.9,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
+                const logoImg = logo.querySelector('.logo-image');
+                if (logoImg) {
+                    gsap.to(logoImg, {
+                        height: '50px',
+                        scale: 0.9,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                }
                 // Shrink nav links
                 gsap.to(navLinks.querySelectorAll('a'), {
                     fontSize: '14px',
@@ -102,12 +106,15 @@ const Header = ({ onLoginClick }) => {
                     ease: 'power2.out'
                 });
                 // Expand logo
-                gsap.to(logo, {
-                    fontSize: '24px',
-                    scale: 1,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
+                const logoImg = logo.querySelector('.logo-image');
+                if (logoImg) {
+                    gsap.to(logoImg, {
+                        height: '60px',
+                        scale: 1,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                }
                 // Expand nav links
                 gsap.to(navLinks.querySelectorAll('a'), {
                     fontSize: '16px',
@@ -143,8 +150,7 @@ const Header = ({ onLoginClick }) => {
                 <nav>
                     <div className="logo">
                         <Link to={path.HOME} ref={logoRef}>
-                            <span className="logo-text">Event Website</span>
-                            <i className="bi bi-fire"></i>
+                            <img src={logoImage} alt="Webie Event" className="logo-image" />
                         </Link>
                     </div>
 
@@ -152,7 +158,6 @@ const Header = ({ onLoginClick }) => {
                         ref={navLinksRef}
                         className="nav-links-desktop"
                     >
-                        <li><Link to={path.INDUSTRIES}>{t.navIndustries}</Link></li>
                         <li><Link to={path.SOLUTIONS}>{t.navSolutions}</Link></li>
                         <li><Link to={path.RESOURCES}>{t.navResources}</Link></li>
                         <li><Link to={path.SUPPORT}>{t.navSupport}</Link></li>
@@ -192,14 +197,13 @@ const Header = ({ onLoginClick }) => {
                         </div>
                     </div>
 
-                    <div 
+                    <div
                         className={`mobile-menu ${isMenuOpen ? 'active' : ''}`}
                         style={{
                             top: scrolledState ? '60px' : '80px',
                             height: scrolledState ? 'calc(100vh - 60px)' : 'calc(100vh - 80px)'
                         }}
                     >
-                        <Link to={path.INDUSTRIES} onClick={() => setIsMenuOpen(false)}>{t.navIndustries}</Link>
                         <Link to={path.SOLUTIONS} onClick={() => setIsMenuOpen(false)}>{t.navSolutions}</Link>
                         <Link to={path.RESOURCES} onClick={() => setIsMenuOpen(false)}>{t.navResources}</Link>
                         <Link to={path.SUPPORT} onClick={() => setIsMenuOpen(false)}>{t.navSupport}</Link>

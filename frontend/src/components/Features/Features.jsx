@@ -5,7 +5,7 @@ import translations from '../../translate/translations';
 
 import videoConfImage from '../../assets/images/EMS Classroom Scheduling Software.webp';
 import classroomImage from '../../assets/images/Videoconferencing Herowebp.webp';
-import eventImage from '../../assets/images/Ems Conference.jpg';
+import eventImage from '../../assets/images/OIP.jpg';
 
 const Features = () => {
     const { language } = useLanguage();
@@ -21,21 +21,6 @@ const Features = () => {
             image: classroomImage,
             title: t.feature2Title,
             description: t.feature2Desc,
-        },
-        {
-            image: eventImage,
-            title: t.feature3Title,
-            description: t.feature3Desc,
-        },
-        {
-            image: eventImage,
-            title: t.feature3Title,
-            description: t.feature3Desc,
-        },
-        {
-            image: eventImage,
-            title: t.feature3Title,
-            description: t.feature3Desc,
         },
         {
             image: eventImage,

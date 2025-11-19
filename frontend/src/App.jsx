@@ -7,7 +7,6 @@ import AdminLayout from './container/AdminLayout';
 import ProtectedRoute from './components/admin/ProtectedRoute';
 
 import HomePage from './pages/HomePage';
-import IndustriesPage from './pages/IndustriesPage';
 import SolutionsPage from './pages/SolutionsPage';
 import ResourcesPage from './pages/ResourcesPage';
 import SupportPage from './pages/SupportPage';
@@ -42,7 +41,6 @@ function App() {
 
         <Route path={path.HOME} element={<ClientLayout />}>
           <Route index element={<HomePage />} />
-          <Route path={path.INDUSTRIES} element={<IndustriesPage />} />
           <Route path={path.SOLUTIONS} element={<SolutionsPage />} />
           <Route path={path.RESOURCES} element={<ResourcesPage />} />
           <Route path={path.SUPPORT} element={<SupportPage />} />

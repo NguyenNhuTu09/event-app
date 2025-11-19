@@ -1,46 +1,64 @@
 import React from "react";
-
 import { useLanguage } from '../../context/LanguageContext';
 import translations from '../../translate/translations';
 import './Customer.css';
-import D8C97B6 from '../../assets/images/D8C97B-6.jpg';
-import D8C97B9 from '../../assets/images/D8C97B-9.jpg';
-import D8C97B10 from '../../assets/images/D8C97B-10.jpg';
-import D8C97B12 from '../../assets/images/D8C97B-12.jpg';
-import CTBCN from '../../assets/images/CTBCN-1-1.jpg';
-import Logicross from '../../assets/images/Logicross-Logo.pdf-1-1.png.webp';
-import Ogawa from '../../assets/images/Logo-Ogawa.webp';
-import GLLogo from '../../assets/images/gl-logo.webp';
+
+// Import các logo công ty đối tác
+import glLogo from '../../assets/images/gl-logo.webp';
+import mgvLogo from '../../assets/images/MGV-logo-white.webp';
+import logicrossLogo from '../../assets/images/Logicross-Logo.pdf-1-1.png.webp';
+import ctbcnLogo from '../../assets/images/CTBCN-1-1.webp';
+import ipcLogo from '../../assets/images/IPC-Logo-trang-ko-nen-e1740325775423.webp';
+import mmaLogo from '../../assets/images/MMA_Logo-White_edited.webp';
+import ogawaLogo from '../../assets/images/Logo-Ogawa.webp';
+import logoWhite from '../../assets/images/logo-white-e1738741553712-300x101-1.webp';
 
 const Customer = () => {
     const { language } = useLanguage();
     const t = translations[language] || translations.vi;
 
-    const customerData = [
+    // Danh sách các logo công ty đối tác
+    const partnerLogos = [
         {
-            image: D8C97B6,
+            name: 'Savills',
+            logo: logoWhite,
         },
         {
-            image: D8C97B9,
+            name: 'GAMUDA LAND',
+            logo: glLogo,
         },
         {
-            image: D8C97B10,
+            name: 'MGV',
+            logo: mgvLogo,
         },
         {
-            image: D8C97B12,
+            name: 'mde pub consultants',
+            logo: logoWhite,
         },
         {
-            image: CTBCN,
+            name: 'Logicross',
+            logo: logicrossLogo,
         },
         {
-            image: Logicross,
+            name: 'MINH NGUYENDESIGN',
+            logo: logoWhite,
         },
         {
-            image: Ogawa,
+            name: 'CTBCN ENGINEERING',
+            logo: ctbcnLogo,
         },
         {
-            image: GLLogo,
-        }
+            name: 'INTERCONTINENTAL (IPC) PROPERTY',
+            logo: ipcLogo,
+        },
+        {
+            name: 'MARKET MINDS ASIA',
+            logo: mmaLogo,
+        },
+        {
+            name: 'OGAWA',
+            logo: ogawaLogo,
+        },
     ];
 
     return (
@@ -51,17 +69,15 @@ const Customer = () => {
             </div>
             <div className="container-content">
                 <div className="container-logos">
-                    {customerData.map((customer, index) => (
+                    {partnerLogos.map((partner, index) => (
                         <div key={index} className="customer-item">
-                            <img src={customer.image} alt={`customer-${index}`} />
+                            <img src={partner.logo} alt={partner.name} />
                         </div>
                     ))}
                 </div>
             </div>
-            <button className="customer-demo">Demo</button>
         </div>
     )
 }
 
 export default Customer;
-
