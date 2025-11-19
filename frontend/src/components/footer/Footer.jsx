@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import translations from '../../translate/translations';
 import { path } from '../../utils/constant';
 import './Footer.css';
+import logoImage from '../../assets/images/LOGO WEBIE ENENT-01.png';
 
 const Footer = () => {
     const { language } = useLanguage();
@@ -33,8 +34,7 @@ const Footer = () => {
                     <div className="footer-section">
                         <div className="footer-logo">
                             <Link to={path.HOME}>
-                                <span className="logo-text">Event Website</span>
-                                <i className="bi bi-fire"></i>
+                                <img src={logoImage} alt="Webie Event" className="footer-logo-image" />
                             </Link>
                         </div>
                         <p className="footer-description">
@@ -151,7 +151,7 @@ const Footer = () => {
                 <div className="footer-bottom">
                     <div className="footer-bottom-content">
                         <p className="copyright">
-                            &copy; {currentYear} Event Website. {t.footerAllRightsReserved || 'Tất cả quyền được bảo lưu.'}
+                            &copy; {currentYear} Webie Event. {t.footerAllRightsReserved || 'Tất cả quyền được bảo lưu.'}
                         </p>
                         <div className="footer-bottom-links">
                             <a href="#">{t.footerPrivacy || 'Bảo Mật'}</a>

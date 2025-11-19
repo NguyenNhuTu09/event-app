@@ -25,9 +25,9 @@ header {
 
 header .container {
     width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 0 15px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
 }
 
 header.scrolled {
@@ -53,54 +53,43 @@ header nav {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    gap: 20px;
+}
+
+.logo {
+    flex-shrink: 0;
+}
+
+.nav-links-desktop {
+    flex: 1;
+    justify-content: center;
+    margin: 0 auto;
 }
 
 .logo a {
     text-decoration: none;
-    color: #ffffff;
-    font-size: 24px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    /* Glow cho logo text - Màu trắng sáng */
-    text-shadow: 
-        0 0 10px rgba(255, 255, 255, 0.5),
-        0 0 20px rgba(255, 255, 255, 0.3),
-        0 2px 4px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
-    will-change: font-size, transform;
+    will-change: transform;
+}
+
+.logo-image {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
 }
 
 /* Dynamic Navbar Resize - Logo co lại khi scroll */
-header.shrink .logo a {
-    font-size: 20px;
+header.shrink .logo-image {
+    height: 50px;
     transform: scale(0.9);
 }
 
 .logo a:hover {
-    text-shadow: 
-        0 0 15px rgba(255, 255, 255, 0.8),
-        0 0 30px rgba(255, 255, 255, 0.5),
-        0 0 45px rgba(255, 255, 255, 0.3);
-}
-
-.logo i {
-    color: #e63946;
-    font-size: 22px;
-    position: relative;
-    top: -1px;
-    /* Neon Glow cho icon */
-    filter: drop-shadow(0 0 8px rgba(230, 57, 70, 0.6));
-    animation: neon-pulse 2s ease-in-out infinite;
-}
-
-@keyframes neon-pulse {
-    0%, 100% {
-        filter: drop-shadow(0 0 8px rgba(230, 57, 70, 0.6));
-    }
-    50% {
-        filter: drop-shadow(0 0 15px rgba(230, 57, 70, 0.9));
-    }
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
 /* --- MENU DESKTOP --- */
@@ -152,6 +141,7 @@ header.shrink .nav-links-desktop a {
     gap: 25px;
     transition: all 0.3s ease-in-out;
     will-change: gap, font-size;
+    flex-shrink: 0;
 }
 
 /* Dynamic Navbar Resize - Nav actions co lại khi scroll */
@@ -232,6 +222,9 @@ header.shrink .nav-actions {
 
 /* --- MEDIA QUERY CHO RESPONSIVE --- */
 @media (max-width: 992px) {
+    header .container {
+        padding: 0 20px;
+    }
 
     /* Ẩn các thành phần của desktop */
     .nav-links-desktop,
