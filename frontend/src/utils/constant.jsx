@@ -6,6 +6,7 @@ export const path = {
     SUPPORT: '/support',
     COMPANY: '/company',
     CONTACT: '/contact',
+    EVENTS: '/events',
     // CUSTOMER: '/customer',
 
     // === SUPER ADMIN FLOW (Admin hệ thống - quản lý tất cả) ===

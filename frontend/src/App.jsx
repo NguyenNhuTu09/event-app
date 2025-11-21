@@ -12,6 +12,7 @@ import ResourcesPage from './pages/ResourcesPage';
 import SupportPage from './pages/SupportPage';
 import CompanyPage from './pages/CompanyPage';
 import ContactPage from './pages/ContactPage';
+import EventsPage from './pages/EventsPage';
 import OAuth2RedirectPage from './pages/OAuth2RedirectPage';
 
 import AdminLogin from './pages/admin/login';
@@ -46,6 +47,7 @@ function App() {
           <Route path={path.SUPPORT} element={<SupportPage />} />
           <Route path={path.COMPANY} element={<CompanyPage />} />
           <Route path={path.CONTACT} element={<ContactPage />} />
+          <Route path={path.EVENTS} element={<EventsPage />} />
         </Route>
 
 
