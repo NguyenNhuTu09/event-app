@@ -1,4 +1,4 @@
-package com.example.backend.Service.ServiceImpl;
+package com.example.backend.Service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,9 +15,6 @@ import com.example.backend.DTO.Response.JwtResponse;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
-import com.example.backend.Service.JwtService;
-import com.example.backend.Service.OneTimeCodeService;
-import com.example.backend.Service.RefreshTokenService;
 import com.example.backend.Utils.AuthProvider;
 import com.example.backend.Utils.Role;
 
