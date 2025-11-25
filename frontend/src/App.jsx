@@ -14,6 +14,7 @@ import CompanyPage from './pages/CompanyPage';
 import ContactPage from './pages/ContactPage';
 import EventsPage from './pages/EventsPage';
 import OAuth2RedirectPage from './pages/OAuth2RedirectPage';
+import PartnerRegistrationPage from './pages/PartnerRegistrationPage';
 
 import AdminLogin from './pages/admin/login';
 import AdminDashboard from './pages/admin/dashboard';
@@ -48,6 +49,7 @@ function App() {
           <Route path={path.COMPANY} element={<CompanyPage />} />
           <Route path={path.CONTACT} element={<ContactPage />} />
           <Route path={path.EVENTS} element={<EventsPage />} />
+          <Route path={path.PARTNER_REGISTER} element={<PartnerRegistrationPage />} />
         </Route>
 
 

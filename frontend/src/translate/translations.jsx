@@ -313,6 +313,29 @@ const translations = {
         eventRegistrationSuccess: 'Registration Successful!',
         eventRegistrationSuccessDesc: 'Thank you for registering. We have sent a confirmation email to your inbox.',
         eventRegistrationEmailSent: 'Confirmation email sent to',
+        // partner register
+        navPartnerRegister: ' Registration',
+        partnerRegisterTitle: "Register as an Event Partner",
+        partnerRegisterSubtitle: 'Please fill in your company details to get started.',
+        partnerSectionCompany: '	Organization Details',
+        partnerSectionRepresentative: 'Representative Details',
+        partnerCompanyName: 'Company/Organization Name',
+        partnerCompanyNamePlaceholder: 'E.g.: Webie Co., Ltd',
+        partnerIndustry: '	Industry Focus',
+        partnerSelectIndustry: 'Select Industry',
+        partnerFormName: 'Representative Full Name',
+        partnerFormEmail: 'Work Email',
+        partnerFormEmailPlaceholder: 'E.g.: contact@webie.com',
+        partnerFormPhone: 'Phone Number',
+        partnerAgreement: 'I have read and agree to the Partner Terms and Conditions.',
+        partnerSubmitButton: 'Complete Registration',
+        partnerFormSubmitting: '	Submitting...',
+        partnerAlreadyHaveAccount: 'Already have a partner account?',
+        partnerRegisterSuccess: 'Registration Successful!',
+        partnerRegisterSuccessDesc: 'We have received your request. Temporary login credentials have been sent to your email.',
+        partnerTempPasswordInfo: 'Please check your email (including spam folder). Here are your temporary credentials:',
+        partnerFormTempPassword: 'Temporary Password',
+        partnerEmailSubject: '	Webie Events Partner Registration Confirmation',
     },
     vi: {
         // Header
@@ -629,6 +652,32 @@ const translations = {
         eventRegistrationSuccess: 'Đăng Ký Thành Công!',
         eventRegistrationSuccessDesc: 'Cảm ơn bạn đã đăng ký. Chúng tôi đã gửi email xác nhận đến hộp thư của bạn.',
         eventRegistrationEmailSent: 'Email xác nhận đã được gửi đến',
+        // Pattner Register
+        navPartnerRegister: 'Đăng Ký ', // KHÓA MỚI
+
+        partnerRegisterTitle: "Đăng ký trở thành Đối tác Tổ chức Sự kiện",
+        partnerRegisterSubtitle: "Vui lòng điền thông tin công ty của bạn để bắt đầu.",
+        partnerSectionCompany: "Thông tin Doanh nghiệp",
+        partnerSectionRepresentative: "Thông tin Người đại diện",
+        partnerCompanyName: "Tên Công ty/Tổ chức",
+        partnerCompanyNamePlaceholder: "Ví dụ: Công ty TNHH Webie",
+        partnerIndustry: "Lĩnh vực Hoạt động",
+        partnerSelectIndustry: "Chọn Lĩnh vực",
+        partnerFormName: "Họ và Tên Người đại diện",
+        partnerFormEmail: "Email Công việc",
+        partnerFormEmailPlaceholder: "Ví dụ: contact@webie.com",
+        partnerFormPhone: "Số Điện thoại",
+        partnerAgreement: "Tôi đã đọc và đồng ý với Điều khoản và Điều kiện dành cho Đối tác.",
+        partnerSubmitButton: "Hoàn tất Đăng ký",
+        partnerFormSubmitting: "Đang gửi...",
+        partnerAlreadyHaveAccount: "Bạn đã có tài khoản đối tác?",
+        partnerRegisterSuccess: "Đăng ký Thành công!",
+        partnerRegisterSuccessDesc: "Chúng tôi đã nhận được yêu cầu. Thông tin đăng nhập tạm thời đã được gửi đến email của bạn.",
+        partnerTempPasswordInfo: "Vui lòng kiểm tra email (kể cả thư mục spam). Đây là thông tin đăng nhập tạm thời:",
+        partnerFormTempPassword: "Mật khẩu Tạm thời",
+        partnerEmailSubject: "Xác nhận Đăng ký Đối tác Sự kiện Webie",
+
+
     }
 };
 

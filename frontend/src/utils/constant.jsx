@@ -8,7 +8,7 @@ export const path = {
     CONTACT: '/contact',
     EVENTS: '/events',
     // CUSTOMER: '/customer',
-
+    PARTNER_REGISTER: '/partner/register', // dang ky cho doi tac 
     // === SUPER ADMIN FLOW (Admin hệ thống - quản lý tất cả) ===
     SUPER_ADMIN_LOGIN: '/admin/login', // Trang đăng nhập cho super-admin
     SUPER_ADMIN_SYSTEM: '/system',
