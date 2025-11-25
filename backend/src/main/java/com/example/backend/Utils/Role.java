@@ -2,5 +2,7 @@ package com.example.backend.Utils;
 
 public enum Role {
     USER,
-    ADMIN
+    SADMIN,
+    ORGANIZER,
+    STUDENT_UNION
 }

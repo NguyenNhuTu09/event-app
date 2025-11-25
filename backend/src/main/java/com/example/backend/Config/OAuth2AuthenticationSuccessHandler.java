@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.backend.Models.Entity.User;
-import com.example.backend.Service.JwtService;
+import com.example.backend.Service.AuthService;
 import com.example.backend.Service.OneTimeCodeService;
-import com.example.backend.Service.ServiceImpl.AuthService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
-    private final JwtService jwtService;
     private final OneTimeCodeService oneTimeCodeService;
 
     @Override
@@ -37,7 +35,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String picture = oauthUser.getAttribute("picture");
         User user = authService.processOAuthPostLogin(email, name, picture);
         String oneTimeCode = oneTimeCodeService.generateAndStoreCode(user.getEmail());
-        // String jwtToken = jwtService.generateToken(user.getEmail());
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2/redirect")
                 .queryParam("token", oneTimeCode)
                 .build().toUriString();

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.DTO.ChangePasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
-import com.example.backend.Service.UserService;
+import com.example.backend.Service.Interface.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,9 +37,9 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Lấy danh sách tất cả người dùng (ADMIN)")
+    @Operation(summary = "Lấy danh sách tất cả người dùng (SADMIN)")
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
@@ -51,9 +51,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
 
-    @Operation(summary = "Lấy thông tin người dùng theo ID (ADMIN)")
+    @Operation(summary = "Lấy thông tin người dùng theo ID (SADMIN)")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
@@ -65,9 +65,9 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUserProfile(userUpdateDTO));
     }
 
-    @Operation(summary = "Xóa người dùng theo ID (ADMIN)")
+    @Operation(summary = "Xóa người dùng theo ID (SADMIN)")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("Người dùng với ID " + id + " đã được xóa thành công.");
@@ -85,9 +85,9 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Tìm người dùng theo email (Admin)")
+    @Operation(summary = "Tìm người dùng theo email (SADMIN)")
     @GetMapping("/search") 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<UserResponseDTO> findUserByEmail(
             @Parameter(description = "Email của người dùng cần tìm", required = true, example = "jane.doe@example.com")
             @RequestParam String email) {
