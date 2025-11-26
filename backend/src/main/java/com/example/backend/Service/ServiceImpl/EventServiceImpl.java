@@ -28,9 +28,19 @@ public class EventServiceImpl implements EventService {
     private final OrganizersRepository organizersRepository;
 
     private Organizers getCurrentOrganizer() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Organizers organizer = organizersRepository.findByUser_Username(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Bạn chưa đăng ký làm Organizer hoặc tài khoản không tồn tại."));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentIdentity;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            currentIdentity = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            currentIdentity = principal.toString();
+        }
+
+        final String emailToSearch = currentIdentity;
+
+        Organizers organizer = organizersRepository.findByUser_Email(emailToSearch)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn chưa đăng ký làm Organizer hoặc tài khoản không tồn tại (Email: " + emailToSearch + ")."));
         
         if (!organizer.isApproved()) {
             throw new IllegalArgumentException("Tài khoản Organizer của bạn chưa được phê duyệt.");

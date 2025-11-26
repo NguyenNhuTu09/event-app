@@ -37,17 +37,20 @@ public class OrganizersServiceImpl implements OrganizersService {
     @Override 
     @Transactional
     public OrganizersResponseDTO createOrganizer(OrganizersRequestDTO requestDTO){
-        String currentUsername = "";
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentIdentity; 
         if (principal instanceof UserDetails) {
-            currentUsername = ((UserDetails) principal).getUsername();
+            currentIdentity = ((UserDetails) principal).getUsername();
         } else {
-            currentUsername = principal.toString();
+            currentIdentity = principal.toString();
         }
-        User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng hiện tại."));
 
-        if (organizersRepository.existsByUser_Username(currentUsername)) {
+        final String emailToSearch = currentIdentity; 
+
+        User user = userRepository.findByEmail(emailToSearch) 
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email/username: " + emailToSearch));
+
+        if (organizersRepository.existsByUser(user)) {
              throw new IllegalArgumentException("Bạn đã đăng ký làm Nhà tổ chức rồi. Vui lòng chờ phê duyệt hoặc cập nhật thông tin.");
         }
 
@@ -67,6 +70,7 @@ public class OrganizersServiceImpl implements OrganizersService {
         newOrganizer.setContactEmail(requestDTO.getContactEmail());
         newOrganizer.setUser(user); 
         newOrganizer.setApproved(false); 
+        
         Organizers savedOrganizer = organizersRepository.save(newOrganizer);
         return convertToResponseDTO(savedOrganizer);
     }
