@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { path } from '../../../utils/constant';
+import { authAPI } from '../../../service/api';
 import './AdminLogin.css';
-
+import logoImageAdmin from '../../../assets/images/LOGO WEBIE ENENT-01.png';
 const AdminLogin = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: '',
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
-    // Hardcode credentials - Super Admin (Admin hệ thống)
-    const CREDENTIALS = {
-        'super-admin': {
-            username: 'admin',
-            password: 'admin123',
-            role: 'super-admin',
-        },
-    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -35,35 +27,54 @@ const AdminLogin = () => {
         setError('');
         setLoading(true);
 
-        // Simulate API call delay
-        setTimeout(() => {
-            // Check credentials for all roles
-            let authenticatedUser = null;
-            for (const [key, cred] of Object.entries(CREDENTIALS)) {
-                if (
-                    formData.username === cred.username &&
-                    formData.password === cred.password
-                ) {
-                    authenticatedUser = cred;
-                    break;
-                }
+        try {
+            // Call API to login
+            const response = await authAPI.login(formData.email, formData.password);
+
+            if (!response || !response.user) {
+                setError('Đăng nhập thất bại. Vui lòng thử lại.');
+                return;
             }
 
-            if (authenticatedUser) {
-                // Store session (hardcode)
-                localStorage.setItem('adminToken', `${authenticatedUser.role}_token_hardcoded`);
+            const userRole = response.user.role;
+
+            // Check if user has super-admin role (SADMIN)
+            if (userRole === 'SADMIN') {
+                // Store token and user info for super-admin
+                localStorage.setItem('adminToken', response.accessToken);
                 localStorage.setItem('adminUser', JSON.stringify({
-                    username: formData.username,
-                    role: authenticatedUser.role,
+                    username: response.user.username,
+                    email: response.user.email,
+                    role: 'super-admin', // Map SADMIN to super-admin for frontend
+                    userId: response.user.id,
                 }));
 
                 // Redirect to super-admin dashboard
                 navigate(path.SUPER_ADMIN_DASHBOARD);
-            } else {
-                setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
             }
+            // Check if user is an organizer (ORGANIZER role)
+            // Note: If user has ORGANIZER role, it means they have been approved
+            // (backend sets role to ORGANIZER when organizer is approved)
+            else if (userRole === 'ORGANIZER') {
+                // Organizer is approved - redirect to partner dashboard
+                localStorage.setItem('adminToken', response.accessToken);
+                localStorage.setItem('adminUser', JSON.stringify({
+                    username: response.user.username,
+                    email: response.user.email,
+                    role: 'partner',
+                    userId: response.user.id,
+                }));
+                navigate(path.PARTNER_DASHBOARD);
+            }
+            else {
+                setError('Tài khoản này không có quyền truy cập trang quản trị. Vui lòng đăng nhập với tài khoản Super Admin hoặc đối tác đã được duyệt.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
+        } finally {
             setLoading(false);
-        }, 500);
+        }
     };
 
     return (
@@ -71,7 +82,7 @@ const AdminLogin = () => {
             <div className="admin-login-box">
                 <div className="login-header">
                     <div className="login-logo">
-                        <i className="bi bi-fire"></i>
+                        <img src={logoImageAdmin} alt="Webie Event" className="logo-image" />
                     </div>
                     <h1>EMS Admin Panel</h1>
                     <p>Đăng nhập để quản lý hệ thống</p>
@@ -86,17 +97,17 @@ const AdminLogin = () => {
                     )}
 
                     <div className="form-group">
-                        <label htmlFor="username">
-                            <i className="bi bi-person"></i>
-                            Tên đăng nhập
+                        <label htmlFor="email">
+                            <i className="bi bi-envelope"></i>
+                            Email
                         </label>
                         <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
                             onChange={handleInputChange}
-                            placeholder="Nhập tên đăng nhập"
+                            placeholder="Nhập email đăng nhập"
                             required
                             disabled={loading}
                         />
@@ -138,9 +149,9 @@ const AdminLogin = () => {
                     </button>
 
                     <div className="login-info">
-                        <p><strong>Thông tin đăng nhập (Fake Data):</strong></p>
-                        <p><strong>Super Admin:</strong> <code>admin</code> / <code>admin123</code></p>
-                        <p><em>Lưu ý: Partner đăng nhập tại <a href={path.PARTNER_LOGIN} style={{color: '#3b82f6'}}>/partner/login</a></em></p>
+                        <p><strong>Đăng nhập Super Admin</strong></p>
+                        <p><em>Vui lòng sử dụng tài khoản có quyền SADMIN để đăng nhập</em></p>
+                        <p><em>Lưu ý: Partner đăng nhập tại <a href={path.PARTNER_LOGIN} style={{ color: '#3b82f6' }}>/partner/login</a></em></p>
                     </div>
                 </form>
             </div>

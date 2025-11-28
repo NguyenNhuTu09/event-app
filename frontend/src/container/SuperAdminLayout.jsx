@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { path } from '../utils/constant';
+import logoImageAdmin from '../assets/images/LOGO WEBIE ENENT-01.png';
 import './AdminLayout.css';
 
 const SuperAdminLayout = () => {
@@ -42,11 +43,11 @@ const SuperAdminLayout = () => {
             {/* Sidebar */}
             <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
                 <div className="sidebar-header">
-                    <h2 className="sidebar-logo">
-                        <i className="bi bi-fire"></i>
-                        {sidebarOpen && <span>EMS Super Admin</span>}
-                    </h2>
-                    <button 
+                    <div className="sidebar-logo">
+                        <img src={logoImageAdmin} alt="Webie Event" className="sidebar-logo-image" />
+                        {sidebarOpen && <span className="sidebar-logo-text">EMS Super Admin</span>}
+                    </div>
+                    <button
                         className="sidebar-toggle"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                     >
@@ -80,7 +81,7 @@ const SuperAdminLayout = () => {
                 {/* Top Bar */}
                 <header className="admin-header">
                     <div className="header-left">
-                        <button 
+                        <button
                             className="mobile-menu-toggle"
                             onClick={() => setSidebarOpen(!sidebarOpen)}
                         >
@@ -107,9 +108,9 @@ const SuperAdminLayout = () => {
                                     return 'User';
                                 })()}
                             </span>
-                            <span className="role-badge" style={{ 
-                                marginLeft: '10px', 
-                                padding: '4px 8px', 
+                            <span className="role-badge" style={{
+                                marginLeft: '10px',
+                                padding: '4px 8px',
                                 background: '#dc2626',
                                 borderRadius: '4px',
                                 fontSize: '12px',

@@ -1,68 +1,211 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { organizersAPI } from '../../../../service/organizers';
 import './ManagePartners.css';
 
 const ManagePartners = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [partners, setPartners] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [processingId, setProcessingId] = useState(null);
 
-    // Hardcode partners data
-    const [partners, setPartners] = useState([
-        { id: 1, name: 'Partner A', email: 'partnera@example.com', status: 'Hoạt động', events: 45, users: 1200, created: '2024-01-10' },
-        { id: 2, name: 'Partner B', email: 'partnerb@example.com', status: 'Hoạt động', events: 32, users: 890, created: '2024-01-15' },
-        { id: 3, name: 'Partner C', email: 'partnerc@example.com', status: 'Tạm dừng', events: 18, users: 450, created: '2024-01-20' },
-        { id: 4, name: 'Partner D', email: 'partnerd@example.com', status: 'Hoạt động', events: 67, users: 2100, created: '2024-01-25' },
-        { id: 5, name: 'Partner E', email: 'partnere@example.com', status: 'Hoạt động', events: 89, users: 3200, created: '2024-02-01' },
-    ]);
+    // Fetch organizers from API
+    useEffect(() => {
+        fetchOrganizers();
+    }, []);
+
+    const fetchOrganizers = async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const response = await organizersAPI.getAllOrganizers();
+            
+            // Normalize the response data to handle both isApproved and approved fields
+            // Also handle both boolean and number (1/0) formats from database
+            const normalizedPartners = (response || []).map(partner => {
+                // Check isApproved first (from backend DTO), then approved (fallback)
+                let approvedValue = false;
+                if (partner.isApproved !== undefined && partner.isApproved !== null) {
+                    // Handle boolean true/false or number 1/0
+                    approvedValue = partner.isApproved === true || partner.isApproved === 1 || partner.isApproved === '1';
+                } else if (partner.approved !== undefined && partner.approved !== null) {
+                    // Fallback to approved field
+                    approvedValue = partner.approved === true || partner.approved === 1 || partner.approved === '1';
+                }
+                
+                return {
+                    ...partner,
+                    approved: approvedValue,
+                    isApproved: approvedValue // Ensure both fields are set
+                };
+            });
+            
+            setPartners(normalizedPartners);
+        } catch (err) {
+            console.error('Error fetching organizers:', err);
+            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleApprove = async (organizerId) => {
+        if (!window.confirm('Bạn có chắc chắn muốn duyệt đăng ký này? Email thông báo sẽ được gửi tự động đến người đăng ký.')) {
+            return;
+        }
+
+        try {
+            setProcessingId(organizerId);
+            setError('');
+            setSuccessMessage('');
+            
+            // Call API to approve organizer
+            const response = await organizersAPI.approveOrganizer(organizerId);
+            
+            // Normalize the approved value from response
+            const approvedValue = response.isApproved === true || response.isApproved === 1 || 
+                                 response.approved === true || response.approved === 1;
+            
+            // Update local state immediately using response data
+            setPartners(prevPartners => 
+                prevPartners.map(partner => {
+                    if (partner.organizerId === organizerId) {
+                        return {
+                            ...partner,
+                            ...response, // Spread all response data
+                            approved: approvedValue,
+                            isApproved: approvedValue
+                        };
+                    }
+                    return partner;
+                })
+            );
+            
+            setSuccessMessage('Đã duyệt đăng ký thành công! Email thông báo đã được gửi đến người đăng ký.');
+            
+            // Refresh list to get latest data from server (with a small delay to ensure DB is updated)
+            setTimeout(async () => {
+                await fetchOrganizers();
+            }, 500);
+            
+            // Clear success message after 5 seconds
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (err) {
+            console.error('Error approving organizer:', err);
+            const errorMsg = err.message || 'Không thể duyệt đăng ký. Vui lòng thử lại.';
+            setError(errorMsg);
+            
+            // If error, refresh list to ensure UI is in sync with server
+            await fetchOrganizers();
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const handleReject = async (organizerId) => {
+        if (!window.confirm('Bạn có chắc chắn muốn từ chối đăng ký này? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+
+        try {
+            setProcessingId(organizerId);
+            setError('');
+            setSuccessMessage('');
+            
+            // Call API to delete/reject organizer
+            await organizersAPI.deleteOrganizer(organizerId);
+            
+            // Remove from local state immediately for better UX
+            setPartners(prevPartners => 
+                prevPartners.filter(partner => partner.organizerId !== organizerId)
+            );
+            
+            setSuccessMessage('Đã từ chối đăng ký thành công!');
+            
+            // Refresh list to get latest data from server
+            await fetchOrganizers();
+            
+            // Clear success message after 5 seconds
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (err) {
+            console.error('Error rejecting organizer:', err);
+            const errorMsg = err.message || 'Không thể từ chối đăng ký. Vui lòng thử lại.';
+            setError(errorMsg);
+            
+            // If error, refresh list to ensure UI is in sync with server
+            await fetchOrganizers();
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const getStatusLabel = (approved) => {
+        return approved ? 'Đã duyệt' : 'Chờ duyệt';
+    };
+
+    const getStatusClass = (approved) => {
+        return approved ? 'status-approved' : 'status-pending';
+    };
 
     const filteredPartners = partners.filter(partner => {
-        const matchesSearch = partner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            partner.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterStatus === 'all' || partner.status === filterStatus;
+        const matchesSearch = 
+            (partner.name && partner.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (partner.contactEmail && partner.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (partner.username && partner.username.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        const matchesStatus = 
+            filterStatus === 'all' ||
+            (filterStatus === 'approved' && partner.approved) ||
+            (filterStatus === 'pending' && !partner.approved);
+        
         return matchesSearch && matchesStatus;
     });
 
-    const handleAddPartner = (partnerData) => {
-        const newPartner = {
-            id: partners.length + 1,
-            name: partnerData.name,
-            email: partnerData.email,
-            status: 'Hoạt động',
-            events: 0,
-            users: 0,
-            created: new Date().toISOString().split('T')[0],
-        };
+    const pendingCount = partners.filter(p => !p.approved).length;
+    const approvedCount = partners.filter(p => p.approved).length;
 
-        setPartners(prev => [...prev, newPartner]);
-    };
-
-    const handleToggleStatus = (partnerId) => {
-        setPartners(prev => prev.map(partner => 
-            partner.id === partnerId 
-                ? { ...partner, status: partner.status === 'Hoạt động' ? 'Tạm dừng' : 'Hoạt động' }
-                : partner
-        ));
-    };
+    if (loading) {
+        return (
+            <div className="manage-partners">
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                    <p>Đang tải danh sách đối tác...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="manage-partners">
             <div className="page-header">
                 <div>
-                    <h2>Quản lý Partner</h2>
-                    <p>Quản lý tất cả các partner (admin) trong hệ thống</p>
+                    <h2>Quản lý Đối tác (Organizers)</h2>
+                    <p>Duyệt hoặc từ chối đăng ký làm nhà tổ chức sự kiện</p>
                 </div>
-                <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-                    <i className="bi bi-plus-circle"></i>
-                    Thêm Partner
-                </button>
             </div>
+
+            {error && (
+                <div className="alert alert-error">
+                    <i className="bi bi-exclamation-circle"></i>
+                    {error}
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="alert alert-success">
+                    <i className="bi bi-check-circle"></i>
+                    {successMessage}
+                </div>
+            )}
 
             <div className="filters-bar">
                 <div className="search-box">
                     <i className="bi bi-search"></i>
                     <input
                         type="text"
-                        placeholder="Tìm kiếm theo tên hoặc email..."
+                        placeholder="Tìm kiếm theo tên, email hoặc username..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -71,28 +214,24 @@ const ManagePartners = () => {
                     <label>Lọc theo trạng thái:</label>
                     <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                         <option value="all">Tất cả</option>
-                        <option value="Hoạt động">Hoạt động</option>
-                        <option value="Tạm dừng">Tạm dừng</option>
+                        <option value="pending">Chờ duyệt</option>
+                        <option value="approved">Đã duyệt</option>
                     </select>
                 </div>
             </div>
 
             <div className="stats-summary">
                 <div className="stat-item">
-                    <span className="stat-label">Tổng số Partner</span>
+                    <span className="stat-label">Tổng số đăng ký</span>
                     <span className="stat-value">{partners.length}</span>
                 </div>
-                <div className="stat-item">
-                    <span className="stat-label">Partner Hoạt động</span>
-                    <span className="stat-value">{partners.filter(p => p.status === 'Hoạt động').length}</span>
+                <div className="stat-item stat-item-warning">
+                    <span className="stat-label">Chờ duyệt</span>
+                    <span className="stat-value">{pendingCount}</span>
                 </div>
-                <div className="stat-item">
-                    <span className="stat-label">Tổng số Event</span>
-                    <span className="stat-value">{partners.reduce((sum, p) => sum + p.events, 0)}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Tổng số User</span>
-                    <span className="stat-value">{partners.reduce((sum, p) => sum + p.users, 0)}</span>
+                <div className="stat-item stat-item-success">
+                    <span className="stat-label">Đã duyệt</span>
+                    <span className="stat-value">{approvedCount}</span>
                 </div>
             </div>
 
@@ -101,12 +240,12 @@ const ManagePartners = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Tên Partner</th>
-                            <th>Email</th>
+                            <th>Tên đối tác</th>
+                            <th>Email liên hệ</th>
+                            <th>Username</th>
+                            <th>Số điện thoại</th>
                             <th>Trạng thái</th>
-                            <th>Số Event</th>
-                            <th>Số User</th>
-                            <th>Ngày tạo</th>
+                            <th>Ngày đăng ký</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -114,48 +253,66 @@ const ManagePartners = () => {
                         {filteredPartners.length === 0 ? (
                             <tr>
                                 <td colSpan={8} className="no-data">
-                                    Không tìm thấy partner nào
+                                    {partners.length === 0 
+                                        ? 'Chưa có đăng ký nào' 
+                                        : 'Không tìm thấy đối tác nào phù hợp'}
                                 </td>
                             </tr>
                         ) : (
                             filteredPartners.map((partner) => (
-                                <tr key={partner.id}>
-                                    <td>#{partner.id}</td>
+                                <tr key={partner.organizerId}>
+                                    <td>#{partner.organizerId}</td>
                                     <td>
                                         <div className="partner-info">
                                             <div className="partner-avatar">
-                                                {partner.name.charAt(0)}
+                                                {partner.name ? partner.name.charAt(0).toUpperCase() : '?'}
                                             </div>
-                                            <span>{partner.name}</span>
+                                            <span>{partner.name || 'N/A'}</span>
                                         </div>
                                     </td>
-                                    <td>{partner.email}</td>
+                                    <td>{partner.contactEmail || 'N/A'}</td>
+                                    <td>{partner.username || 'N/A'}</td>
+                                    <td>{partner.contactPhoneNumber || 'N/A'}</td>
                                     <td>
-                                        <span className={`status-badge status-${partner.status.toLowerCase().replace(/\s/g, '-')}`}>
-                                            {partner.status}
+                                        <span className={`status-badge ${getStatusClass(partner.approved)}`}>
+                                            {getStatusLabel(partner.approved)}
                                         </span>
                                     </td>
-                                    <td>{partner.events}</td>
-                                    <td>{partner.users}</td>
-                                    <td>{partner.created}</td>
+                                    <td>
+                                        {partner.userId ? `User ID: ${partner.userId}` : 'N/A'}
+                                    </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon" title="Xem chi tiết">
-                                                <i className="bi bi-eye"></i>
-                                            </button>
-                                            <button className="btn-icon" title="Chỉnh sửa">
-                                                <i className="bi bi-pencil"></i>
+                                            {!partner.approved ? (
+                                                <>
+                                                    <button 
+                                                        className="btn-icon btn-success" 
+                                                        title="Duyệt đăng ký"
+                                                        onClick={() => handleApprove(partner.organizerId)}
+                                                        disabled={processingId === partner.organizerId}
+                                                    >
+                                                        {processingId === partner.organizerId ? (
+                                                            <span className="spinner-small"></span>
+                                                        ) : (
+                                                            <i className="bi bi-check-circle"></i>
+                                                        )}
                                             </button>
                                             <button 
-                                                className="btn-icon" 
-                                                title={partner.status === 'Hoạt động' ? 'Tạm dừng' : 'Kích hoạt'}
-                                                onClick={() => handleToggleStatus(partner.id)}
-                                            >
-                                                <i className={`bi ${partner.status === 'Hoạt động' ? 'bi-pause-circle' : 'bi-play-circle'}`}></i>
+                                                        className="btn-icon btn-danger" 
+                                                        title="Từ chối đăng ký"
+                                                        onClick={() => handleReject(partner.organizerId)}
+                                                        disabled={processingId === partner.organizerId}
+                                                    >
+                                                        {processingId === partner.organizerId ? (
+                                                            <span className="spinner-small"></span>
+                                                        ) : (
+                                                            <i className="bi bi-x-circle"></i>
+                                                        )}
                                             </button>
-                                            <button className="btn-icon btn-danger" title="Xóa">
-                                                <i className="bi bi-trash"></i>
-                                            </button>
+                                                </>
+                                            ) : (
+                                                <span className="text-muted">Đã duyệt</span>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -164,63 +321,8 @@ const ManagePartners = () => {
                     </tbody>
                 </table>
             </div>
-
-            <div className="pagination">
-                <button className="page-btn" disabled>
-                    <i className="bi bi-chevron-left"></i>
-                </button>
-                <span className="page-info">Trang 1 / 1</span>
-                <button className="page-btn" disabled>
-                    <i className="bi bi-chevron-right"></i>
-                </button>
-            </div>
-
-            {/* Add Partner Modal - Simple version */}
-            {isModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Thêm Partner mới</h3>
-                            <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-                                <i className="bi bi-x"></i>
-                            </button>
-                        </div>
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.target);
-                            handleAddPartner({
-                                name: formData.get('name'),
-                                email: formData.get('email'),
-                            });
-                            setIsModalOpen(false);
-                        }}>
-                            <div className="form-group">
-                                <label>Tên Partner</label>
-                                <input type="text" name="name" required />
-                            </div>
-                            <div className="form-group">
-                                <label>Email</label>
-                                <input type="email" name="email" required />
-                            </div>
-                            <div className="modal-actions">
-                                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
-                                    Hủy
-                                </button>
-                                <button type="submit" className="btn-primary">
-                                    Thêm Partner
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
 
 export default ManagePartners;
-
-
-
-
-

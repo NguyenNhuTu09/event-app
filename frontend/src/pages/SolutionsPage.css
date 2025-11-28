@@ -27,7 +27,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 120px 20px 80px;
+    padding: 120px 0 80px;
     overflow: hidden;
     background: linear-gradient(135deg, #0A2240 0%, #007bff 50%, #00d4ff 100%);
 }
@@ -161,15 +161,15 @@
    SECTION 1 - GIỚI THIỆU TỔNG QUAN
    ============================================ */
 .solutions-intro {
-    padding: 60px 20px;
+    padding: 80px 0;
     background-color: #1a1a1a;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 40px;
     box-sizing: border-box;
 }
 
@@ -248,7 +248,7 @@
    SECTION 2 - CÁC NHÓM GIẢI PHÁP
    ============================================ */
 .solutions-list {
-    padding: 60px 20px;
+    padding: 80px 0;
     background-color: #1a1a1a;
 }
 
@@ -352,7 +352,7 @@
    SECTION 3 - MÔ PHỎNG GIAO DIỆN (FLOW CHART)
    ============================================ */
 .solutions-flow {
-    padding: 60px 20px;
+    padding: 80px 0;
     background-color: #1a1a1a;
 }
 
@@ -453,7 +453,7 @@
    SECTION 4 - CTA
    ============================================ */
 .solutions-cta {
-    padding: 60px 20px;
+    padding: 80px 0;
     background-color: #1a1a1a;
     color: #ffffff;
     position: relative;
@@ -545,14 +545,16 @@
 /* Large Desktop (1400px+) */
 @media (min-width: 1400px) {
     .container {
-        max-width: 1320px;
+        max-width: 1400px;
+        padding: 0 40px;
     }
 }
 
 /* Desktop (1200px - 1399px) */
 @media (max-width: 1399px) and (min-width: 1200px) {
     .container {
-        max-width: 1140px;
+        max-width: 1200px;
+        padding: 0 30px;
     }
 }
 
@@ -591,6 +593,20 @@
 
 /* Tablet Portrait / iPad (768px - 991px) */
 @media (max-width: 991px) and (min-width: 768px) {
+    .container {
+        padding: 0 30px;
+    }
+    
+    .solutions-banner {
+        padding: 100px 0 60px;
+    }
+    
+    .solutions-intro,
+    .solutions-list,
+    .solutions-flow,
+    .solutions-cta {
+        padding: 60px 0;
+    }
     .banner-title {
         font-size: 2.8rem;
     }
@@ -629,9 +645,13 @@
 
 /* Mobile Landscape / Small Tablet (576px - 767px) */
 @media (max-width: 767px) and (min-width: 576px) {
+    .container {
+        padding: 0 20px;
+    }
+    
     .solutions-banner {
         min-height: 450px;
-        padding: 90px 20px 50px;
+        padding: 90px 0 50px;
     }
 
     .banner-title {
@@ -647,7 +667,7 @@
     .solutions-list,
     .solutions-flow,
     .solutions-cta {
-        padding: 50px 20px;
+        padding: 50px 0;
     }
 
     .section-header {
@@ -717,9 +737,13 @@
 
 /* Mobile Portrait (max-width: 575px) */
 @media (max-width: 575px) {
+    .container {
+        padding: 0 20px;
+    }
+    
     .solutions-banner {
         min-height: 400px;
-        padding: 80px 15px 40px;
+        padding: 80px 0 40px;
     }
 
     .banner-title {
@@ -736,7 +760,7 @@
     .solutions-list,
     .solutions-flow,
     .solutions-cta {
-        padding: 40px 15px;
+        padding: 40px 0;
     }
 
     .section-header {
@@ -823,9 +847,13 @@
 
 /* Extra Small Mobile (max-width: 375px) - iPhone SE, small Android */
 @media (max-width: 375px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     .solutions-banner {
         min-height: 350px;
-        padding: 70px 12px 35px;
+        padding: 70px 0 35px;
     }
 
     .banner-title {
@@ -840,7 +868,7 @@
     .solutions-list,
     .solutions-flow,
     .solutions-cta {
-        padding: 35px 12px;
+        padding: 35px 0;
     }
 
     .section-header h2 {
@@ -890,10 +918,3 @@
         font-size: 0.95rem;
     }
 }
-
-
-
-
-
-
-

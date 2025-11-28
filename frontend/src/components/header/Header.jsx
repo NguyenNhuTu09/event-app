@@ -162,6 +162,8 @@ const Header = ({ onLoginClick }) => {
                         <li><Link to={path.RESOURCES}>{t.navResources}</Link></li>
                         <li><Link to={path.SUPPORT}>{t.navSupport}</Link></li>
                         <li><Link to={path.COMPANY}>{t.navCompany}</Link></li>
+                        <li><Link to={path.EVENTS}>{t.navEvent}</Link></li>
+                        <li><Link to={path.PARTNER_REGISTER}>{t.navPartnerRegister}</Link></li>
                     </ul>
 
                     <div
@@ -208,6 +210,10 @@ const Header = ({ onLoginClick }) => {
                         <Link to={path.RESOURCES} onClick={() => setIsMenuOpen(false)}>{t.navResources}</Link>
                         <Link to={path.SUPPORT} onClick={() => setIsMenuOpen(false)}>{t.navSupport}</Link>
                         <Link to={path.COMPANY} onClick={() => setIsMenuOpen(false)}>{t.navCompany}</Link>
+                        <Link to={path.EVENTS} onClick={() => setIsMenuOpen(false)}>{t.navEvent}</Link>
+                        <Link to={path.PARTNER_REGISTER} onClick={() => setIsMenuOpen(false)}>{t.navPartnerRegister}</Link>
+
+
                         <hr />
                         <Link to={path.CONTACT} onClick={() => setIsMenuOpen(false)}>{t.contactUs}</Link>
 

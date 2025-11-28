@@ -369,7 +369,7 @@ const CompanyPage = () => {
                 <div className="container">
                     <div className="service-section-header">
                         <h2>{t.serviceMarketingTitle}</h2>
-                            <p>{t.serviceMarketingDesc}</p>
+                        <p>{t.serviceMarketingDesc}</p>
                     </div>
                     <div className="services-grid marketing-grid">
                         <div className="sub-service-card">

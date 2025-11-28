@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { path } from '../utils/constant';
+import logoImageAdmin from '../assets/images/LOGO WEBIE ENENT-01.png';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
@@ -144,10 +145,12 @@ const AdminLayout = () => {
             {/* Sidebar */}
             <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
                 <div className="sidebar-header">
-                    <h2 className="sidebar-logo">
-                        <i className="bi bi-fire"></i>
-                        {sidebarOpen && <span>EMS Admin</span>}
-                    </h2>
+                    <div className="sidebar-logo">
+                        <img src={logoImageAdmin} alt="Webie Event" className="sidebar-logo-image" />
+                        {sidebarOpen && <span className="sidebar-logo-text">
+                            {currentRole === 'super-admin' ? 'EMS Super Admin' : 'EMS Partner'}
+                        </span>}
+                    </div>
                     <button
                         className="sidebar-toggle"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
