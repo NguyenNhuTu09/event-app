@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../translate/translations';
 import EventRegistrationModal from '../components/eventsModal/EventRegistrationModal';
+import { eventsAPI } from '../service/api';
 import './EventsPage.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,9 +17,49 @@ const EventsPage = () => {
     const eventsRef = useRef(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    // Hardcode danh sách sự kiện
-    const events = [
+    // Fetch events from API
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setLoading(true);
+                const data = await eventsAPI.getPublicEvents();
+                
+                // Transform API data to match component format
+                const transformedEvents = data.map((event, index) => ({
+                    id: event.eventId || index + 1,
+                    title: event.eventName || '',
+                    description: event.description || '',
+                    date: event.startDate ? new Date(event.startDate).toISOString().split('T')[0] : '',
+                    time: event.startDate && event.endDate 
+                        ? `${new Date(event.startDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - ${new Date(event.endDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`
+                        : '',
+                    location: event.location || '',
+                    image: event.bannerImageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+                    category: 'Event', // Default category
+                    capacity: event.capacity || 100,
+                    registered: event.registeredCount || 0,
+                    status: event.status || 'PUBLISHED',
+                }));
+                
+                setEvents(transformedEvents);
+                setError('');
+            } catch (err) {
+                console.error('Error fetching events:', err);
+                setError(err.message || 'Không thể tải danh sách sự kiện. Vui lòng thử lại sau.');
+                // Fallback to empty array or show error message
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
+
+    const fallbackEvents = [
         {
             id: 1,
             title: 'Tech Innovation Summit 2024',
@@ -195,8 +236,25 @@ const EventsPage = () => {
                         <h2>{t.eventsListTitle}</h2>
                         <p>{t.eventsListSubtitle}</p>
                     </div>
+                    
+                    {loading && (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#ffd700' }}>
+                            <div className="spinner" style={{ margin: '0 auto' }}></div>
+                            <p>Đang tải danh sách sự kiện...</p>
+                        </div>
+                    )}
+                    
+                    {error && !loading && (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#ff6b7a' }}>
+                            <p>{error}</p>
+                            <p style={{ marginTop: '10px', fontSize: '0.9rem', color: '#999' }}>
+                                Đang hiển thị danh sách mẫu...
+                            </p>
+                        </div>
+                    )}
+                    
                     <div className="events-grid">
-                        {events.map((event) => (
+                        {(events.length > 0 ? events : fallbackEvents).map((event) => (
                             <div key={event.id} className="event-card" onClick={() => handleEventClick(event)}>
                                 <div className="event-image">
                                     <img src={event.image} alt={event.title} />
@@ -252,5 +310,3 @@ const EventsPage = () => {
 };
 
 export default EventsPage;
-
-

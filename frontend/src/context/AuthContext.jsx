@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import authAPI from '../service/api';
+import { authAPI } from '../service/api';
 
 const AuthContext = createContext({
     user: null,
@@ -39,21 +39,36 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authAPI.login(email, password);
             
+            // Backend trả về: { accessToken, refreshToken, user: { id, username, email, ... } }
+            const accessToken = response.accessToken || response.token;
+            const userInfo = response.user || response;
+            
             // Save token and user info
             const userData = {
-                id: response.id,
-                username: response.username,
-                email: response.email,
+                id: userInfo.id,
+                username: userInfo.username,
+                email: userInfo.email,
+                role: userInfo.role,
+                address: userInfo.address,
+                gender: userInfo.gender,
+                dateOfBirth: userInfo.dateOfBirth,
+                phoneNumber: userInfo.phoneNumber,
+                avatarUrl: userInfo.avatarUrl,
             };
 
-            localStorage.setItem('token', response.token);
+            // Lưu accessToken và refreshToken
+            localStorage.setItem('token', accessToken);
+            if (response.refreshToken) {
+                localStorage.setItem('refreshToken', response.refreshToken);
+            }
             localStorage.setItem('user', JSON.stringify(userData));
 
-            setToken(response.token);
+            setToken(accessToken);
             setUser(userData);
 
             return { success: true };
         } catch (error) {
+            console.error('Login error:', error);
             return { 
                 success: false, 
                 message: error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.' 
@@ -166,8 +181,3 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
     return useContext(AuthContext);
 };
-
-
-
-
-

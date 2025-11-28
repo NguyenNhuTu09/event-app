@@ -3,6 +3,7 @@ import './LoginModal.css';
 import { useLanguage } from "../../../context/LanguageContext";
 import { useAuth } from "../../../context/AuthContext";
 import translations from "../../../translate/translations";
+import { API_BASE_URL } from "../../../service/api";
 
 //  Màn hình chọn phương thức đăng nhập
 const OptionsView = ({ t, onEmailClick, onRegisterClick, onGoogleClick }) => (
@@ -250,8 +251,7 @@ const LoginModal = ({ isOpen, onClose }) => {
     const handleGoogleLogin = () => {
         // Redirect đến backend OAuth2 endpoint
         // OAuth2 endpoint không nằm trong /api, nên cần lấy base URL không có /api
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-        const backendUrl = apiBaseUrl.replace('/api', '');
+        const backendUrl = API_BASE_URL.replace('/api', '');
         window.location.href = `${backendUrl}/oauth2/authorization/google`;
     };
 
