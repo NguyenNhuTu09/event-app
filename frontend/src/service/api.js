@@ -31,22 +31,20 @@ export const apiCall = async (endpoint, options = {}) => {
     try {
         const response = await fetch(url, config);
 
-        // Check if response is ok before parsing
-        const contentType = response.headers.get('content-type') || '';
+        // Đọc response body một lần duy nhất dưới dạng text
+        const responseText = await response.text();
         let data;
 
-        // Try to parse JSON, but handle non-JSON responses
-        if (contentType.includes('application/json')) {
+        // Parse JSON từ text (nếu có thể)
+        if (responseText) {
             try {
-                data = await response.json();
-            } catch (e) {
-                const text = await response.text();
-                data = text ? { message: text } : { message: 'Unknown error' };
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                // Nếu không parse được JSON, dùng text như message
+                data = { message: responseText };
             }
         } else {
-            // Non-JSON response (text/plain, etc.)
-            const text = await response.text();
-            data = { message: text || 'Unknown error' };
+            data = { message: 'Empty response' };
         }
 
         if (!response.ok) {

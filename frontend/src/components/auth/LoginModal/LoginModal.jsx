@@ -101,12 +101,13 @@ const RegisterFormView = ({ t, formData, showPassword, showConfirmPassword, onIn
         <div className="modal-body-polished">
             {error && (
                 <div style={{
-                    padding: '10px',
-                    marginBottom: '15px',
+                    padding: '8px 12px',
+                    marginBottom: '10px',
                     backgroundColor: '#fee',
                     color: '#c33',
                     borderRadius: '5px',
-                    fontSize: '14px'
+                    fontSize: '13px',
+                    lineHeight: '1.4'
                 }}>
                     {error}
                 </div>
@@ -127,18 +128,32 @@ const RegisterFormView = ({ t, formData, showPassword, showConfirmPassword, onIn
                         <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} onClick={onShowPasswordToggle}></i>
                     </div>
                 </div>
-                {/* Tạm thời comment nhập lại mật khẩu */}
-                {/* <div className="form-group">
+                <div className="form-group">
                     <label htmlFor="confirmPassword">{t.confirmPasswordLabelRegister}</label>
                     <div className="password-wrapper">
                         <input type={showConfirmPassword ? "text" : "password"} id="confirmPassword" placeholder={t.confirmPasswordPlaceholderRegister} required value={formData.confirmPassword} onChange={onInputChange} disabled={loading} />
                         <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`} onClick={onShowConfirmPasswordToggle}></i>
                     </div>
-                </div> */}
+                </div>
                 <button type="submit" className="btn-login-submit" disabled={loading}>
-                    {loading ? '...' : t.registerButton}
+                    {loading ? (
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <span style={{
+                                width: '16px',
+                                height: '16px',
+                                border: '2px solid #ffffff',
+                                borderTop: '2px solid transparent',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite',
+                                display: 'inline-block'
+                            }}></span>
+                            {t.registerButton || 'Đang đăng ký...'}
+                        </span>
+                    ) : (
+                        t.registerButton || 'Đăng ký'
+                    )}
                 </button>
-                <div style={{ textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
+                <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '13px' }}>
                     <span>{t.alreadyHaveAccount} </span>
                     <a href="#" onClick={(e) => { e.preventDefault(); onBackClick(); }} style={{ color: '#007bff', textDecoration: 'none' }}>
                         {t.signInLink}
@@ -281,12 +296,32 @@ const LoginModal = ({ isOpen, onClose }) => {
         e.preventDefault();
         setError('');
 
-        // Tạm thời comment validation nhập lại mật khẩu
+        // Validate required fields
+        if (!formData.username || !formData.username.trim()) {
+            setError('Vui lòng nhập tên đăng nhập');
+            return;
+        }
+
+        if (!formData.email || !formData.email.trim()) {
+            setError('Vui lòng nhập email');
+            return;
+        }
+
+        if (!formData.password || !formData.password.trim()) {
+            setError('Vui lòng nhập mật khẩu');
+            return;
+        }
+
+        if (!formData.confirmPassword || !formData.confirmPassword.trim()) {
+            setError('Vui lòng nhập lại mật khẩu');
+            return;
+        }
+
         // Validate password match
-        // if (formData.password !== formData.confirmPassword) {
-        //     setError('Mật khẩu xác nhận không khớp');
-        //     return;
-        // }
+        if (formData.password !== formData.confirmPassword) {
+            setError('Mật khẩu xác nhận không khớp');
+            return;
+        }
 
         // Validate password length
         if (formData.password.length < 6) {
@@ -295,21 +330,23 @@ const LoginModal = ({ isOpen, onClose }) => {
         }
 
         setLoading(true);
+        setError('');
 
         try {
-            const result = await register(formData.username, formData.email, formData.password);
+            const result = await register(formData.username, formData.email, formData.password, formData.confirmPassword);
             if (result.success) {
-                setSuccess(t.registerSuccess);
+                setSuccess(t.registerSuccess || 'Đăng ký thành công!');
                 setTimeout(() => {
                     setModalView('emailForm');
                     setFormData(prev => ({ email: prev.email, password: '', username: '', confirmPassword: '' }));
                     setError('');
                 }, 2000);
             } else {
-                setError(result.message);
+                setError(result.message || 'Đăng ký thất bại. Vui lòng thử lại.');
             }
         } catch (err) {
-            setError(err.message || 'Đăng ký thất bại');
+            console.error('Registration error:', err);
+            setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }

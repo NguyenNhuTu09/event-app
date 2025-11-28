@@ -76,11 +76,12 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (username, email, password) => {
+    const register = async (username, email, password, confirmPassword) => {
         try {
-            await authAPI.register(username, email, password);
+            await authAPI.register(username, email, password, confirmPassword);
             return { success: true };
         } catch (error) {
+            console.error('Register error:', error);
             return { 
                 success: false, 
                 message: error.message || 'Đăng ký thất bại. Vui lòng thử lại.' 
