@@ -382,6 +382,140 @@ en: {
 
 ---
 
+## 🔌 API INTEGRATION
+
+### 1. **Cấu hình API Base URL**
+
+Tất cả API calls đều sử dụng base URL từ `api.js`:
+
+```tsx
+// frontend/src/service/api.js
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ems-backend-jkjx.onrender.com/api';
+```
+
+**Lưu ý:** 
+- ✅ **Đúng**: Sử dụng `apiCall()` từ `api.js` 
+- ❌ **Sai**: Hardcode URL như `http://localhost:5000/api/...` hoặc `https://ems-backend-jkjx.onrender.com/api/...` trực tiếp
+
+### 2. **Ví dụ: Fetch Resources từ API**
+
+```tsx
+import { apiCall } from '../service/api';
+
+// ✅ Đúng - Sử dụng apiCall
+const fetchResources = async () => {
+    try {
+        const data = await apiCall('/resources', { method: 'GET' });
+        setResources(data);
+    } catch (error) {
+        console.error('Error fetching resources:', error);
+    }
+};
+
+// ❌ Sai - Hardcode URL (không nên làm)
+const fetchResources = async () => {
+    // Không nên hardcode URL, dù là localhost hay production
+    const response = await fetch('http://localhost:5000/api/resources');
+    // hoặc
+    const response2 = await fetch('https://ems-backend-jkjx.onrender.com/api/resources');
+    // ...
+};
+```
+
+### 3. **Các API Endpoints chính**
+
+Tất cả endpoints đều sử dụng base URL: `https://ems-backend-jkjx.onrender.com/api`
+
+```tsx
+// Auth APIs
+POST   /api/auth/signup
+POST   /api/auth/signin
+GET    /api/auth/me
+
+// Events APIs
+GET    /api/events/public
+GET    /api/events/:id
+POST   /api/events
+GET    /api/events/my-events
+
+// Organizers APIs
+GET    /api/organizers
+POST   /api/organizers
+PUT    /api/organizers/:id/approve
+DELETE /api/organizers/:id
+
+// Users APIs
+GET    /api/users
+GET    /api/users/:id
+PUT    /api/users/me
+```
+
+### 4. **OAuth2 Redirect URL**
+
+Khi sử dụng Google OAuth2, redirect URL phải là:
+
+```tsx
+// ✅ Đúng
+const backendUrl = API_BASE_URL.replace('/api', '');
+window.location.href = `${backendUrl}/oauth2/authorization/google`;
+// → https://ems-backend-jkjx.onrender.com/oauth2/authorization/google
+
+// ❌ Sai - Hardcode URL
+window.location.href = 'http://localhost:5000/oauth2/authorization/google';
+// hoặc
+window.location.href = 'https://ems-backend-jkjx.onrender.com/oauth2/authorization/google';
+// → Nên sử dụng API_BASE_URL từ api.js như ví dụ ở trên
+```
+
+**Lưu ý:** Redirect URI trong Google Cloud Console phải khớp với:
+- `https://ems-backend-jkjx.onrender.com/login/oauth2/code/google`
+
+### 5. **Sử dụng API trong ResourcesPage**
+
+```tsx
+import { apiCall } from '../service/api';
+
+const ResourcesPage = () => {
+    const [documents, setDocuments] = useState([]);
+    const [mediaItems, setMediaItems] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch documents
+                const docs = await apiCall('/resources/documents', { method: 'GET' });
+                setDocuments(docs);
+
+                // Fetch media items
+                const media = await apiCall('/resources/media', { method: 'GET' });
+                setMediaItems(media);
+            } catch (error) {
+                console.error('Error fetching resources:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // ...
+};
+```
+
+### 6. **Environment Variables**
+
+Tạo file `.env` trong thư mục `frontend/`:
+
+```env
+VITE_API_BASE_URL=https://ems-backend-jkjx.onrender.com/api
+```
+
+Sau đó sử dụng:
+```tsx
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ems-backend-jkjx.onrender.com/api';
+```
+
+---
+
 ## 💡 TIPS & BEST PRACTICES
 
 1. **Luôn dùng key trong .map()**
