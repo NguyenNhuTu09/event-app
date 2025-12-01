@@ -84,6 +84,37 @@ const ManagePartners = () => {
             }
 
             setError(errorMessage);
+
+    const fetchOrganizers = async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const response = await organizersAPI.getAllOrganizers();
+            
+            // Normalize the response data to handle both isApproved and approved fields
+            // Also handle both boolean and number (1/0) formats from database
+            const normalizedPartners = (response || []).map(partner => {
+                // Check isApproved first (from backend DTO), then approved (fallback)
+                let approvedValue = false;
+                if (partner.isApproved !== undefined && partner.isApproved !== null) {
+                    // Handle boolean true/false or number 1/0
+                    approvedValue = partner.isApproved === true || partner.isApproved === 1 || partner.isApproved === '1';
+                } else if (partner.approved !== undefined && partner.approved !== null) {
+                    // Fallback to approved field
+                    approvedValue = partner.approved === true || partner.approved === 1 || partner.approved === '1';
+                }
+                
+                return {
+                    ...partner,
+                    approved: approvedValue,
+                    isApproved: approvedValue // Ensure both fields are set
+                };
+            });
+            
+            setPartners(normalizedPartners);
+        } catch (err) {
+            console.error('Error fetching organizers:', err);
+            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.') main
         } finally {
             setLoading(false);
         }
