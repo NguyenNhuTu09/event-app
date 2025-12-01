@@ -16,6 +16,75 @@ const ManagePartners = () => {
         fetchOrganizers();
     }, []);
 
+    const fetchOrganizers = async (retryCount = 0) => {
+        try {
+            setLoading(true);
+            setError('');
+
+            // Check if admin token exists
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                setError('Bạn chưa đăng nhập. Vui lòng đăng nhập với tài khoản Super Admin.');
+                setLoading(false);
+                return;
+            }
+
+            const response = await organizersAPI.getAllOrganizers();
+
+            // Log response for debugging
+            console.log('API Response:', response);
+
+            // Normalize the response data to handle both isApproved and approved fields
+            // Also handle both boolean and number (1/0) formats from database
+            // Backend returns "approved" field (boolean) according to Swagger
+            const normalizedPartners = (Array.isArray(response) ? response : []).map(partner => {
+                // Backend returns "approved" field (boolean false/true)
+                // Check approved field first (from Swagger response), then isApproved (fallback)
+                let approvedValue = false;
+                if (partner.approved !== undefined && partner.approved !== null) {
+                    // Handle boolean true/false or number 1/0
+                    approvedValue = partner.approved === true || partner.approved === 1 || partner.approved === '1';
+                } else if (partner.isApproved !== undefined && partner.isApproved !== null) {
+                    // Fallback to isApproved field (if exists)
+                    approvedValue = partner.isApproved === true || partner.isApproved === 1 || partner.isApproved === '1';
+                }
+
+                return {
+                    ...partner,
+                    approved: approvedValue,
+                    isApproved: approvedValue // Ensure both fields are set for compatibility
+                };
+            });
+
+            setPartners(normalizedPartners);
+        } catch (err) {
+            console.error('Error fetching organizers:', err);
+            const errorMessage = err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.';
+
+            // Don't retry if token expired (401) - user needs to login again
+            if (errorMessage.includes('hết hạn') || errorMessage.includes('đăng nhập')) {
+                setError(errorMessage);
+                setLoading(false);
+                return;
+            }
+
+            // Retry logic for Render.com free tier (server might be sleeping)
+            // Increase wait time between retries for Render.com wake up
+            if (retryCount < 2 && (
+                errorMessage.includes('sleep') ||
+                errorMessage.includes('timeout') ||
+                errorMessage.includes('không thể kết nối') ||
+                errorMessage.includes('Failed to fetch')
+            )) {
+                const waitTime = (retryCount + 1) * 5000; // 5s, 10s
+                console.log(`Retrying fetchOrganizers (attempt ${retryCount + 1}/2) after ${waitTime / 1000}s...`);
+                // Wait longer before retry (5s, 10s) to give Render.com time to wake up
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                return fetchOrganizers(retryCount + 1);
+            }
+
+            setError(errorMessage);
+
     const fetchOrganizers = async () => {
         try {
             setLoading(true);
@@ -45,7 +114,7 @@ const ManagePartners = () => {
             setPartners(normalizedPartners);
         } catch (err) {
             console.error('Error fetching organizers:', err);
-            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.');
+            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.') main
         } finally {
             setLoading(false);
         }
@@ -60,16 +129,16 @@ const ManagePartners = () => {
             setProcessingId(organizerId);
             setError('');
             setSuccessMessage('');
-            
+
             // Call API to approve organizer
             const response = await organizersAPI.approveOrganizer(organizerId);
-            
+
             // Normalize the approved value from response
-            const approvedValue = response.isApproved === true || response.isApproved === 1 || 
-                                 response.approved === true || response.approved === 1;
-            
+            const approvedValue = response.isApproved === true || response.isApproved === 1 ||
+                response.approved === true || response.approved === 1;
+
             // Update local state immediately using response data
-            setPartners(prevPartners => 
+            setPartners(prevPartners =>
                 prevPartners.map(partner => {
                     if (partner.organizerId === organizerId) {
                         return {
@@ -82,21 +151,21 @@ const ManagePartners = () => {
                     return partner;
                 })
             );
-            
+
             setSuccessMessage('Đã duyệt đăng ký thành công! Email thông báo đã được gửi đến người đăng ký.');
-            
+
             // Refresh list to get latest data from server (with a small delay to ensure DB is updated)
             setTimeout(async () => {
                 await fetchOrganizers();
             }, 500);
-            
+
             // Clear success message after 5 seconds
             setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err) {
             console.error('Error approving organizer:', err);
             const errorMsg = err.message || 'Không thể duyệt đăng ký. Vui lòng thử lại.';
             setError(errorMsg);
-            
+
             // If error, refresh list to ensure UI is in sync with server
             await fetchOrganizers();
         } finally {
@@ -113,27 +182,27 @@ const ManagePartners = () => {
             setProcessingId(organizerId);
             setError('');
             setSuccessMessage('');
-            
+
             // Call API to delete/reject organizer
             await organizersAPI.deleteOrganizer(organizerId);
-            
+
             // Remove from local state immediately for better UX
-            setPartners(prevPartners => 
+            setPartners(prevPartners =>
                 prevPartners.filter(partner => partner.organizerId !== organizerId)
             );
-            
+
             setSuccessMessage('Đã từ chối đăng ký thành công!');
-            
+
             // Refresh list to get latest data from server
             await fetchOrganizers();
-            
+
             // Clear success message after 5 seconds
             setTimeout(() => setSuccessMessage(''), 5000);
         } catch (err) {
             console.error('Error rejecting organizer:', err);
             const errorMsg = err.message || 'Không thể từ chối đăng ký. Vui lòng thử lại.';
             setError(errorMsg);
-            
+
             // If error, refresh list to ensure UI is in sync with server
             await fetchOrganizers();
         } finally {
@@ -150,16 +219,16 @@ const ManagePartners = () => {
     };
 
     const filteredPartners = partners.filter(partner => {
-        const matchesSearch = 
+        const matchesSearch =
             (partner.name && partner.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (partner.contactEmail && partner.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (partner.username && partner.username.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-        const matchesStatus = 
+
+        const matchesStatus =
             filterStatus === 'all' ||
             (filterStatus === 'approved' && partner.approved) ||
             (filterStatus === 'pending' && !partner.approved);
-        
+
         return matchesSearch && matchesStatus;
     });
 
@@ -253,8 +322,8 @@ const ManagePartners = () => {
                         {filteredPartners.length === 0 ? (
                             <tr>
                                 <td colSpan={8} className="no-data">
-                                    {partners.length === 0 
-                                        ? 'Chưa có đăng ký nào' 
+                                    {partners.length === 0
+                                        ? 'Chưa có đăng ký nào'
                                         : 'Không tìm thấy đối tác nào phù hợp'}
                                 </td>
                             </tr>
@@ -285,8 +354,8 @@ const ManagePartners = () => {
                                         <div className="action-buttons">
                                             {!partner.approved ? (
                                                 <>
-                                                    <button 
-                                                        className="btn-icon btn-success" 
+                                                    <button
+                                                        className="btn-icon btn-success"
                                                         title="Duyệt đăng ký"
                                                         onClick={() => handleApprove(partner.organizerId)}
                                                         disabled={processingId === partner.organizerId}
@@ -296,9 +365,9 @@ const ManagePartners = () => {
                                                         ) : (
                                                             <i className="bi bi-check-circle"></i>
                                                         )}
-                                            </button>
-                                            <button 
-                                                        className="btn-icon btn-danger" 
+                                                    </button>
+                                                    <button
+                                                        className="btn-icon btn-danger"
                                                         title="Từ chối đăng ký"
                                                         onClick={() => handleReject(partner.organizerId)}
                                                         disabled={processingId === partner.organizerId}
@@ -308,7 +377,7 @@ const ManagePartners = () => {
                                                         ) : (
                                                             <i className="bi bi-x-circle"></i>
                                                         )}
-                                            </button>
+                                                    </button>
                                                 </>
                                             ) : (
                                                 <span className="text-muted">Đã duyệt</span>
