@@ -13,7 +13,7 @@ import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
-import com.example.backend.Service.UserService;
+import com.example.backend.Service.Interface.UserService;
 
 import lombok.RequiredArgsConstructor;
 

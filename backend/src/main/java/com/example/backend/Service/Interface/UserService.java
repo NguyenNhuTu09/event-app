@@ -1,4 +1,4 @@
-package com.example.backend.Service;
+package com.example.backend.Service.Interface;
 
 import java.util.List;
 

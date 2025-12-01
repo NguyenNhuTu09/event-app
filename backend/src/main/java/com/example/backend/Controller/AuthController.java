@@ -13,7 +13,7 @@ import com.example.backend.DTO.Request.TokenExchangeRequest;
 import com.example.backend.DTO.Response.JwtAuthenticationResponse;
 import com.example.backend.DTO.Response.JwtResponse;
 import com.example.backend.Models.Entity.User;
-import com.example.backend.Service.ServiceImpl.AuthService;
+import com.example.backend.Service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

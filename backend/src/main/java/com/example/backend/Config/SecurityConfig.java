@@ -2,7 +2,7 @@ package com.example.backend.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy; // <-- Thêm import này
+import org.springframework.context.annotation.Lazy; 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,7 +30,7 @@ public class SecurityConfig {
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                           JwtAuthFilter jwtAuthFilter,
-                          @Lazy OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, // <-- Thêm @Lazy ở đây
+                          @Lazy OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, 
                           PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
