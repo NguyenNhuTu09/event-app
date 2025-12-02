@@ -16,75 +16,6 @@ const ManagePartners = () => {
         fetchOrganizers();
     }, []);
 
-    const fetchOrganizers = async (retryCount = 0) => {
-        try {
-            setLoading(true);
-            setError('');
-
-            // Check if admin token exists
-            const adminToken = localStorage.getItem('adminToken');
-            if (!adminToken) {
-                setError('Bạn chưa đăng nhập. Vui lòng đăng nhập với tài khoản Super Admin.');
-                setLoading(false);
-                return;
-            }
-
-            const response = await organizersAPI.getAllOrganizers();
-
-            // Log response for debugging
-            console.log('API Response:', response);
-
-            // Normalize the response data to handle both isApproved and approved fields
-            // Also handle both boolean and number (1/0) formats from database
-            // Backend returns "approved" field (boolean) according to Swagger
-            const normalizedPartners = (Array.isArray(response) ? response : []).map(partner => {
-                // Backend returns "approved" field (boolean false/true)
-                // Check approved field first (from Swagger response), then isApproved (fallback)
-                let approvedValue = false;
-                if (partner.approved !== undefined && partner.approved !== null) {
-                    // Handle boolean true/false or number 1/0
-                    approvedValue = partner.approved === true || partner.approved === 1 || partner.approved === '1';
-                } else if (partner.isApproved !== undefined && partner.isApproved !== null) {
-                    // Fallback to isApproved field (if exists)
-                    approvedValue = partner.isApproved === true || partner.isApproved === 1 || partner.isApproved === '1';
-                }
-
-                return {
-                    ...partner,
-                    approved: approvedValue,
-                    isApproved: approvedValue // Ensure both fields are set for compatibility
-                };
-            });
-
-            setPartners(normalizedPartners);
-        } catch (err) {
-            console.error('Error fetching organizers:', err);
-            const errorMessage = err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.';
-
-            // Don't retry if token expired (401) - user needs to login again
-            if (errorMessage.includes('hết hạn') || errorMessage.includes('đăng nhập')) {
-                setError(errorMessage);
-                setLoading(false);
-                return;
-            }
-
-            // Retry logic for Render.com free tier (server might be sleeping)
-            // Increase wait time between retries for Render.com wake up
-            if (retryCount < 2 && (
-                errorMessage.includes('sleep') ||
-                errorMessage.includes('timeout') ||
-                errorMessage.includes('không thể kết nối') ||
-                errorMessage.includes('Failed to fetch')
-            )) {
-                const waitTime = (retryCount + 1) * 5000; // 5s, 10s
-                console.log(`Retrying fetchOrganizers (attempt ${retryCount + 1}/2) after ${waitTime / 1000}s...`);
-                // Wait longer before retry (5s, 10s) to give Render.com time to wake up
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-                return fetchOrganizers(retryCount + 1);
-            }
-
-            setError(errorMessage);
-
     const fetchOrganizers = async () => {
         try {
             setLoading(true);
@@ -114,7 +45,7 @@ const ManagePartners = () => {
             setPartners(normalizedPartners);
         } catch (err) {
             console.error('Error fetching organizers:', err);
-            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.') main
+            setError(err.message || 'Không thể tải danh sách đối tác. Vui lòng thử lại.')
         } finally {
             setLoading(false);
         }
