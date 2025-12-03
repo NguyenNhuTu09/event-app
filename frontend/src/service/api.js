@@ -1,5 +1,5 @@
 // API configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ems-backend-jkjx.onrender.com/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ems-backend-jkjx.onrender.com//api';
 
 // Helper function to make API calls
 export const apiCall = async (endpoint, options = {}) => {
