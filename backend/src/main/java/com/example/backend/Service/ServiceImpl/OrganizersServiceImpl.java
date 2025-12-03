@@ -151,6 +151,7 @@ public class OrganizersServiceImpl implements OrganizersService {
             .contactEmail(organizer.getContactEmail())
             .userId(organizer.getUser() != null ? organizer.getUser().getId() : null) 
             .username(organizer.getUser() != null ? organizer.getUser().getUsername() : null)
+            .isApproved(organizer.isApproved())
             .build();
     }
 }
