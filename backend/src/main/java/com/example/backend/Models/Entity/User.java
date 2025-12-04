@@ -2,6 +2,7 @@ package com.example.backend.Models.Entity;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.backend.Models.Gender;
 import com.example.backend.Utils.AuthProvider;
@@ -68,4 +69,11 @@ public class User {
 
     @Column(name = "refresh_token_expiry_date")
     private Instant refreshTokenExpiryDate;
+
+    // token đổi mật khẩu và nhận OTP khi quên mật khẩu
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "token_expiry_date")
+    private LocalDateTime tokenExpiryDate;
 }

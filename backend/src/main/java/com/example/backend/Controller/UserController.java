@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.ChangePasswordRequestDTO;
+import com.example.backend.DTO.Request.ForgotPasswordRequestDTO;
+import com.example.backend.DTO.Request.ResetPasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 import com.example.backend.Service.Interface.UserService;
@@ -94,20 +97,23 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserByEmail(email));
     }
 
+    @Operation(summary = "Yêu cầu quên mật khẩu (Gửi OTP qua email)")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
+        userService.forgotPassword(request);
+        return ResponseEntity.ok("Mã xác nhận đã được gửi đến email của bạn.");
+    }
 
-    // @PostMapping("/me/avatar")
-    // @Operation(summary = "Cập nhật ảnh đại diện cho người dùng hiện tại")
-    // public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
-    //     try {
-    //         if (file.isEmpty()) {
-    //             return new ResponseEntity<>("File ảnh không được để trống.", HttpStatus.BAD_REQUEST);
-    //         }
-    //         UserResponseDTO updatedUser = userService.updateCurrentUserAvatar(file);
-    //         return ResponseEntity.ok(updatedUser);
-    //     } catch (IOException e) {
-    //         return new ResponseEntity<>("Tải ảnh lên thất bại: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    //     } catch (Exception e) {
-    //         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    //     }
-    // }
+    @Operation(summary = "Đặt lại mật khẩu bằng OTP")
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
+        try {
+            userService.resetPassword(request);
+            return ResponseEntity.ok("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ.");
+        } catch (IllegalArgumentException | UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    
 }
