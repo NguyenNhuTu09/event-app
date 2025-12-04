@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mã Xác Nhận - Event Management System</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 0; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #007bff; }
+        .logo { max-width: 150px; height: auto; }
+        .app-name { font-size: 18px; color: #555; font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .content { padding: 30px 20px; text-align: center; color: #333333; }
+        .greeting { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .otp-box { background-color: #e3f2fd; border: 1px dashed #007bff; color: #007bff; font-size: 32px; font-weight: bold; padding: 15px 30px; margin: 20px auto; display: inline-block; border-radius: 5px; letter-spacing: 5px; }
+        .warning { font-size: 14px; color: #777; margin-top: 20px; }
+        .footer { background-color: #333333; color: #ffffff; text-align: center; padding: 15px; font-size: 12px; }
+        .footer a { color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header: Logo & Tên App -->
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1764823960/webie-logo-1_w19rnl.webp" alt="Webie Logo" class="logo">
+            <div class="app-name">Event Management System</div>
+        </div>
+        
+        <!-- Nội dung chính -->
+        <div class="content">
+            <div class="greeting">Xin chào <span th:text="${username}">User</span>,</div>
+            
+            <p>Bạn vừa gửi yêu cầu đặt lại mật khẩu tại hệ thống của Webie.</p>
+            <p>Đây là mã xác nhận (OTP) của bạn:</p>
+            
+            <!-- Mã OTP -->
+            <div class="otp-box" th:text="${otpCode}">123456</div>
+            
+            <p class="warning">Mã này sẽ hết hạn sau 5 phút. <br> Tuyệt đối không chia sẻ mã này cho bất kỳ ai.</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2025 Webie Team. All rights reserved.</p>
+            <p>Email này được gửi tự động từ hệ thống Event Management System.</p>
+        </div>
+    </div>
+</body>
+</html>
