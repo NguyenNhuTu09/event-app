@@ -1,6 +1,7 @@
 package com.example.backend.Models.Entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -82,4 +84,14 @@ public class Activity {
     @Size(max = 255)
     @Column(name = "materials_url", length = 255)
     private String materialsUrl;
+
+    @Column(name = "activity_qr_code", unique = true, nullable = false, updatable = false)
+    private String activityQrCode;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.activityQrCode == null) {
+            this.activityQrCode = "ACT-" + UUID.randomUUID().toString();
+        }
+    }
 }
