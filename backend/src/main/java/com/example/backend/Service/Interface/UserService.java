@@ -3,6 +3,8 @@ package com.example.backend.Service.Interface;
 import java.util.List;
 
 import com.example.backend.DTO.ChangePasswordRequestDTO;
+import com.example.backend.DTO.Request.ForgotPasswordRequestDTO;
+import com.example.backend.DTO.Request.ResetPasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 
@@ -15,4 +17,8 @@ public interface UserService {
     void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO);
     UserResponseDTO findUserByEmail(String email);
     // UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException;
+
+    
+    void forgotPassword(ForgotPasswordRequestDTO forgotPasswordDTO);
+    void resetPassword(ResetPasswordRequestDTO resetPasswordDTO);
 }

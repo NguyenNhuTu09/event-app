@@ -1,6 +1,8 @@
 package com.example.backend.Service.ServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,10 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.DTO.ChangePasswordRequestDTO;
+import com.example.backend.DTO.Request.ForgotPasswordRequestDTO;
+import com.example.backend.DTO.Request.ResetPasswordRequestDTO;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.DTO.UserUpdateDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     // private final S3Service s3Service;
+    private final EmailService emailService;
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -85,21 +91,21 @@ public class UserServiceImpl implements UserService {
         return dto;
     }
 
-    @Override
-    public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
-        String user = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(user)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + user));
-        if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
-            throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
-        }
-        if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
-            throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
-        }
-        String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
-        currentUser.setPassword(encodedNewPassword);
-        userRepository.save(currentUser);
-    }
+    // @Override
+    // public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
+    //     String user = SecurityContextHolder.getContext().getAuthentication().getName();
+    //     User currentUser = userRepository.findByEmail(user)
+    //             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + user));
+    //     if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
+    //         throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
+    //     }
+    //     if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
+    //         throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
+    //     }
+    //     String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
+    //     currentUser.setPassword(encodedNewPassword);
+    //     userRepository.save(currentUser);
+    // }
     
     @Override
     public UserResponseDTO findUserByEmail(String email) {
@@ -108,25 +114,66 @@ public class UserServiceImpl implements UserService {
         return convertToDto(user);
     }
 
-    // @Override
-    // public UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException {
-    //     String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    //     User currentUser = userRepository.findByUsername(username)
-    //             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
+    @Override
+    public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + userEmail));
+
+        if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
+        }
+        if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu mới và xác nhận không trùng khớp.");
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
+        userRepository.save(currentUser);
+
+        emailService.sendNotificationEmail(
+            currentUser.getEmail(), 
+            "Thông báo: Mật khẩu đã thay đổi", 
+            currentUser.getUsername()
+        );
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequestDTO forgotPasswordDTO) {
+        User user = userRepository.findByEmail(forgotPasswordDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Email không tồn tại trong hệ thống."));
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        user.setResetPasswordToken(otp);
+        user.setTokenExpiryDate(LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
+
+        String subject = "Mã xác nhận quên mật khẩu";
+        // emailService.sendSimpleMail(user.getEmail(), body, subject);
+        emailService.sendEmailWithTemplate(user.getEmail(), subject, user.getUsername(), otp);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequestDTO resetPasswordDTO) {
+        User user = userRepository.findByEmail(resetPasswordDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Email không tồn tại."));
+
+        if (user.getResetPasswordToken() == null || !user.getResetPasswordToken().equals(resetPasswordDTO.getOtp())) {
+            throw new IllegalArgumentException("Mã OTP không chính xác.");
+        }
+
+        if (user.getTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Mã OTP đã hết hạn. Vui lòng yêu cầu lại.");
+        }
+
+        if (!resetPasswordDTO.getNewPassword().equals(resetPasswordDTO.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu xác nhận không trùng khớp.");
+        }
+
+        user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        user.setResetPasswordToken(null);
+        user.setTokenExpiryDate(null);
         
-    //     if (currentUser.getAvatarS3Key() != null && !currentUser.getAvatarS3Key().isEmpty()) {
-    //         s3Service.deleteFile(currentUser.getAvatarS3Key());
-    //     }
-
-    //     String originalFileName = file.getOriginalFilename();
-    //     String key = "user_avatars/" + currentUser.getId() + "/" + UUID.randomUUID().toString() + "-" + originalFileName;
-
-    //     String avatarUrl = s3Service.uploadFile(file, key);
-
-    //     currentUser.setAvatarUrl(avatarUrl);
-    //     currentUser.setAvatarS3Key(key); 
-    //     User updatedUser = userRepository.save(currentUser);
-
-    //     return convertToDto(updatedUser);
-    // }
+        userRepository.save(user);
+    }
 }
