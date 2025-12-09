@@ -9,6 +9,7 @@ import lombok.Data;
 
 @Data
 public class UserUpdateDTO {
+    private String username;
     private String address;
     private Gender gender;
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")

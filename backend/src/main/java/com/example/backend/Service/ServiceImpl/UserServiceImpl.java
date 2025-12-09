@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
         User userToUpdate = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + userEmail));
         
+        userToUpdate.setUsername(userUpdateDTO.getUsername());
         userToUpdate.setAddress(userUpdateDTO.getAddress());
         userToUpdate.setGender(userUpdateDTO.getGender());
         userToUpdate.setDateOfBirth(userUpdateDTO.getDateOfBirth());
