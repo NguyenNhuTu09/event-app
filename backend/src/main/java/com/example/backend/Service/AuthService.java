@@ -143,5 +143,14 @@ public class AuthService {
                 .build();
     }
       
+   
+    @Transactional
+    public void logout(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
 
+        user.setRefreshToken(null);
+        user.setRefreshTokenExpiryDate(null);
+        userRepository.save(user);
+    }
 }
