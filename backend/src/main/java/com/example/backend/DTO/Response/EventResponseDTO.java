@@ -12,6 +12,7 @@ import lombok.Data;
 @Builder
 public class EventResponseDTO {
     private Long eventId;
+    private String slug;
     private String eventName;
     private String description;
     private LocalDateTime startDate;

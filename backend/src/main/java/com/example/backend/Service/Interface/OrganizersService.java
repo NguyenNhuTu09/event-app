@@ -9,8 +9,9 @@ import com.example.backend.DTO.Response.OrganizersResponseDTO;
 public interface OrganizersService {
     List<OrganizersResponseDTO> getAllOrganizersAsDTO();
     OrganizersResponseDTO createOrganizer(OrganizersRequestDTO requestDTO);
-    OrganizersResponseDTO getOrganizerById(Integer organizerId);
-    OrganizersResponseDTO updateOrganizer(Integer organizerId, OrganizersRequestDTO requestDTO);
-    void deleteOrganizer(Integer organizerId);
+    OrganizersResponseDTO getOrganizerBySlug(String slug);
+    OrganizersResponseDTO updateOrganizer(String slug, OrganizersRequestDTO requestDTO);
+    // void deleteOrganizer(Integer organizerId);
+    void deleteOrganizer(String slug);
     OrganizersResponseDTO approveOrganizer(Integer organizerId);
 }

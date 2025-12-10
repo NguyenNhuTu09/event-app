@@ -7,9 +7,13 @@ import com.example.backend.DTO.Response.EventResponseDTO;
 
 public interface EventService {
     EventResponseDTO createEvent(EventRequestDTO requestDTO);
-    EventResponseDTO updateEvent(Long eventId, EventRequestDTO requestDTO);
-    void deleteEvent(Long eventId);
-    EventResponseDTO getEventById(Long eventId);
+    
+    EventResponseDTO updateEvent(String slug, EventRequestDTO requestDTO);
+    
+    void deleteEvent(String slug);
+    
+    EventResponseDTO getEventBySlug(String slug);
+    
     List<EventResponseDTO> getAllEvents(); 
     List<EventResponseDTO> getMyEvents();  
     List<EventResponseDTO> getPublicEvents(); 

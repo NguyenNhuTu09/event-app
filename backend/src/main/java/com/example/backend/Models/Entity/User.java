@@ -3,6 +3,7 @@ package com.example.backend.Models.Entity;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.backend.Models.Gender;
 import com.example.backend.Utils.AuthProvider;
@@ -15,6 +16,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -76,4 +78,13 @@ public class User {
 
     @Column(name = "token_expiry_date")
     private LocalDateTime tokenExpiryDate;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private String uid;
+    @PrePersist
+    protected void onCreate() {
+        if (this.uid == null) {
+            this.uid = UUID.randomUUID().toString();
+        }
+    }
 }

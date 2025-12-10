@@ -22,4 +22,8 @@ public interface OrganizersRepository extends JpaRepository<Organizers, Integer>
 
     boolean existsByUser(User user);
     boolean existsByUser_Id(Long userId);
+
+    Optional<Organizers> findBySlug(String slug);
+    boolean existsBySlug(String slug);
+    void deleteBySlug(String slug);
 }

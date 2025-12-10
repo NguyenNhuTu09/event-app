@@ -79,6 +79,9 @@ public class Event {
     @Column(name = "event_qr_code", unique = true, nullable = false, updatable = false)
     private String eventQrCode;
 
+    @Column(nullable = false, unique = true)
+    private String slug;
+
     @PrePersist
     protected void onCreate() {
         if (this.eventQrCode == null) {

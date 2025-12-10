@@ -49,27 +49,24 @@ public class OrganizersController {
         return ResponseEntity.ok(approvedOrganizer);
     }
 
-    @Operation(summary = "Lấy thông tin nhà tổ chức sự kiện")
-    @GetMapping("/{organizerId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<OrganizersResponseDTO> getOrganizerById(@PathVariable Integer organizerId) {
-        OrganizersResponseDTO organizer = organizersService.getOrganizerById(organizerId);
-        return ResponseEntity.ok(organizer); 
+    @Operation(summary = "Lấy thông tin nhà tổ chức sự kiện theo SLUG")
+    @GetMapping("/{slug}") 
+    public ResponseEntity<OrganizersResponseDTO> getOrganizerBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(organizersService.getOrganizerBySlug(slug)); 
     }
 
-    @Operation(summary = "Chỉnh sửa thông tin nhà tổ chức sự kiện (SADMIN hoặc ORGANIZER")
-    @PutMapping("/{organizerId}")
+    @Operation(summary = "Chỉnh sửa thông tin nhà tổ chức sự kiện")
+    @PutMapping("/{slug}")
     @PreAuthorize("hasAuthority('SADMIN') or hasAuthority('ORGANIZER')") 
-    public ResponseEntity<OrganizersResponseDTO> updateOrganizer(@PathVariable Integer organizerId, @Valid @RequestBody OrganizersRequestDTO requestDTO) {
-        OrganizersResponseDTO updatedOrganizer = organizersService.updateOrganizer(organizerId, requestDTO);
-        return ResponseEntity.ok(updatedOrganizer);
+    public ResponseEntity<OrganizersResponseDTO> updateOrganizer(@PathVariable String slug, @Valid @RequestBody OrganizersRequestDTO requestDTO) {
+        return ResponseEntity.ok(organizersService.updateOrganizer(slug, requestDTO));
     }
 
-    @Operation(summary = "Xóa nhà tổ chức sự kiện (SADMIN)")
-    @DeleteMapping("/{organizerId}")
+    @Operation(summary = "Xóa nhà tổ chức sự kiện")
+    @DeleteMapping("/{slug}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<Void> deleteOrganizer(@PathVariable Integer organizerId) {
-        organizersService.deleteOrganizer(organizerId);
+    public ResponseEntity<Void> deleteOrganizer(@PathVariable String slug) {
+        organizersService.deleteOrganizer(slug);
         return ResponseEntity.noContent().build();
     }
 

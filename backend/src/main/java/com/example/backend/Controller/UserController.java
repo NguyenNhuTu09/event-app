@@ -54,11 +54,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
 
-    @Operation(summary = "Lấy thông tin người dùng theo ID (SADMIN)")
-    @GetMapping("/{id}")
+    @Operation(summary = "Lấy thông tin người dùng theo UID (SADMIN)")
+    @GetMapping("/{uid}") 
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String uid) { 
+        return ResponseEntity.ok(userService.getUserById(uid));
     }
 
     @Operation(summary = "Cập nhật thông tin người dùng hiện tại")
@@ -68,12 +68,12 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUserProfile(userUpdateDTO));
     }
 
-    @Operation(summary = "Xóa người dùng theo ID (SADMIN)")
-    @DeleteMapping("/{id}")
+    @Operation(summary = "Xóa người dùng theo UID (SADMIN)")
+    @DeleteMapping("/{uid}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("Người dùng với ID " + id + " đã được xóa thành công.");
+    public ResponseEntity<String> deleteUser(@PathVariable String uid) { 
+        userService.deleteUser(uid);
+        return ResponseEntity.ok("Người dùng với UID " + uid + " đã được xóa thành công.");
     }
 
     @Operation(summary = "Thay đổi mật khẩu của người dùng đang đăng nhập")

@@ -16,6 +16,7 @@ import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Service.Interface.EventService;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
+import com.github.slugify.Slugify;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,18 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final OrganizersRepository organizersRepository;
+    private final Slugify slugify = Slugify.builder().build();
+
+    private String generateUniqueSlug(String eventName) {
+        String baseSlug = slugify.slugify(eventName);
+        String finalSlug = baseSlug;
+        int count = 1;
+        while (eventRepository.existsBySlug(finalSlug)) {
+            finalSlug = baseSlug + "-" + count;
+            count++;
+        }
+        return finalSlug;
+    }
 
     private Organizers getCurrentOrganizer() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -56,6 +69,7 @@ public class EventServiceImpl implements EventService {
         Event event = new Event();
         event.setOrganizer(currentOrganizer); 
         event.setEventName(requestDTO.getEventName());
+        event.setSlug(generateUniqueSlug(requestDTO.getEventName()));
         event.setDescription(requestDTO.getDescription());
         event.setStartDate(requestDTO.getStartDate());
         event.setEndDate(requestDTO.getEndDate());
@@ -67,7 +81,7 @@ public class EventServiceImpl implements EventService {
         event.setVisibility(requestDTO.getVisibility() != null ? requestDTO.getVisibility() : EventVisibility.PUBLIC);
 
         if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
-        event.setStatus(EventStatus.PENDING_APPROVAL);
+            event.setStatus(EventStatus.PENDING_APPROVAL);
         } else {
             event.setStatus(requestDTO.getStatus() != null ? requestDTO.getStatus() : EventStatus.DRAFT);
         }
@@ -78,23 +92,27 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventResponseDTO updateEvent(Long eventId, EventRequestDTO requestDTO) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+    public EventResponseDTO updateEvent(String slug, EventRequestDTO requestDTO) { 
+        Event event = eventRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
 
         Organizers currentOrganizer = getCurrentOrganizer();
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa sự kiện này.");
         }
 
-        event.setEventName(requestDTO.getEventName());
+        if (!event.getEventName().equals(requestDTO.getEventName())) {
+            event.setEventName(requestDTO.getEventName());
+            event.setSlug(generateUniqueSlug(requestDTO.getEventName()));
+        }
+
         event.setDescription(requestDTO.getDescription());
         event.setStartDate(requestDTO.getStartDate());
         event.setEndDate(requestDTO.getEndDate());
         event.setLocation(requestDTO.getLocation());
         event.setBannerImageUrl(requestDTO.getBannerImageUrl());
         event.setRegistrationDeadline(requestDTO.getRegistrationDeadline());
-        if(requestDTO.getStatus() != null) event.setStatus(requestDTO.getStatus());
+        
         if(requestDTO.getVisibility() != null) event.setVisibility(requestDTO.getVisibility());
 
         if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
@@ -106,9 +124,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void deleteEvent(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+    public void deleteEvent(String slug) {
+        Event event = eventRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
         
         Organizers currentOrganizer = getCurrentOrganizer();
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
@@ -118,9 +136,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponseDTO getEventById(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+    public EventResponseDTO getEventBySlug(String slug) { 
+        Event event = eventRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
         return convertToDTO(event);
     }
 
@@ -145,6 +163,7 @@ public class EventServiceImpl implements EventService {
     private EventResponseDTO convertToDTO(Event event) {
         return EventResponseDTO.builder()
                 .eventId(event.getEventId())
+                .slug(event.getSlug())
                 .eventName(event.getEventName())
                 .description(event.getDescription())
                 .startDate(event.getStartDate())

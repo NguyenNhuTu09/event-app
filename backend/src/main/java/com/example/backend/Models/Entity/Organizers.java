@@ -56,4 +56,7 @@ public class Organizers {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false, unique = true)
+    private String slug;
 }

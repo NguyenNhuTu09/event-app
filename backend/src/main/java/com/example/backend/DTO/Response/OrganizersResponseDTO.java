@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrganizersResponseDTO {
     private Integer organizerId;
+    private String slug;
     private String name;
     private String description;
     private String logoUrl;

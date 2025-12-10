@@ -83,7 +83,6 @@ public class PresenterController {
         return ResponseEntity.noContent().build();
     }
     
-    // API Check trùng lịch (Hỗ trợ frontend khi tạo Activity)
     @Operation(summary = "Kiểm tra diễn giả có bận trong khung giờ này không")
     @GetMapping("/check-availability")
     @PreAuthorize("hasAnyAuthority('ORGANIZER', 'SADMIN')")

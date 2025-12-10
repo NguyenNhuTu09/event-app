@@ -39,9 +39,9 @@ public class EventController {
     }
 
     @Operation(summary = "Xem chi tiết sự kiện")
-    @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponseDTO> getEventById(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventService.getEventById(eventId));
+    @GetMapping("/{slug}") 
+    public ResponseEntity<EventResponseDTO> getEventBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(eventService.getEventBySlug(slug));
     }
 
     @Operation(summary = "Tạo sự kiện mới (Chỉ ORGANIZER)")
@@ -59,17 +59,17 @@ public class EventController {
     }
 
     @Operation(summary = "Cập nhật sự kiện (Chỉ ORGANIZER sở hữu)")
-    @PutMapping("/{eventId}")
+    @PutMapping("/{slug}")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long eventId, @Valid @RequestBody EventRequestDTO requestDTO) {
-        return ResponseEntity.ok(eventService.updateEvent(eventId, requestDTO));
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable String slug, @Valid @RequestBody EventRequestDTO requestDTO) {
+        return ResponseEntity.ok(eventService.updateEvent(slug, requestDTO));
     }
 
     @Operation(summary = "Xóa sự kiện (Chỉ ORGANIZER sở hữu)")
-    @DeleteMapping("/{eventId}")
+    @DeleteMapping("/{slug}")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
-        eventService.deleteEvent(eventId);
+    public ResponseEntity<Void> deleteEvent(@PathVariable String slug) {
+        eventService.deleteEvent(slug);
         return ResponseEntity.noContent().build();
     }
 

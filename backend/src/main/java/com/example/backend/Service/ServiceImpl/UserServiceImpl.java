@@ -28,7 +28,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    // private final S3Service s3Service;
     private final EmailService emailService;
 
     @Override
@@ -39,9 +38,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với ID: " + id));
+    public UserResponseDTO getUserById(String uid) {
+        User user = userRepository.findByUid(uid) 
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
         return convertToDto(user);
     }
 
@@ -71,16 +70,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UsernameNotFoundException("Không tìm thấy người dùng với ID: " + id);
-        }
-        userRepository.deleteById(id);
+    public void deleteUser(String uid) {
+        User user = userRepository.findByUid(uid)
+             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
+        userRepository.delete(user);
     }
 
     private UserResponseDTO convertToDto(User user) {
         UserResponseDTO dto = new UserResponseDTO();
-        dto.setId(user.getId());
+        dto.setUid(user.getUid());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setAddress(user.getAddress());
@@ -91,22 +89,6 @@ public class UserServiceImpl implements UserService {
         dto.setRole(user.getRole());
         return dto;
     }
-
-    // @Override
-    // public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
-    //     String user = SecurityContextHolder.getContext().getAuthentication().getName();
-    //     User currentUser = userRepository.findByEmail(user)
-    //             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + user));
-    //     if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
-    //         throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
-    //     }
-    //     if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
-    //         throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
-    //     }
-    //     String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
-    //     currentUser.setPassword(encodedNewPassword);
-    //     userRepository.save(currentUser);
-    // }
     
     @Override
     public UserResponseDTO findUserByEmail(String email) {

@@ -1,5 +1,7 @@
 package com.example.backend.Service;
 
+import java.time.Instant;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -102,7 +104,7 @@ public class AuthService {
         String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
         UserResponseDTO userDto = new UserResponseDTO(
-            user.getId(), user.getUsername(), user.getEmail(), 
+            user.getUid(), user.getUsername(), user.getEmail(), 
             user.getAddress(), user.getGender(), user.getDateOfBirth(), 
             user.getPhoneNumber(), user.getAvatarUrl(), user.getRole()
         );
@@ -115,30 +117,31 @@ public class AuthService {
     }
     
 
-    public JwtAuthenticationResponse exchangeCodeForTokens(TokenExchangeRequest request) {
-        String code = request.getRefreshToken();
-        String email = oneTimeCodeService.getEmailForCode(code);
-        
-        if (email == null) {
-            throw new RuntimeException("Mã không hợp lệ hoặc đã hết hạn.");
+    public JwtAuthenticationResponse refreshToken(TokenExchangeRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+        User user = userRepository.findByRefreshToken(requestRefreshToken)
+                .orElseThrow(() -> new RuntimeException("Refresh Token không tồn tại hoặc không chính xác!"));
+
+        if (user.getRefreshTokenExpiryDate().compareTo(Instant.now()) < 0) {
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpiryDate(null);
+            userRepository.save(user);
+            throw new RuntimeException("Refresh Token đã hết hạn. Vui lòng đăng nhập lại.");
         }
-        
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
 
-        String accessToken = jwtService.generateToken(email);
+        String newAccessToken = jwtService.generateToken(user.getEmail());
 
-        String refreshToken = refreshTokenService.createRefreshToken(email);
-        
+        String newRefreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+
         UserResponseDTO userDto = new UserResponseDTO(
-            user.getId(), user.getUsername(), user.getEmail(), 
+            user.getUid(), user.getUsername(), user.getEmail(), 
             user.getAddress(), user.getGender(), user.getDateOfBirth(), 
             user.getPhoneNumber(), user.getAvatarUrl(), user.getRole()
         );
 
         return JwtAuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken) 
                 .user(userDto)
                 .build();
     }

@@ -10,10 +10,10 @@ import com.example.backend.DTO.UserUpdateDTO;
 
 public interface UserService {
     List<UserResponseDTO> getAllUsers();
-    UserResponseDTO getUserById(Long id);
+    UserResponseDTO getUserById(String uid);
     UserResponseDTO getCurrentUserProfile();
     UserResponseDTO updateCurrentUserProfile(UserUpdateDTO userUpdateDTO);
-    void deleteUser(Long id);
+    void deleteUser(String uid);
     void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO);
     UserResponseDTO findUserByEmail(String email);
     // UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException;

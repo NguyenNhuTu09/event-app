@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByRefreshToken(String refreshToken);
     @Query("SELECT u FROM User u WHERE u.username = :keyword OR u.email = :keyword")
     Optional<User> findByUsernameOrEmail(@Param("keyword") String keyword);
+    Optional<User> findByUid(String uid);
+    boolean existsByUid(String uid);
 }

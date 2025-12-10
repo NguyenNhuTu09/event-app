@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.DTO.Request.LoginRequest;
 import com.example.backend.DTO.Request.RegistrationRequest;
 import com.example.backend.DTO.Request.TokenExchangeRequest;
+import com.example.backend.DTO.Response.JwtAuthenticationResponse;
 import com.example.backend.DTO.Response.JwtResponse;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Service.AuthService;
@@ -58,15 +59,16 @@ public class AuthController {
         }
     }
 
-    // @PostMapping("/token/refresh")
-    // public ResponseEntity<?> refreshToken(@RequestBody TokenExchangeRequest tokenExchangeRequest) {
-    //     try {
-    //         JwtAuthenticationResponse response = authService.exchangeCodeForTokens(tokenExchangeRequest);
-    //         return ResponseEntity.ok(response);
-    //     } catch (RuntimeException e) {
-    //         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    //     }
-    // }
+    @PostMapping("/token/refresh")
+    @Operation(summary = "Làm mới Access Token bằng Refresh Token")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenExchangeRequest tokenExchangeRequest) {
+        try {
+            JwtAuthenticationResponse response = authService.refreshToken(tokenExchangeRequest);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+    }
 
     @Operation(summary = "Đăng xuất")
     @PostMapping("/logout")
