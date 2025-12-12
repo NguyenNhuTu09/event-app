@@ -54,6 +54,31 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
 
+    @Operation(summary = "Lấy danh sách người dùng theo Role (SADMIN)")
+    @GetMapping("/role/{roleName}")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<?> getUsersByRole(
+            @Parameter(description = "Tên vai trò (USER, ORGANIZER, SADMIN, STUDENT_UNION)", example = "STUDENT_UNION")
+            @PathVariable String roleName) {
+        try {
+            List<UserResponseDTO> users = userService.getUsersByRole(roleName);
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Cập nhật thông tin người dùng theo UID (SADMIN)")
+    @PutMapping("/{uid}") 
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<UserResponseDTO> updateUserByUid(
+            @Parameter(description = "UID của người dùng cần chỉnh sửa") 
+            @PathVariable String uid, 
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        
+        return ResponseEntity.ok(userService.updateUserByUid(uid, userUpdateDTO));
+    }
+
     @Operation(summary = "Lấy thông tin người dùng theo UID (SADMIN)")
     @GetMapping("/{uid}") 
     @PreAuthorize("hasAuthority('SADMIN')")

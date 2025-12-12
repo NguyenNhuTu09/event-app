@@ -20,6 +20,7 @@ import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.Service.Interface.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,14 @@ public class EventController {
     private final EventService eventService;
 
     @Operation(summary = "Lấy danh sách sự kiện công khai (Trang chủ)")
+    @SecurityRequirements()
     @GetMapping("/public")
     public ResponseEntity<List<EventResponseDTO>> getPublicEvents() {
         return ResponseEntity.ok(eventService.getPublicEvents());
     }
 
     @Operation(summary = "Xem chi tiết sự kiện")
+    @SecurityRequirements()
     @GetMapping("/{slug}") 
     public ResponseEntity<EventResponseDTO> getEventBySlug(@PathVariable String slug) {
         return ResponseEntity.ok(eventService.getEventBySlug(slug));

@@ -19,6 +19,7 @@ import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.UserService;
+import com.example.backend.Utils.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -158,5 +159,36 @@ public class UserServiceImpl implements UserService {
         user.setTokenExpiryDate(null);
         
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponseDTO updateUserByUid(String uid, UserUpdateDTO userUpdateDTO) {
+        User userToUpdate = userRepository.findByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
+        
+        userToUpdate.setUsername(userUpdateDTO.getUsername());
+        userToUpdate.setAddress(userUpdateDTO.getAddress());
+        userToUpdate.setGender(userUpdateDTO.getGender());
+        userToUpdate.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        userToUpdate.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+        userToUpdate.setAvatarUrl(userUpdateDTO.getAvatarUrl());
+
+        User updatedUser = userRepository.save(userToUpdate);
+        
+        return convertToDto(updatedUser);
+    }
+
+    @Override
+    public List<UserResponseDTO> getUsersByRole(String roleName) {
+        try {
+            Role roleEnum = Role.valueOf(roleName.toUpperCase());
+            List<User> users = userRepository.findByRole(roleEnum);
+            return users.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Role không hợp lệ. Các role hỗ trợ: USER, SADMIN, ORGANIZER, STUDENT_UNION");
+        }
     }
 }
