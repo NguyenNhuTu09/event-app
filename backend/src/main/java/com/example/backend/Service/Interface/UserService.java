@@ -17,8 +17,8 @@ public interface UserService {
     void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO);
     UserResponseDTO findUserByEmail(String email);
     // UserResponseDTO updateCurrentUserAvatar(MultipartFile file) throws IOException;
-
-    
+    UserResponseDTO updateUserByUid(String uid, UserUpdateDTO userUpdateDTO);
     void forgotPassword(ForgotPasswordRequestDTO forgotPasswordDTO);
     void resetPassword(ResetPasswordRequestDTO resetPasswordDTO);
+    List<UserResponseDTO> getUsersByRole(String roleName);
 }
