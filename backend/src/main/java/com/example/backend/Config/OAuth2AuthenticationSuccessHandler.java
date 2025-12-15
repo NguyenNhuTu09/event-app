@@ -35,12 +35,13 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String picture = oauthUser.getAttribute("picture");
         User user = authService.processOAuthPostLogin(email, name, picture);
         String oneTimeCode = oneTimeCodeService.generateAndStoreCode(user.getEmail());
-        String targetUrl = UriComponentsBuilder.fromUriString("https://ems-backend-jkjx.onrender.com/oauth2/redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2/redirect")
                 .queryParam("token", oneTimeCode)
                 .build().toUriString();
 
         response.sendRedirect(targetUrl);
     }
+    // https://ems-backend-jkjx.onrender.com/oauth2/redirect
 }
 
 

@@ -20,6 +20,7 @@ import com.example.backend.DTO.Response.PresenterResponseDTO;
 import com.example.backend.Service.Interface.PresenterService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,18 +36,21 @@ public class PresenterController {
     // --- PUBLIC ENDPOINTS (Ai cũng xem được) ---
 
     @Operation(summary = "Lấy danh sách tất cả diễn giả")
+    @SecurityRequirements()
     @GetMapping
     public ResponseEntity<List<PresenterResponseDTO>> getAllPresenters() {
         return ResponseEntity.ok(presenterService.getAllPresenters());
     }
 
     @Operation(summary = "Xem chi tiết thông tin diễn giả")
+    @SecurityRequirements()
     @GetMapping("/{presenterId}")
     public ResponseEntity<PresenterResponseDTO> getPresenterById(@PathVariable Integer presenterId) {
         return ResponseEntity.ok(presenterService.getPresenterById(presenterId));
     }
 
     @Operation(summary = "Tìm kiếm diễn giả (theo tên, công ty, chức danh)")
+    @SecurityRequirements()
     @GetMapping("/search")
     public ResponseEntity<List<PresenterResponseDTO>> searchPresenters(@RequestParam String keyword) {
         return ResponseEntity.ok(presenterService.searchPresenters(keyword));

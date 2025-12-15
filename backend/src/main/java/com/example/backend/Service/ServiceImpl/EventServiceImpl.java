@@ -6,16 +6,27 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
+import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
+import com.example.backend.Models.Entity.Activity;
+import com.example.backend.Models.Entity.ActivityAttendees;
 import com.example.backend.Models.Entity.Event;
+import com.example.backend.Models.Entity.EventAttendees;
 import com.example.backend.Models.Entity.Organizers;
+import com.example.backend.Models.Entity.User;
+import com.example.backend.Repository.ActivityAttendeesRepository;
+import com.example.backend.Repository.ActivityRepository;
+import com.example.backend.Repository.EventAttendeesRepository;
 import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
+import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.EventService;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
+import com.example.backend.Utils.RegistrationStatus;
 import com.github.slugify.Slugify;
 
 import jakarta.transaction.Transactional;
@@ -28,6 +39,22 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final OrganizersRepository organizersRepository;
     private final Slugify slugify = Slugify.builder().build();
+    private final EventAttendeesRepository eventAttendeesRepository;
+    private final UserRepository userRepository; 
+    private final ActivityRepository activityRepository;
+    private final ActivityAttendeesRepository activityAttendeesRepository;
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email;
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            email = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            email = principal.toString();
+        }
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
 
     private String generateUniqueSlug(String eventName) {
         String baseSlug = slugify.slugify(eventName);
@@ -178,6 +205,21 @@ public class EventServiceImpl implements EventService {
                 .build();
     }
 
+    private EventAttendeeResponseDTO convertToAttendeeDTO(EventAttendees entity) {
+        return EventAttendeeResponseDTO.builder()
+                .id(entity.getId())
+                .userId(entity.getUser().getId())
+                .username(entity.getUser().getUsername())
+                .email(entity.getUser().getEmail())
+                .phoneNumber(entity.getUser().getPhoneNumber())
+                .avatarUrl(entity.getUser().getAvatarUrl()) 
+                .registrationDate(entity.getRegistrationDate())
+                .status(entity.getStatus())
+                .ticketCode(entity.getStatus() == RegistrationStatus.APPROVED ? entity.getTicketCode() : null)
+                .checkInStatus(entity.isEventCheckInStatus())
+                .build();
+    }
+
     @Override
     @Transactional
     public EventResponseDTO approveEvent(Long eventId) {
@@ -203,5 +245,102 @@ public class EventServiceImpl implements EventService {
         }
         event.setStatus(EventStatus.REJECTED);
         return convertToDTO(eventRepository.save(event));
+    }
+
+
+    @Override
+    @Transactional
+    public void registerForEvent(EventRegistrationRequestDTO requestDTO) {
+        User currentUser = getCurrentUser();
+        Event event = eventRepository.findById(requestDTO.getEventId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sự kiện"));
+
+        if (event.getStatus() != EventStatus.PUBLISHED) {
+            throw new IllegalArgumentException("Sự kiện chưa được công bố.");
+        }
+        if (eventAttendeesRepository.existsByEventAndUser(event, currentUser)) {
+            throw new IllegalArgumentException("Bạn đã đăng ký sự kiện này rồi.");
+        }
+
+        EventAttendees registration = new EventAttendees();
+        registration.setUser(currentUser);
+        registration.setEvent(event);
+        registration.setStatus(RegistrationStatus.PENDING); 
+        EventAttendees savedRegistration = eventAttendeesRepository.save(registration);
+
+        if (requestDTO.getActivityIds() != null && !requestDTO.getActivityIds().isEmpty()) {
+            for (Integer activityId : requestDTO.getActivityIds()) {
+                Activity activity = activityRepository.findById(activityId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hoạt động ID: " + activityId));
+
+                if (!activity.getEvent().getEventId().equals(event.getEventId())) {
+                    throw new IllegalArgumentException("Hoạt động " + activity.getActivityName() + " không thuộc sự kiện này.");
+                }
+
+                if (activity.getMaxAttendees() != null) {
+                    long currentCount = activityAttendeesRepository.countByActivity_ActivityId(activityId);
+                    if (currentCount >= activity.getMaxAttendees()) {
+                        throw new IllegalArgumentException("Hoạt động " + activity.getActivityName() + " đã hết chỗ.");
+                    }
+                }
+
+                ActivityAttendees actAttendee = new ActivityAttendees();
+                actAttendee.setEventAttendee(savedRegistration); 
+                actAttendee.setActivity(activity);
+                actAttendee.setCheckInStatus(false);
+                
+                activityAttendeesRepository.save(actAttendee);
+            }
+        }
+    }
+
+    @Override
+    public List<EventAttendeeResponseDTO> getEventRegistrations(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+                
+        Organizers currentOrganizer = getCurrentOrganizer();
+        
+        if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền xem danh sách đăng ký của sự kiện này.");
+        }
+        
+        List<EventAttendees> attendeesList = eventAttendeesRepository.findByEvent_EventId(eventId);
+        
+        return attendeesList.stream()
+                .map(this::convertToAttendeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void approveRegistration(Long registrationId) {
+        EventAttendees registration = eventAttendeesRepository.findById(registrationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+                
+        Organizers currentOrganizer = getCurrentOrganizer();
+        
+        if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền duyệt vé này.");
+        }
+
+        registration.setStatus(RegistrationStatus.APPROVED);
+        eventAttendeesRepository.save(registration);
+    }
+
+    @Override
+    @Transactional
+    public void rejectRegistration(Long registrationId) {
+        EventAttendees registration = eventAttendeesRepository.findById(registrationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+                
+        Organizers currentOrganizer = getCurrentOrganizer();
+        
+        if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền từ chối vé này.");
+        }
+
+        registration.setStatus(RegistrationStatus.REJECTED);
+        eventAttendeesRepository.save(registration);
     }
 }
