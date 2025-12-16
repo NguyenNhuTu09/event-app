@@ -24,6 +24,7 @@ import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.EventService;
+import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
 import com.example.backend.Utils.RegistrationStatus;
@@ -216,7 +217,7 @@ public class EventServiceImpl implements EventService {
                 .registrationDate(entity.getRegistrationDate())
                 .status(entity.getStatus())
                 .ticketCode(entity.getStatus() == RegistrationStatus.APPROVED ? entity.getTicketCode() : null)
-                .checkInStatus(entity.isEventCheckInStatus())
+                .eventCheckInStatus(entity.getEventCheckInStatus())
                 .build();
     }
 
@@ -287,7 +288,7 @@ public class EventServiceImpl implements EventService {
                 ActivityAttendees actAttendee = new ActivityAttendees();
                 actAttendee.setEventAttendee(savedRegistration); 
                 actAttendee.setActivity(activity);
-                actAttendee.setCheckInStatus(false);
+                actAttendee.setActCheckInStatus(CheckInStatus.NOT_CHECKED_IN);
                 
                 activityAttendeesRepository.save(actAttendee);
             }

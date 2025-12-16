@@ -3,6 +3,7 @@ package com.example.backend.Models.Entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.RegistrationStatus;
 
 import jakarta.persistence.Column;
@@ -45,8 +46,9 @@ public class EventAttendees {
     @Column(name = "registration_date")
     private LocalDateTime registrationDate = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_check_in_status")
-    private boolean eventCheckInStatus = false;
+    private CheckInStatus eventCheckInStatus = CheckInStatus.NOT_CHECKED_IN;
 
     @Column(name = "ticket_code", unique = true, nullable = false, updatable = false)
     private String ticketCode;

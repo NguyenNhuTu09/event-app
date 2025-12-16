@@ -32,8 +32,6 @@ public class ActivityServiceImpl implements ActivityService {
     private final EventRepository eventRepository;
     private final ActivityCategoriesRepository categoryRepository;
     private final PresentersRepository presentersRepository;
-    
-    // Jackson Mapper để xử lý JSON
     private final ObjectMapper objectMapper; 
 
     @Override
