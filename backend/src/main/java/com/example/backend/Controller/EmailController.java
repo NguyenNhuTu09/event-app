@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+
 @RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
@@ -22,8 +23,8 @@ public class EmailController {
     @Operation(summary = "Gửi Email cho người dùng")
     @PostMapping("/send-mail")
     public String sendMail(@RequestParam String toEmail) {
-        String subject = "Test Email từ Spring Boot";
-        String body = "Xin chào, đây là email được gửi tự động từ ứng dụng Spring Boot!";
+        String subject = "Test Email từ Spring Boot + Resend";
+        String body = "Xin chào, đây là email được gửi qua Resend API!";
         return emailService.sendSimpleMail(toEmail, body, subject);
     }
 }

@@ -1,38 +1,37 @@
 package com.example.backend.Service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender javaMailSender;
+    private final Resend resend;
     private final TemplateEngine templateEngine;
 
-    @Value("${spring.mail.username}")
-    private String sender; 
+    @Value("${resend.from.email}")
+    private String fromEmail; // Lấy từ application.properties
 
     public String sendSimpleMail(String recipient, String msgBody, String subject) {
         try {
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(recipient)
+                    .subject(subject)
+                    .text(msgBody) // Dùng .text() cho mail thường
+                    .build();
 
-            mailMessage.setFrom(sender); 
-            mailMessage.setTo(recipient); 
-            mailMessage.setText(msgBody); 
-            mailMessage.setSubject(subject); 
-
-            javaMailSender.send(mailMessage);
-            return "Gửi mail thành công!";
+            CreateEmailResponse data = resend.emails().send(params);
+            return "Gửi mail thành công! ID: " + data.getId();
         } catch (Exception e) {
             e.printStackTrace();
             return "Lỗi khi gửi mail: " + e.getMessage();
@@ -41,45 +40,48 @@ public class EmailService {
 
     public void sendEmailWithTemplate(String to, String subject, String username, String otp) {
         try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setTo(to);
-            helper.setSubject(subject);
-            
             Context context = new Context();
-            context.setVariable("username", username); 
-            context.setVariable("otpCode", otp);       
-            
+            context.setVariable("username", username);
+            context.setVariable("otpCode", otp);
+
             String htmlContent = templateEngine.process("otp-email", context);
-            
-            helper.setText(htmlContent, true); 
-            javaMailSender.send(message);
-            
-        } catch (MessagingException e) {
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject(subject)
+                    .html(htmlContent) // Dùng .html() cho mail HTML
+                    .build();
+
+            resend.emails().send(params);
+            System.out.println("OTP Email sent successfully to " + to);
+
+        } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error sending OTP email: " + e.getMessage());
         }
     }
 
     public void sendNotificationEmail(String to, String subject, String username) {
         try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setTo(to);
-            helper.setSubject(subject);
-            
             Context context = new Context();
             context.setVariable("username", username);
-            
-            // Trỏ tới file password-changed.html
+
             String htmlContent = templateEngine.process("password-changed", context);
-            
-            helper.setText(htmlContent, true);
-            javaMailSender.send(message);
-        } catch (MessagingException e) {    
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject(subject)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+            System.out.println("Notification Email sent successfully to " + to);
+
+        } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error sending notification email: " + e.getMessage());
         }
     }
-
 }
