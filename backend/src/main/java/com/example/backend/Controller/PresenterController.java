@@ -97,4 +97,12 @@ public class PresenterController {
         boolean isBusy = presenterService.isPresenterBusy(presenterId, startTime, endTime);
         return ResponseEntity.ok(isBusy);
     }
+
+
+    @Operation(summary = "Lấy danh sách diễn giả theo Nhà tổ chức (slug)")
+    @SecurityRequirements() 
+    @GetMapping("/by-organizer/{slug}")
+    public ResponseEntity<List<PresenterResponseDTO>> getPresentersByOrganizer(@PathVariable String slug) {
+        return ResponseEntity.ok(presenterService.getPresentersByOrganizerSlug(slug));
+    }
 }

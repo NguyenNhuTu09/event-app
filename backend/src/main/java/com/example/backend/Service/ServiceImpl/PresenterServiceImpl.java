@@ -81,12 +81,6 @@ public class PresenterServiceImpl implements PresenterService {
 
     @Override
     public List<PresenterResponseDTO> getPresentersByEventId(Long eventId) {
-        // Logic:
-        // 1. Lấy tất cả Activity của Event đó
-        // 2. Lấy ra Presenter từ Activity
-        // 3. Lọc bỏ null (Activity không có diễn giả)
-        // 4. Lọc bỏ trùng lặp (1 diễn giả có thể nói 2 bài)
-        
         List<Activity> activities = activityRepository.findByEvent_EventIdOrderByStartTimeAsc(eventId);
 
         return activities.stream()
@@ -99,15 +93,9 @@ public class PresenterServiceImpl implements PresenterService {
 
     @Override
     public boolean isPresenterBusy(Integer presenterId, String startTimeStr, String endTimeStr) {
-        // Parse String sang LocalDateTime
-        // Giả định client gửi format chuẩn ISO hoặc format cụ thể "yyyy-MM-dd HH:mm:ss"
-        // Ở đây tôi dùng ISO_LOCAL_DATE_TIME (vd: "2023-12-03T10:00:00")
         try {
             LocalDateTime start = LocalDateTime.parse(startTimeStr);
             LocalDateTime end = LocalDateTime.parse(endTimeStr);
-
-            // Gọi Repository kiểm tra conflict
-            // currentActivityId = -1 vì đây là check chung, ko phải check khi update activity cụ thể
             return activityRepository.existsByPresenterConflict(presenterId, start, end, -1);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi định dạng ngày tháng: " + e.getMessage());
@@ -123,6 +111,14 @@ public class PresenterServiceImpl implements PresenterService {
                 entity.getBio(),
                 entity.getAvatarUrl()
         );
+    }
+
+    @Override
+    public List<PresenterResponseDTO> getPresentersByOrganizerSlug(String organizerSlug) {
+        List<Presenters> presenters = presentersRepository.findByOrganizerSlug(organizerSlug);
+        return presenters.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     private Presenters mapToEntity(PresenterRequestDTO dto) {

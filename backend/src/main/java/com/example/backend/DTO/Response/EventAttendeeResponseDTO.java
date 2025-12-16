@@ -2,6 +2,7 @@ package com.example.backend.DTO.Response;
 
 import java.time.LocalDateTime;
 
+import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.RegistrationStatus;
 
 import lombok.AllArgsConstructor;
@@ -26,5 +27,5 @@ public class EventAttendeeResponseDTO {
     private LocalDateTime registrationDate;
     private RegistrationStatus status; 
     private String ticketCode;         
-    private boolean checkInStatus;    
+    private CheckInStatus eventCheckInStatus;    
 }

@@ -2,8 +2,12 @@ package com.example.backend.Models.Entity;
 
 import java.time.LocalDateTime;
 
+import com.example.backend.Utils.CheckInStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,13 +32,10 @@ public class ActivityAttendees {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Liên kết đến vé tham dự sự kiện tổng (Cha)
-    // Từ đây có thể suy ra User là ai
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_attendee_id", nullable = false)
     private EventAttendees eventAttendee;
 
-    // Liên kết đến hoạt động cụ thể mà họ đăng ký
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
@@ -42,9 +43,9 @@ public class ActivityAttendees {
     @Column(name = "registered_at")
     private LocalDateTime registeredAt = LocalDateTime.now();
 
-    // Trạng thái điểm danh riêng cho hoạt động này (VD: Có mặt tại phòng hội thảo A)
+    @Enumerated(EnumType.STRING)
     @Column(name = "check_in_status")
-    private boolean checkInStatus = false;
+    private CheckInStatus actCheckInStatus = CheckInStatus.NOT_CHECKED_IN;
     
     @Column(name = "check_in_time")
     private LocalDateTime checkInTime;
