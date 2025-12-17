@@ -1,5 +1,6 @@
 package com.example.backend.Service.ServiceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import com.example.backend.Repository.EventAttendeesRepository;
 import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.EventService;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.EventStatus;
@@ -44,6 +46,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository; 
     private final ActivityRepository activityRepository;
     private final ActivityAttendeesRepository activityAttendeesRepository;
+    private final EmailService emailService;
 
     private User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -291,6 +294,14 @@ public class EventServiceImpl implements EventService {
                 actAttendee.setActCheckInStatus(CheckInStatus.NOT_CHECKED_IN);
                 
                 activityAttendeesRepository.save(actAttendee);
+
+                emailService.sendRegistrationPendingEmail(
+                    currentUser.getEmail(),
+                    currentUser.getUsername(),
+                    event.getEventName(),
+                    event.getStartDate().toString(), 
+                    event.getLocation()
+                );
             }
         }
     }
@@ -327,6 +338,22 @@ public class EventServiceImpl implements EventService {
 
         registration.setStatus(RegistrationStatus.APPROVED);
         eventAttendeesRepository.save(registration);
+        List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
+        
+        List<String> activityNames = new ArrayList<>();
+        if (activities != null) {
+            activities.forEach(act -> activityNames.add(act.getActivity().getActivityName()));
+        }
+
+        emailService.sendRegistrationApprovedEmail(
+            registration.getUser().getEmail(),
+            registration.getUser().getUsername(),
+            registration.getEvent().getEventName(),
+            registration.getEvent().getStartDate().toString(),
+            registration.getEvent().getLocation(),
+            registration.getTicketCode(),
+            activityNames
+        );
     }
 
     @Override

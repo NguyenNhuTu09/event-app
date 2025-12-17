@@ -133,7 +133,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         String subject = "Mã xác nhận quên mật khẩu";
-        // emailService.sendSimpleMail(user.getEmail(), body, subject);
         emailService.sendEmailWithTemplate(user.getEmail(), subject, user.getUsername(), otp);
     }
 

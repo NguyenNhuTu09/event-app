@@ -1,5 +1,7 @@
 package com.example.backend.Service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -19,7 +21,7 @@ public class EmailService {
     private final TemplateEngine templateEngine;
 
     @Value("${resend.from.email}")
-    private String fromEmail; // Lấy từ application.properties
+    private String fromEmail;
 
     public String sendSimpleMail(String recipient, String msgBody, String subject) {
         try {
@@ -27,7 +29,7 @@ public class EmailService {
                     .from(fromEmail)
                     .to(recipient)
                     .subject(subject)
-                    .text(msgBody) // Dùng .text() cho mail thường
+                    .text(msgBody)
                     .build();
 
             CreateEmailResponse data = resend.emails().send(params);
@@ -50,7 +52,7 @@ public class EmailService {
                     .from(fromEmail)
                     .to(to)
                     .subject(subject)
-                    .html(htmlContent) // Dùng .html() cho mail HTML
+                    .html(htmlContent) 
                     .build();
 
             resend.emails().send(params);
@@ -82,6 +84,56 @@ public class EmailService {
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Error sending notification email: " + e.getMessage());
+        }
+    }
+
+    public void sendRegistrationPendingEmail(String to, String username, String eventName, String startDate, String location) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("startDate", startDate);
+            context.setVariable("location", location);
+
+            String htmlContent = templateEngine.process("event-registration-pending", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Xác nhận đăng ký: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace(); 
+        }
+    }
+
+    public void sendRegistrationApprovedEmail(String to, String username, String eventName, 
+                                              String startDate, String location, 
+                                              String ticketCode, List<String> activityList) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("startDate", startDate);
+            context.setVariable("location", location);
+            context.setVariable("ticketCode", ticketCode);
+            context.setVariable("activityList", activityList);
+
+            String htmlContent = templateEngine.process("event-registration-approved", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Vé tham dự sự kiện: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

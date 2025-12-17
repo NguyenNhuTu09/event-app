@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận đăng ký - Webie Event</title>
+    <style>
+        /* Giữ nguyên Style cũ của bạn để đồng bộ */
+        body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 0; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #007bff; }
+        .logo { max-width: 150px; height: auto; }
+        .content { padding: 30px 20px; color: #333333; line-height: 1.6; }
+        .greeting { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .event-box { background-color: #e3f2fd; border-left: 5px solid #007bff; padding: 15px; margin: 20px 0; }
+        .footer { background-color: #333333; color: #ffffff; text-align: center; padding: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1764823960/webie-logo-1_w19rnl.webp" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <div class="greeting">Xin chào <span th:text="${username}">User</span>,</div>
+            <p>Chúng tôi đã nhận được yêu cầu đăng ký tham gia sự kiện của bạn.</p>
+            
+            <div class="event-box">
+                <h3 style="margin-top: 0; color: #007bff;" th:text="${eventName}">Tên Sự Kiện</h3>
+                <p><strong>Thời gian:</strong> <span th:text="${startDate}">01/01/2025</span></p>
+                <p><strong>Địa điểm:</strong> <span th:text="${location}">Hà Nội</span></p>
+            </div>
+
+            <p>Đơn đăng ký của bạn đang ở trạng thái: <strong style="color: #ff9800;">CHỜ DUYỆT (PENDING)</strong>.</p>
+            <p>Ban tổ chức (Organizer) sẽ xem xét và phản hồi trong thời gian sớm nhất. Bạn sẽ nhận được email thông báo khi có kết quả.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Team. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
