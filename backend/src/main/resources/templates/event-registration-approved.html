@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký thành công - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 0; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #28a745; padding: 20px; text-align: center; color: white; } /* Màu xanh lá chúc mừng */
+        .logo { max-width: 150px; height: auto; }
+        .content { padding: 30px 20px; color: #333333; line-height: 1.6; }
+        .greeting { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        
+        .ticket-info { border: 2px dashed #28a745; padding: 20px; text-align: center; margin: 20px 0; background-color: #f0fff4; }
+        .ticket-code { font-size: 24px; font-weight: bold; color: #28a745; letter-spacing: 2px; margin-top: 10px; display: block;}
+        
+        .info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .info-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .info-table td:first-child { font-weight: bold; width: 120px; color: #555; }
+        
+        .activity-list { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px; }
+        .activity-item { margin-bottom: 5px; padding-left: 10px; border-left: 3px solid #007bff; }
+        
+        .footer { background-color: #333333; color: #ffffff; text-align: center; padding: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1764823960/webie-logo-1_w19rnl.webp" alt="Webie Logo" class="logo">
+            <h2>CHÚC MỪNG!</h2>
+        </div>
+        <div class="content">
+            <div class="greeting">Xin chào <span th:text="${username}">User</span>,</div>
+            <p>Đơn đăng ký tham gia sự kiện của bạn đã được <strong>CHẤP THUẬN</strong>.</p>
+            
+            <!-- Thông tin vé -->
+            <div class="ticket-info">
+                MÃ VÉ THAM DỰ (TICKET CODE)
+                <span class="ticket-code" th:text="${ticketCode}">TICKET-123456</span>
+                <small style="display:block; margin-top:5px; color:#666">Vui lòng xuất trình mã này khi check-in.</small>
+            </div>
+
+            <!-- Thông tin sự kiện -->
+            <h3>Thông tin sự kiện:</h3>
+            <table class="info-table">
+                <tr>
+                    <td>Sự kiện:</td>
+                    <td th:text="${eventName}">Tên Event</td>
+                </tr>
+                <tr>
+                    <td>Thời gian:</td>
+                    <td th:text="${startDate}">01/01/2025</td>
+                </tr>
+                <tr>
+                    <td>Địa điểm:</td>
+                    <td th:text="${location}">Hội trường A</td>
+                </tr>
+            </table>
+
+            <!-- Danh sách hoạt động đã đăng ký -->
+            <div th:if="${not #lists.isEmpty(activityList)}" class="activity-list">
+                <strong>Các hoạt động bạn đã đăng ký:</strong>
+                <div th:each="activity : ${activityList}" class="activity-item">
+                    <span th:text="${activity}">Tên Activity</span>
+                </div>
+            </div>
+
+            <p>Hẹn gặp lại bạn tại sự kiện!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Team. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

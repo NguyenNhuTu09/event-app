@@ -55,6 +55,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/logout").authenticated()
                 .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
+                .requestMatchers("/api/users/forgot-password").permitAll()
+                .requestMatchers("/api/users/reset-password").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/events/public").permitAll()
                 .requestMatchers("/api/events/{slug}").permitAll()

@@ -27,4 +27,6 @@ public class EmailController {
         String body = "Xin chào, đây là email được gửi qua Resend API!";
         return emailService.sendSimpleMail(toEmail, body, subject);
     }
+
+    
 }

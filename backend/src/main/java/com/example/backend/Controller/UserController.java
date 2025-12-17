@@ -26,6 +26,7 @@ import com.example.backend.Service.Interface.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -123,6 +124,7 @@ public class UserController {
     }
 
     @Operation(summary = "Yêu cầu quên mật khẩu (Gửi OTP qua email)")
+    @SecurityRequirements()
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
         userService.forgotPassword(request);
@@ -130,6 +132,7 @@ public class UserController {
     }
 
     @Operation(summary = "Đặt lại mật khẩu bằng OTP")
+    @SecurityRequirements()
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
         try {
