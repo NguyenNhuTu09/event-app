@@ -1,5 +1,6 @@
 package com.example.backend.Service.ServiceImpl;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.DTO.ActivityEmailDTO;
 import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
@@ -299,7 +301,8 @@ public class EventServiceImpl implements EventService {
                     currentUser.getEmail(),
                     currentUser.getUsername(),
                     event.getEventName(),
-                    event.getStartDate().toString(), 
+                    event.getStartDate(), 
+                    event.getEndDate(),   
                     event.getLocation()
                 );
             }
@@ -338,22 +341,57 @@ public class EventServiceImpl implements EventService {
 
         registration.setStatus(RegistrationStatus.APPROVED);
         eventAttendeesRepository.save(registration);
-        List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
-        
-        List<String> activityNames = new ArrayList<>();
-        if (activities != null) {
-            activities.forEach(act -> activityNames.add(act.getActivity().getActivityName()));
-        }
 
+        List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
+
+        List<ActivityEmailDTO> activityEmailList = new ArrayList<>();
+        if (activities != null) {
+            activityEmailList = activities.stream()
+                    .map(this::mapActivityToDTO) // Gọi hàm riêng
+                    .collect(Collectors.toList());
+        }
         emailService.sendRegistrationApprovedEmail(
             registration.getUser().getEmail(),
             registration.getUser().getUsername(),
             registration.getEvent().getEventName(),
-            registration.getEvent().getStartDate().toString(),
+            registration.getEvent().getStartDate(), 
+            registration.getEvent().getEndDate(),
             registration.getEvent().getLocation(),
             registration.getTicketCode(),
-            activityNames
+            activityEmailList
         );
+    }
+
+    private ActivityEmailDTO mapActivityToDTO(ActivityAttendees actAttendee) {
+        Activity act = actAttendee.getActivity();
+        
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+
+        String timeDisplayStr;
+        
+        if (act.getStartTime() != null && act.getEndTime() != null) {
+            boolean isSameDay = act.getStartTime().toLocalDate().isEqual(act.getEndTime().toLocalDate());
+
+            if (isSameDay) {
+                timeDisplayStr = act.getStartTime().format(timeFormatter) + " - " + 
+                                 act.getEndTime().format(timeFormatter) + 
+                                 " (" + act.getStartTime().format(dateFormatter) + ")";
+            } else {
+                timeDisplayStr = act.getStartTime().format(fullFormatter) + "  đến  " + 
+                                 act.getEndTime().format(fullFormatter);
+            }
+        } else {
+            timeDisplayStr = "Chưa cập nhật";
+        }
+
+        return ActivityEmailDTO.builder()
+                .name(act.getActivityName())
+                .timeRange(timeDisplayStr) 
+                .location(act.getRoomOrVenue() != null ? act.getRoomOrVenue() : "Chưa cập nhật")
+                .description(act.getDescription())
+                .build();
     }
 
     @Override
