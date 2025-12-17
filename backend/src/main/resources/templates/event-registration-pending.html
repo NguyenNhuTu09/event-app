@@ -4,37 +4,89 @@
     <meta charset="UTF-8">
     <title>Xác nhận đăng ký - Webie Event</title>
     <style>
-        /* Giữ nguyên Style cũ của bạn để đồng bộ */
-        body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; }
-        .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 0; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background-color: #ffffff; padding: 20px; text-align: center; border-bottom: 3px solid #007bff; }
-        .logo { max-width: 150px; height: auto; }
-        .content { padding: 30px 20px; color: #333333; line-height: 1.6; }
-        .greeting { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-        .event-box { background-color: #e3f2fd; border-left: 5px solid #007bff; padding: 15px; margin: 20px 0; }
-        .footer { background-color: #333333; color: #ffffff; text-align: center; padding: 15px; font-size: 12px; }
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { padding: 30px; text-align: center; background-color: #000; border-bottom: 2px solid #d4af37; }
+        .logo { max-width: 120px; height: auto; }
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+        
+        .event-card { 
+            background-color: #222; 
+            border: 1px solid #333; 
+            padding: 0; 
+            margin: 25px 0; 
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .event-title {
+            background-color: #d4af37;
+            color: #000;
+            padding: 15px;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 0;
+            text-align: center;
+        }
+        
+        /* Table Styles cho Dark Mode */
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table td { padding: 12px 15px; border-bottom: 1px solid #333; color: #ddd; }
+        .info-table tr:last-child td { border-bottom: none; }
+        .info-table td:first-child { color: #888; width: 100px; font-size: 14px; }
+        .info-table td:last-child { font-weight: bold; }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #b8860b; /* Dark Goldenrod */
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1764823960/webie-logo-1_w19rnl.webp" alt="Webie Logo" class="logo">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
         </div>
         <div class="content">
-            <div class="greeting">Xin chào <span th:text="${username}">User</span>,</div>
-            <p>Chúng tôi đã nhận được yêu cầu đăng ký tham gia sự kiện của bạn.</p>
+            <p style="font-size: 16px; color: #fff;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            <p>Yêu cầu đăng ký của bạn đã được tiếp nhận.</p>
             
-            <div class="event-box">
-                <h3 style="margin-top: 0; color: #007bff;" th:text="${eventName}">Tên Sự Kiện</h3>
-                <p><strong>Thời gian:</strong> <span th:text="${startDate}">01/01/2025</span></p>
-                <p><strong>Địa điểm:</strong> <span th:text="${location}">Hà Nội</span></p>
+            <div class="event-card">
+                <div class="event-title" th:text="${eventName}">Tên Sự Kiện</div>
+                
+                <table class="info-table">
+                    <tr>
+                        <td>Bắt đầu</td>
+                        <td th:text="${eventStartFull}">07:43 16/12/2025</td>
+                    </tr>
+                    <tr>
+                        <td>Kết thúc</td>
+                        <td th:text="${eventEndFull}">07:43 30/12/2025</td>
+                    </tr>
+                    <tr>
+                        <td>Địa điểm</td>
+                        <td th:text="${location}">Hà Nội</td>
+                    </tr>
+                </table>
             </div>
 
-            <p>Đơn đăng ký của bạn đang ở trạng thái: <strong style="color: #ff9800;">CHỜ DUYỆT (PENDING)</strong>.</p>
-            <p>Ban tổ chức (Organizer) sẽ xem xét và phản hồi trong thời gian sớm nhất. Bạn sẽ nhận được email thông báo khi có kết quả.</p>
+            <div style="text-align: center;">
+                <p style="margin-bottom: 5px;">Trạng thái đơn đăng ký:</p>
+                <span class="status-badge">PENDING APPROVAL</span>
+                <p style="font-size: 13px; color: #666; margin-top: 15px;">Chúng tôi sẽ gửi email thông báo ngay khi Organizer duyệt vé của bạn.</p>
+            </div>
         </div>
         <div class="footer">
-            <p>&copy; 2025 Webie Team. All rights reserved.</p>
+            <p>&copy; 2025 Webie Team</p>
         </div>
     </div>
 </body>

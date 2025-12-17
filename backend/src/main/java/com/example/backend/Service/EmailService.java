@@ -1,5 +1,9 @@
 package com.example.backend.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.example.backend.DTO.ActivityEmailDTO;
 import com.resend.Resend;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
@@ -22,6 +27,8 @@ public class EmailService {
 
     @Value("${resend.from.email}")
     private String fromEmail;
+
+    private final DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
     public String sendSimpleMail(String recipient, String msgBody, String subject) {
         try {
@@ -87,12 +94,20 @@ public class EmailService {
         }
     }
 
-    public void sendRegistrationPendingEmail(String to, String username, String eventName, String startDate, String location) {
+    public void sendRegistrationPendingEmail(String to, String username, String eventName, 
+                                         LocalDateTime startDateTime, LocalDateTime endDateTime,
+                                         String location) {
         try {
+            String startStr = (startDateTime != null) ? startDateTime.format(fullDateTimeFormatter) : "";
+            String endStr = (endDateTime != null) ? endDateTime.format(fullDateTimeFormatter) : "";
+
             Context context = new Context();
             context.setVariable("username", username);
             context.setVariable("eventName", eventName);
-            context.setVariable("startDate", startDate);
+            
+            context.setVariable("eventStartFull", startStr);
+            context.setVariable("eventEndFull", endStr);
+            
             context.setVariable("location", location);
 
             String htmlContent = templateEngine.process("event-registration-pending", context);
@@ -110,16 +125,38 @@ public class EmailService {
         }
     }
 
+
     public void sendRegistrationApprovedEmail(String to, String username, String eventName, 
-                                              String startDate, String location, 
-                                              String ticketCode, List<String> activityList) {
+                                              LocalDateTime eventStartDateTime, 
+                                              LocalDateTime eventEndDateTime, 
+                                              String location, 
+                                              String ticketCode, 
+                                              List<ActivityEmailDTO> activityList) {
         try {
+            String startStr = (eventStartDateTime != null) ? eventStartDateTime.format(fullDateTimeFormatter) : "";
+            String endStr = (eventEndDateTime != null) ? eventEndDateTime.format(fullDateTimeFormatter) : "";
+
+            String qrCodeUrl = "";
+            if (ticketCode != null && !ticketCode.isEmpty()) {
+                try {
+                    String encodedTicket = URLEncoder.encode(ticketCode, StandardCharsets.UTF_8);
+                    qrCodeUrl = "https://quickchart.io/qr?text=" + encodedTicket + "&size=300&margin=1";
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    qrCodeUrl = "https://quickchart.io/qr?text=" + ticketCode + "&size=300&margin=1";
+                }
+            }
+
             Context context = new Context();
             context.setVariable("username", username);
             context.setVariable("eventName", eventName);
-            context.setVariable("startDate", startDate);
+            
+            context.setVariable("eventStartFull", startStr);
+            context.setVariable("eventEndFull", endStr);
+            
             context.setVariable("location", location);
             context.setVariable("ticketCode", ticketCode);
+            context.setVariable("qrCodeUrl", qrCodeUrl);
             context.setVariable("activityList", activityList);
 
             String htmlContent = templateEngine.process("event-registration-approved", context);
@@ -132,6 +169,7 @@ public class EmailService {
                     .build();
 
             resend.emails().send(params);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
