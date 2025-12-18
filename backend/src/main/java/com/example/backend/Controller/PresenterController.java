@@ -20,6 +20,7 @@ import com.example.backend.DTO.Response.PresenterResponseDTO;
 import com.example.backend.Service.Interface.PresenterService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,18 +36,21 @@ public class PresenterController {
     // --- PUBLIC ENDPOINTS (Ai cũng xem được) ---
 
     @Operation(summary = "Lấy danh sách tất cả diễn giả")
+    @SecurityRequirements()
     @GetMapping
     public ResponseEntity<List<PresenterResponseDTO>> getAllPresenters() {
         return ResponseEntity.ok(presenterService.getAllPresenters());
     }
 
     @Operation(summary = "Xem chi tiết thông tin diễn giả")
+    @SecurityRequirements()
     @GetMapping("/{presenterId}")
     public ResponseEntity<PresenterResponseDTO> getPresenterById(@PathVariable Integer presenterId) {
         return ResponseEntity.ok(presenterService.getPresenterById(presenterId));
     }
 
     @Operation(summary = "Tìm kiếm diễn giả (theo tên, công ty, chức danh)")
+    @SecurityRequirements()
     @GetMapping("/search")
     public ResponseEntity<List<PresenterResponseDTO>> searchPresenters(@RequestParam String keyword) {
         return ResponseEntity.ok(presenterService.searchPresenters(keyword));
@@ -83,7 +87,6 @@ public class PresenterController {
         return ResponseEntity.noContent().build();
     }
     
-    // API Check trùng lịch (Hỗ trợ frontend khi tạo Activity)
     @Operation(summary = "Kiểm tra diễn giả có bận trong khung giờ này không")
     @GetMapping("/check-availability")
     @PreAuthorize("hasAnyAuthority('ORGANIZER', 'SADMIN')")
@@ -93,5 +96,13 @@ public class PresenterController {
             @RequestParam String endTime) {
         boolean isBusy = presenterService.isPresenterBusy(presenterId, startTime, endTime);
         return ResponseEntity.ok(isBusy);
+    }
+
+
+    @Operation(summary = "Lấy danh sách diễn giả theo Nhà tổ chức (slug)")
+    @SecurityRequirements() 
+    @GetMapping("/by-organizer/{slug}")
+    public ResponseEntity<List<PresenterResponseDTO>> getPresentersByOrganizer(@PathVariable String slug) {
+        return ResponseEntity.ok(presenterService.getPresentersByOrganizerSlug(slug));
     }
 }

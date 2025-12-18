@@ -23,4 +23,6 @@ public interface PresenterService {
     List<PresenterResponseDTO> getPresentersByEventId(Long eventId);
 
     boolean isPresenterBusy(Integer presenterId, String startTime, String endTime);
+
+    List<PresenterResponseDTO> getPresentersByOrganizerSlug(String organizerSlug);
 }

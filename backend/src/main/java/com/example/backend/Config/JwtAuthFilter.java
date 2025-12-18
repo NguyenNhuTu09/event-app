@@ -28,7 +28,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService; 
     
     private static final String[] WHITE_LIST_URL = {
-            "/api/auth/",
+            // "/api/auth/",
+            "/api/auth/login",          
+            "/api/auth/register",       
+            "/api/auth/refresh-token",  
             "/oauth2/",
             "/swagger-ui/",
             "/v3/api-docs/"

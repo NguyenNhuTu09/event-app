@@ -1,6 +1,7 @@
 package com.example.backend.Models.Entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
@@ -15,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -73,4 +75,17 @@ public class Event {
 
     @Column(name = "registration_deadline")
     private LocalDateTime registrationDeadline;
+
+    @Column(name = "event_qr_code", unique = true, nullable = false, updatable = false)
+    private String eventQrCode;
+
+    @Column(nullable = false, unique = true)
+    private String slug;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.eventQrCode == null) {
+            this.eventQrCode = "EVT-" + UUID.randomUUID().toString();
+        }
+    }
 }

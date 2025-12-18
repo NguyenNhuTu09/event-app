@@ -16,6 +16,7 @@ import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.OrganizersService;
 import com.example.backend.Utils.Role;
+import com.github.slugify.Slugify;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,19 @@ public class OrganizersServiceImpl implements OrganizersService {
 
     private final OrganizersRepository organizersRepository;
     private final UserRepository userRepository;
+    private final Slugify slugify = Slugify.builder().build();
+
+    private String generateUniqueSlug(String name) {
+        String baseSlug = slugify.slugify(name);
+        String finalSlug = baseSlug;
+        int count = 1;
+        
+        while (organizersRepository.existsBySlug(finalSlug)) {
+            finalSlug = baseSlug + "-" + count;
+            count++;
+        }
+        return finalSlug;
+    }
 
     @Override
     public List<OrganizersResponseDTO> getAllOrganizersAsDTO() {
@@ -64,6 +78,7 @@ public class OrganizersServiceImpl implements OrganizersService {
 
         Organizers newOrganizer = new Organizers();
         newOrganizer.setName(requestDTO.getName());
+        newOrganizer.setSlug(generateUniqueSlug(requestDTO.getName()));
         newOrganizer.setDescription(requestDTO.getDescription());
         newOrganizer.setLogoUrl(requestDTO.getLogoUrl());
         newOrganizer.setContactPhoneNumber(requestDTO.getContactPhoneNumber());
@@ -73,6 +88,12 @@ public class OrganizersServiceImpl implements OrganizersService {
         
         Organizers savedOrganizer = organizersRepository.save(newOrganizer);
         return convertToResponseDTO(savedOrganizer);
+    }
+
+    public OrganizersResponseDTO getOrganizerBySlug(String slug) {
+        Organizers organizer = organizersRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with slug: " + slug));
+        return convertToResponseDTO(organizer);
     }
 
     @Override
@@ -94,35 +115,33 @@ public class OrganizersServiceImpl implements OrganizersService {
         return convertToResponseDTO(updatedOrganizer);
     }
 
-
-    @Override
-    public OrganizersResponseDTO getOrganizerById(Integer organizerId) {
-        Organizers organizer = organizersRepository.findById(organizerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
-        return convertToResponseDTO(organizer);
-    }
-
     @Override
     @Transactional
-    public OrganizersResponseDTO updateOrganizer(Integer organizerId, OrganizersRequestDTO requestDTO) {
-        Organizers existingOrganizer = organizersRepository.findById(organizerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
+    public OrganizersResponseDTO updateOrganizer(String slug, OrganizersRequestDTO requestDTO) {
+        Organizers existingOrganizer = organizersRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with slug: " + slug));
+
+        Integer currentId = existingOrganizer.getOrganizerId();
 
         organizersRepository.findByName(requestDTO.getName()).ifPresent(organizer -> {
-            if (!organizer.getOrganizerId().equals(organizerId)) {
+            if (!organizer.getOrganizerId().equals(currentId)) {
                 throw new IllegalArgumentException("Organizer name already exists: " + requestDTO.getName());
             }
         });
         
         if (requestDTO.getContactEmail() != null) {
             organizersRepository.findByContactEmail(requestDTO.getContactEmail()).ifPresent(organizer -> {
-                if (!organizer.getOrganizerId().equals(organizerId)) {
+                if (!organizer.getOrganizerId().equals(currentId)) {
                     throw new IllegalArgumentException("Organizer email already exists: " + requestDTO.getContactEmail());
                 }
             });
         }
 
-        existingOrganizer.setName(requestDTO.getName());
+        if (!existingOrganizer.getName().equals(requestDTO.getName())) {
+            existingOrganizer.setName(requestDTO.getName());
+            existingOrganizer.setSlug(generateUniqueSlug(requestDTO.getName())); 
+        }
+
         existingOrganizer.setDescription(requestDTO.getDescription());
         existingOrganizer.setLogoUrl(requestDTO.getLogoUrl());
         existingOrganizer.setContactPhoneNumber(requestDTO.getContactPhoneNumber());
@@ -134,16 +153,16 @@ public class OrganizersServiceImpl implements OrganizersService {
     }
 
     @Override
-    public void deleteOrganizer(Integer organizerId){
-        if (!organizersRepository.existsById(organizerId)) {
-            throw new ResourceNotFoundException("Organizer not found with id: " + organizerId);
-        }
-        organizersRepository.deleteById(organizerId);
+    public void deleteOrganizer(String slug){
+        Organizers organizer = organizersRepository.findBySlug(slug)
+             .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+        organizersRepository.delete(organizer);
     }
 
     private OrganizersResponseDTO convertToResponseDTO(Organizers organizer) {
         return OrganizersResponseDTO.builder()
             .organizerId(organizer.getOrganizerId())
+            .slug(organizer.getSlug())
             .name(organizer.getName())
             .description(organizer.getDescription())
             .logoUrl(organizer.getLogoUrl())

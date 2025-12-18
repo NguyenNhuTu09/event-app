@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vé tham dự - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        
+        /* --- CHỈNH SỬA HEADER TẠI ĐÂY --- */
+        .header { 
+            background-color: #000000; /* Nền đen */
+            padding: 40px 20px; 
+            text-align: center; 
+            border-bottom: 2px solid #d4af37; /* Viền vàng ngăn cách */
+        }
+        
+        .logo { 
+            max-width: 140px; 
+            height: auto; 
+            margin-bottom: 10px;
+        }
+        
+        .header h2 { 
+            color: #d4af37; /* Chữ màu vàng kim */
+            margin: 15px 0 0; 
+            font-family: 'Georgia', serif; 
+            font-size: 26px; 
+            letter-spacing: 3px; 
+            text-transform: uppercase; 
+        }
+        /* -------------------------------- */
+
+        .content { padding: 40px 30px; color: #e0e0e0; }
+        
+        /* Vé điện tử */
+        .ticket-box {
+            background-color: #222;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0 40px 0;
+            position: relative;
+        }
+        /* Hiệu ứng đường kẻ đứt phía trên vé */
+        .ticket-box::before {
+            content: "";
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border: 1px dashed #444;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .qr-container {
+            background-color: #ffffff;
+            padding: 10px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ticket-code {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #d4af37;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Bảng thông tin chính */
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .info-table td { padding: 12px 0; border-bottom: 1px solid #333; color: #fff; vertical-align: top; }
+        .info-table td:first-child { width: 100px; color: #d4af37; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; padding-right: 15px; }
+        
+        /* Danh sách hoạt động */
+        .activity-section-title {
+            color: #d4af37;
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .activity-card {
+            background-color: #252525;
+            border-left: 3px solid #d4af37;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 4px 4px 0;
+        }
+        .act-name { color: #fff; font-weight: bold; font-size: 15px; display: block; margin-bottom: 5px; }
+        .act-meta { font-size: 13px; color: #999; margin: 3px 0; }
+        .act-desc { font-size: 13px; color: #666; font-style: italic; margin-top: 8px; border-top: 1px solid #333; padding-top: 8px; }
+
+        .footer { background-color: #000; color: #444; text-align: center; padding: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Đen + Chữ Vàng -->
+        <div class="header">
+            <!-- Lưu ý: Đã xóa style làm đen logo để logo hiển thị màu gốc (vàng) -->
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+            <h2>You're Invited!</h2>
+        </div>
+        
+        <div class="content">
+            <p style="text-align: center; font-size: 16px;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            <p style="text-align: center; color: #999; margin-top: 0;">Đăng ký của bạn đã được chấp thuận. Dưới đây là vé tham dự của bạn.</p>
+            
+            <!-- Vé điện tử -->
+            <div class="ticket-box">
+                <div class="qr-container">
+                    <!-- Dùng biến qrCodeUrl -->
+                    <img th:src="${qrCodeUrl}" 
+                         alt="QR Code" 
+                         style="width: 180px; height: 180px; display: block;" />
+                </div>
+                
+                <div style="font-size: 12px; color: #666; text-transform: uppercase; margin-top:10px; position: relative; z-index: 2;">Check-in Code</div>
+                <div class="ticket-code" th:text="${ticketCode}">TICKET-XYZ-123</div>
+            </div>
+
+            <!-- Thông tin sự kiện -->
+            <table class="info-table">
+                <tr>
+                    <td>Sự kiện</td>
+                    <td th:text="${eventName}" style="font-size: 18px; font-family: 'Georgia', serif;">Tên Sự Kiện Lớn</td>
+                </tr>
+                <tr>
+                    <td>Thời gian</td>
+                    <td>
+                        <div style="margin-bottom: 5px;">
+                            <span style="color:#d4af37;">● Bắt đầu:</span> 
+                            <span th:text="${eventStartFull}">07:00 01/01/2025</span>
+                        </div>
+                        <div>
+                            <span style="color:#666;">● Kết thúc:</span> 
+                            <span th:text="${eventEndFull}" style="color: #999;">17:00 01/01/2025</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Địa điểm</td>
+                    <td th:text="${location}">Trung tâm hội nghị quốc gia</td>
+                </tr>
+            </table>
+
+            <!-- Activity List (Nếu có) -->
+            <div th:if="${not #lists.isEmpty(activityList)}">
+                <div class="activity-section-title">Lịch trình chi tiết</div>
+                
+                <div th:each="act : ${activityList}" class="activity-card">
+                    <span class="act-name" th:text="${act.name}">Keynote Speaker</span>
+                    <div class="act-meta">🕒 <span th:text="${act.timeRange}">08:00 - 09:00</span></div>
+                    <div class="act-meta">📍 <span th:text="${act.location}">Sảnh A</span></div>
+                    
+                    <div th:if="${act.description != null}" class="act-desc" th:text="${act.description}">
+                        Mô tả hoạt động...
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; color: #666;">
+                Vui lòng xuất trình mã QR tại quầy Check-in.<br>Hẹn gặp bạn tại sự kiện!
+            </p>
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 Webie Event Management System
+        </div>
+    </div>
+</body>
+</html>

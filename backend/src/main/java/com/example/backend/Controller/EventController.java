@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
+import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.Service.Interface.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,15 +36,17 @@ public class EventController {
     private final EventService eventService;
 
     @Operation(summary = "Lấy danh sách sự kiện công khai (Trang chủ)")
+    @SecurityRequirements()
     @GetMapping("/public")
     public ResponseEntity<List<EventResponseDTO>> getPublicEvents() {
         return ResponseEntity.ok(eventService.getPublicEvents());
     }
 
     @Operation(summary = "Xem chi tiết sự kiện")
-    @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponseDTO> getEventById(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventService.getEventById(eventId));
+    @SecurityRequirements()
+    @GetMapping("/{slug}") 
+    public ResponseEntity<EventResponseDTO> getEventBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(eventService.getEventBySlug(slug));
     }
 
     @Operation(summary = "Tạo sự kiện mới (Chỉ ORGANIZER)")
@@ -59,17 +64,17 @@ public class EventController {
     }
 
     @Operation(summary = "Cập nhật sự kiện (Chỉ ORGANIZER sở hữu)")
-    @PutMapping("/{eventId}")
+    @PutMapping("/{slug}")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long eventId, @Valid @RequestBody EventRequestDTO requestDTO) {
-        return ResponseEntity.ok(eventService.updateEvent(eventId, requestDTO));
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable String slug, @Valid @RequestBody EventRequestDTO requestDTO) {
+        return ResponseEntity.ok(eventService.updateEvent(slug, requestDTO));
     }
 
     @Operation(summary = "Xóa sự kiện (Chỉ ORGANIZER sở hữu)")
-    @DeleteMapping("/{eventId}")
+    @DeleteMapping("/{slug}")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
-        eventService.deleteEvent(eventId);
+    public ResponseEntity<Void> deleteEvent(@PathVariable String slug) {
+        eventService.deleteEvent(slug);
         return ResponseEntity.noContent().build();
     }
 
@@ -96,5 +101,36 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> rejectEvent(@PathVariable Long eventId, @RequestParam(required = false) String reason) {
         EventResponseDTO rejectedEvent = eventService.rejectEvent(eventId, reason);
         return ResponseEntity.ok(rejectedEvent);
+    }
+
+    @Operation(summary = "Đăng ký tham gia sự kiện (User)")
+    @PostMapping("/register")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> registerForEvent(@RequestBody EventRegistrationRequestDTO requestDTO) {
+        eventService.registerForEvent(requestDTO);
+        return ResponseEntity.ok("Đăng ký thành công! Vui lòng chờ Organizer duyệt.");
+    }
+
+    @Operation(summary = "Lấy danh sách người đăng ký của Event (Organizer)")
+    @GetMapping("/{eventId}/registrations")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<List<EventAttendeeResponseDTO>> getEventRegistrations(@PathVariable Long eventId) {
+        return ResponseEntity.ok(eventService.getEventRegistrations(eventId));
+    }
+
+    @Operation(summary = "Duyệt vé cho người tham gia (Organizer)")
+    @PutMapping("/registrations/{registrationId}/approve")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<String> approveRegistration(@PathVariable Long registrationId) {
+        eventService.approveRegistration(registrationId);
+        return ResponseEntity.ok("Đã duyệt vé thành công.");
+    }
+
+    @Operation(summary = "Từ chối vé (Organizer)")
+    @PutMapping("/registrations/{registrationId}/reject")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<String> rejectRegistration(@PathVariable Long registrationId) {
+        eventService.rejectRegistration(registrationId);
+        return ResponseEntity.ok("Đã từ chối vé.");
     }
 }

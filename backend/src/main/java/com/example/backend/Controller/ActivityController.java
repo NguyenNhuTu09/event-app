@@ -20,6 +20,7 @@ import com.example.backend.DTO.Response.ActivityResponseDTO;
 import com.example.backend.Service.Interface.ActivityService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,14 @@ public class ActivityController {
     // --- PUBLIC ENDPOINTS (Cho người tham gia xem) ---
 
     @Operation(summary = "Xem chi tiết một hoạt động")
+    @SecurityRequirements()
     @GetMapping("/{activityId}")
     public ResponseEntity<ActivityResponseDTO> getActivityById(@PathVariable Integer activityId) {
         return ResponseEntity.ok(activityService.getActivityById(activityId));
     }
 
     @Operation(summary = "Lấy toàn bộ lịch trình của một sự kiện (Agenda)")
+    @SecurityRequirements()
     @GetMapping("/by-event/{eventId}")
     public ResponseEntity<List<ActivityResponseDTO>> getActivitiesByEvent(@PathVariable Long eventId) {
         return ResponseEntity.ok(activityService.getActivitiesByEventId(eventId));
@@ -51,6 +54,7 @@ public class ActivityController {
     }
 
     @Operation(summary = "Tìm kiếm hoạt động trong sự kiện (Theo tên, mô tả)")
+    @SecurityRequirements()
     @GetMapping("/search")
     public ResponseEntity<List<ActivityResponseDTO>> searchActivities(@RequestParam Long eventId, 
                                                                       @RequestParam String keyword) {

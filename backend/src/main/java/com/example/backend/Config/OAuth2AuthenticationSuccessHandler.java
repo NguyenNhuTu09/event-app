@@ -41,6 +41,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         response.sendRedirect(targetUrl);
     }
+    // https://ems-backend-jkjx.onrender.com/oauth2/redirect
 }
 
 

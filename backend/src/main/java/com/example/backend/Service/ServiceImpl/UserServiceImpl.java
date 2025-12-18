@@ -19,6 +19,7 @@ import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.UserService;
+import com.example.backend.Utils.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    // private final S3Service s3Service;
     private final EmailService emailService;
 
     @Override
@@ -39,9 +39,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với ID: " + id));
+    public UserResponseDTO getUserById(String uid) {
+        User user = userRepository.findByUid(uid) 
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
         return convertToDto(user);
     }
 
@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
         User userToUpdate = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + userEmail));
         
+        userToUpdate.setUsername(userUpdateDTO.getUsername());
         userToUpdate.setAddress(userUpdateDTO.getAddress());
         userToUpdate.setGender(userUpdateDTO.getGender());
         userToUpdate.setDateOfBirth(userUpdateDTO.getDateOfBirth());
@@ -70,16 +71,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UsernameNotFoundException("Không tìm thấy người dùng với ID: " + id);
-        }
-        userRepository.deleteById(id);
+    public void deleteUser(String uid) {
+        User user = userRepository.findByUid(uid)
+             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
+        userRepository.delete(user);
     }
 
     private UserResponseDTO convertToDto(User user) {
         UserResponseDTO dto = new UserResponseDTO();
-        dto.setId(user.getId());
+        dto.setUid(user.getUid());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setAddress(user.getAddress());
@@ -90,22 +90,6 @@ public class UserServiceImpl implements UserService {
         dto.setRole(user.getRole());
         return dto;
     }
-
-    // @Override
-    // public void changeCurrentUserPassword(ChangePasswordRequestDTO changePasswordRequestDTO) {
-    //     String user = SecurityContextHolder.getContext().getAuthentication().getName();
-    //     User currentUser = userRepository.findByEmail(user)
-    //             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + user));
-    //     if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), currentUser.getPassword())) {
-    //         throw new IllegalArgumentException("Mật khẩu cũ không chính xác.");
-    //     }
-    //     if (!changePasswordRequestDTO.getNewPassword().equals(changePasswordRequestDTO.getConfirmPassword())) {
-    //         throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp.");
-    //     }
-    //     String encodedNewPassword = passwordEncoder.encode(changePasswordRequestDTO.getNewPassword());
-    //     currentUser.setPassword(encodedNewPassword);
-    //     userRepository.save(currentUser);
-    // }
     
     @Override
     public UserResponseDTO findUserByEmail(String email) {
@@ -149,7 +133,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         String subject = "Mã xác nhận quên mật khẩu";
-        // emailService.sendSimpleMail(user.getEmail(), body, subject);
         emailService.sendEmailWithTemplate(user.getEmail(), subject, user.getUsername(), otp);
     }
 
@@ -175,5 +158,36 @@ public class UserServiceImpl implements UserService {
         user.setTokenExpiryDate(null);
         
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponseDTO updateUserByUid(String uid, UserUpdateDTO userUpdateDTO) {
+        User userToUpdate = userRepository.findByUid(uid)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
+        
+        userToUpdate.setUsername(userUpdateDTO.getUsername());
+        userToUpdate.setAddress(userUpdateDTO.getAddress());
+        userToUpdate.setGender(userUpdateDTO.getGender());
+        userToUpdate.setDateOfBirth(userUpdateDTO.getDateOfBirth());
+        userToUpdate.setPhoneNumber(userUpdateDTO.getPhoneNumber());
+        userToUpdate.setAvatarUrl(userUpdateDTO.getAvatarUrl());
+
+        User updatedUser = userRepository.save(userToUpdate);
+        
+        return convertToDto(updatedUser);
+    }
+
+    @Override
+    public List<UserResponseDTO> getUsersByRole(String roleName) {
+        try {
+            Role roleEnum = Role.valueOf(roleName.toUpperCase());
+            List<User> users = userRepository.findByRole(roleEnum);
+            return users.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Role không hợp lệ. Các role hỗ trợ: USER, SADMIN, ORGANIZER, STUDENT_UNION");
+        }
     }
 }

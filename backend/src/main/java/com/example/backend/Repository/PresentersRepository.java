@@ -20,4 +20,9 @@ public interface PresentersRepository extends JpaRepository<Presenters, Integer>
            "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(p.company) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Presenters> searchByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT DISTINCT a.presenter FROM Activity a " +
+           "WHERE a.event.organizer.slug = :slug " +
+           "AND a.presenter IS NOT NULL")
+    List<Presenters> findByOrganizerSlug(@Param("slug") String slug);
 }

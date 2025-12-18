@@ -26,6 +26,7 @@ import com.example.backend.Service.Interface.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,36 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
 
-    @Operation(summary = "Lấy thông tin người dùng theo ID (SADMIN)")
-    @GetMapping("/{id}")
+    @Operation(summary = "Lấy danh sách người dùng theo Role (SADMIN)")
+    @GetMapping("/role/{roleName}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<?> getUsersByRole(
+            @Parameter(description = "Tên vai trò (USER, ORGANIZER, SADMIN, STUDENT_UNION)", example = "STUDENT_UNION")
+            @PathVariable String roleName) {
+        try {
+            List<UserResponseDTO> users = userService.getUsersByRole(roleName);
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Cập nhật thông tin người dùng theo UID (SADMIN)")
+    @PutMapping("/{uid}") 
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<UserResponseDTO> updateUserByUid(
+            @Parameter(description = "UID của người dùng cần chỉnh sửa") 
+            @PathVariable String uid, 
+            @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        
+        return ResponseEntity.ok(userService.updateUserByUid(uid, userUpdateDTO));
+    }
+
+    @Operation(summary = "Lấy thông tin người dùng theo UID (SADMIN)")
+    @GetMapping("/{uid}") 
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String uid) { 
+        return ResponseEntity.ok(userService.getUserById(uid));
     }
 
     @Operation(summary = "Cập nhật thông tin người dùng hiện tại")
@@ -68,12 +94,12 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUserProfile(userUpdateDTO));
     }
 
-    @Operation(summary = "Xóa người dùng theo ID (SADMIN)")
-    @DeleteMapping("/{id}")
+    @Operation(summary = "Xóa người dùng theo UID (SADMIN)")
+    @DeleteMapping("/{uid}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("Người dùng với ID " + id + " đã được xóa thành công.");
+    public ResponseEntity<String> deleteUser(@PathVariable String uid) { 
+        userService.deleteUser(uid);
+        return ResponseEntity.ok("Người dùng với UID " + uid + " đã được xóa thành công.");
     }
 
     @Operation(summary = "Thay đổi mật khẩu của người dùng đang đăng nhập")
@@ -98,6 +124,7 @@ public class UserController {
     }
 
     @Operation(summary = "Yêu cầu quên mật khẩu (Gửi OTP qua email)")
+    @SecurityRequirements()
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
         userService.forgotPassword(request);
@@ -105,6 +132,7 @@ public class UserController {
     }
 
     @Operation(summary = "Đặt lại mật khẩu bằng OTP")
+    @SecurityRequirements()
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
         try {
