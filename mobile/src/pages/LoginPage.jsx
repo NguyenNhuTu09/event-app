@@ -19,25 +19,36 @@ const LoginPage = () => {
                 password: password 
             });
 
-            const token = response.data.accessToken || response.data.token; 
-            const role = response.data.role || (response.data.roles ? response.data.roles[0] : '');
+            console.log("LOGIN SUCCESS:", response.data);
+
+            const token = response.data.accessToken;
+
+            const userData = response.data.user || {}; 
+            let role = userData.role || ''; 
+
+            role = String(role).toUpperCase();
 
             if (token) {
                 localStorage.setItem('token', token);
-                localStorage.setItem('role', role); // Lưu role để điều hướng giao diện
+                localStorage.setItem('role', role); 
 
-                if (role === 'ORGANIZER' || role === 'SADMIN') {
+                // 3. Logic điều hướng
+                console.log("Detected Role:", role);
+
+                if (role.includes('ORGANIZER') || role.includes('SADMIN')) {
+                    console.log("-> Go to Organizer Page");
                     navigate('/organizer/checkin');
                 } else {
+                    console.log("-> Go to User Page");
                     navigate('/user/checkin');
                 }
             } else {
-                setError('Phản hồi từ server không chứa Token.');
+                setError('Không tìm thấy Token.');
             }
 
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || 'Đăng nhập thất bại. Kiểm tra lại email/pass.');
+            setError('Đăng nhập thất bại.');
         }
     };
 
