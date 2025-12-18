@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.CheckInRequestDTO;
-import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
+import com.example.backend.DTO.Response.EventCheckInResultDTO;
 import com.example.backend.Service.Interface.CheckInService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +26,7 @@ public class CheckInController {
     @Operation(summary = "Organizer quét mã vé của User (Cổng sự kiện)")
     @PostMapping("/event")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<EventAttendeeResponseDTO> checkInEvent(@RequestBody CheckInRequestDTO request) {
+    public ResponseEntity<EventCheckInResultDTO> checkInEvent(@RequestBody CheckInRequestDTO request) {
         return ResponseEntity.ok(checkInService.organizerCheckInUser(request.getTicketCode()));
     }
 
