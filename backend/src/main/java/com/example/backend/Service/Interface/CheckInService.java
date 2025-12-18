@@ -1,8 +1,8 @@
 package com.example.backend.Service.Interface;
 
-import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
+import com.example.backend.DTO.Response.EventCheckInResultDTO;
 
 public interface CheckInService {
-    EventAttendeeResponseDTO organizerCheckInUser(String ticketCode);
+    EventCheckInResultDTO organizerCheckInUser(String ticketCode);
     String userCheckInActivity(String activityQrCode);
 }

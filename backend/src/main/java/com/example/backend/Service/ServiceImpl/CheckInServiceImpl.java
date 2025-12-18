@@ -1,11 +1,15 @@
 package com.example.backend.Service.ServiceImpl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.DTO.Response.ActivityResponseDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
+import com.example.backend.DTO.Response.EventCheckInResultDTO;
+import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Activity;
 import com.example.backend.Models.Entity.ActivityAttendees;
@@ -17,7 +21,9 @@ import com.example.backend.Repository.ActivityRepository;
 import com.example.backend.Repository.EventAttendeesRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Service.Interface.ActivityService;
 import com.example.backend.Service.Interface.CheckInService;
+import com.example.backend.Service.Interface.EventService;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.RegistrationStatus;
 
@@ -34,6 +40,9 @@ public class CheckInServiceImpl implements CheckInService {
     private final UserRepository userRepository;
     private final OrganizersRepository organizersRepository;
 
+    private final ActivityService activityService; 
+    private final EventService eventService;    
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -49,7 +58,7 @@ public class CheckInServiceImpl implements CheckInService {
     // ORGANIZER CHECK-IN USER VÀO SỰ KIỆN ---
     @Override
     @Transactional
-    public EventAttendeeResponseDTO organizerCheckInUser(String ticketCode) {
+    public EventCheckInResultDTO organizerCheckInUser(String ticketCode) {
         EventAttendees ticket = eventAttendeesRepository.findByTicketCode(ticketCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Vé không tồn tại hoặc mã không hợp lệ."));
 
@@ -68,7 +77,18 @@ public class CheckInServiceImpl implements CheckInService {
 
         ticket.setEventCheckInStatus(CheckInStatus.CHECKED_IN);
         eventAttendeesRepository.save(ticket);
-        return convertToAttendeeDTO(ticket);
+
+        EventAttendeeResponseDTO attendeeDTO = convertToAttendeeDTO(ticket);
+       
+        EventResponseDTO eventDTO = eventService.getEventBySlug(ticket.getEvent().getSlug());
+
+        List<ActivityResponseDTO> agenda = activityService.getActivitiesByEventId(ticket.getEvent().getEventId());
+
+        return EventCheckInResultDTO.builder()
+                .attendee(attendeeDTO)
+                .event(eventDTO)
+                .agenda(agenda)
+                .build();
     }
 
     // LOGIC 2: USER TỰ CHECK-IN VÀO ACTIVITY ---
