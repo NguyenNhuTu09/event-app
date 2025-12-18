@@ -129,8 +129,15 @@ public class EventController {
     @Operation(summary = "Từ chối vé (Organizer)")
     @PutMapping("/registrations/{registrationId}/reject")
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<String> rejectRegistration(@PathVariable Long registrationId) {
-        eventService.rejectRegistration(registrationId);
+    public ResponseEntity<String> rejectRegistration(
+            @PathVariable Long registrationId, 
+            @RequestParam(required = false) String reason) { 
+        
+        String finalReason = (reason != null && !reason.isEmpty()) 
+                            ? reason 
+                            : "Đơn đăng ký không đáp ứng các tiêu chuẩn của ban tổ chức.";
+
+        eventService.rejectRegistration(registrationId, finalReason);
         return ResponseEntity.ok("Đã từ chối vé.");
     }
 }

@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
-@Tag(name = "Mail Management")
+@Tag(name = "Gmail Management")
 public class EmailController {
 
     private final EmailService emailService;
@@ -27,6 +27,4 @@ public class EmailController {
         String body = "Xin chào, đây là email được gửi qua Resend API!";
         return emailService.sendSimpleMail(toEmail, body, subject);
     }
-
-    
 }

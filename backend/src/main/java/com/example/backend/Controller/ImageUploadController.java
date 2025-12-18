@@ -14,8 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.Service.CloudinaryService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/images")
+@Tag(name = "File Upload Management")
 public class ImageUploadController {
 
     @Autowired

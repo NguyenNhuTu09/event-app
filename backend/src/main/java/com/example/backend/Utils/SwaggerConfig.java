@@ -20,7 +20,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("WEBIE EMS API SYSTEM")
-                        .description("This is the API documentation for My Spring Boot Application.")
+                        .description("Event Management System application API")
                         .version("v1.0")
                         .contact(new Contact().name("Your Name").email("your.email@example.com"))
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
