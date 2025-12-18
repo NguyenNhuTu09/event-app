@@ -174,4 +174,32 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void sendRegistrationRejectedEmail(String to, String username, String eventName, 
+                                          LocalDateTime startDateTime, String location, String reason) {
+        try {
+            String startStr = (startDateTime != null) ? startDateTime.format(fullDateTimeFormatter) : "";
+
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("eventStartFull", startStr);
+            context.setVariable("location", location);
+            context.setVariable("reason", reason); // Có thể null
+
+            String htmlContent = templateEngine.process("event-registration-rejected", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Thông báo kết quả đăng ký: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+            System.out.println("Registration Rejected Email sent to " + to);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

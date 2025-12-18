@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo kết quả đăng ký - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { padding: 30px; text-align: center; background-color: #000; border-bottom: 2px solid #e74c3c; } /* Viền đỏ cho thông báo từ chối */
+        .logo { max-width: 120px; height: auto; }
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+        
+        .event-card { 
+            background-color: #222; 
+            border: 1px solid #333; 
+            padding: 0; 
+            margin: 25px 0; 
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .event-title {
+            background-color: #333;
+            color: #d4af37;
+            padding: 15px;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table td { padding: 12px 15px; border-bottom: 1px solid #333; color: #ddd; }
+        .info-table tr:last-child td { border-bottom: none; }
+        .info-table td:first-child { color: #888; width: 100px; font-size: 14px; }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #c0392b; /* Red cho Rejected */
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .reason-box {
+            background-color: #2c1a1a;
+            border-left: 3px solid #e74c3c;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ff9999;
+        }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p style="font-size: 16px; color: #fff;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            <p>Chúng tôi rất tiếc phải thông báo rằng yêu cầu đăng ký tham gia sự kiện của bạn đã không được phê duyệt.</p>
+            
+            <div class="event-card">
+                <div class="event-title" th:text="${eventName}">Tên Sự Kiện</div>
+                <table class="info-table">
+                    <tr>
+                        <td>Thời gian</td>
+                        <td th:text="${eventStartFull}">07:43 16/12/2025</td>
+                    </tr>
+                    <tr>
+                        <td>Địa điểm</td>
+                        <td th:text="${location}">Hà Nội</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="text-align: center;">
+                <p style="margin-bottom: 5px;">Trạng thái đơn đăng ký:</p>
+                <span class="status-badge">REGISTRATION REJECTED</span>
+            </div>
+
+            <!-- Hiển thị lý do nếu có -->
+            <div th:if="${reason != null}" class="reason-box">
+                <strong>Lý do từ chối:</strong> <span th:text="${reason}">Thông tin đăng ký không hợp lệ.</span>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 25px; text-align: center;">
+                Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với ban tổ chức qua email của sự kiện.<br>
+                Cảm ơn bạn đã quan tâm đến Webie Event.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Team</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.example.backend.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,4 +18,6 @@ public interface EventAttendeesRepository extends JpaRepository<EventAttendees, 
     List<EventAttendees> findByEvent_EventId(Long eventId);
     
     List<EventAttendees> findByUser_Id(Long userId);
+
+    Optional<EventAttendees> findByTicketCode(String ticketCode);
 }

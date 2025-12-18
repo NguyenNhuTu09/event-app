@@ -63,6 +63,13 @@ public class ActivityController {
 
     // --- MANAGEMENT ENDPOINTS (Cần quyền) ---
 
+    @Operation(summary = "Lấy mã chuỗi QR Code của Activity (Chỉ ORGANIZER sở hữu)")
+    @GetMapping("/{activityId}/qr-code")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<String> getActivityQrCode(@PathVariable Integer activityId) {
+        return ResponseEntity.ok(activityService.getActivityQrCode(activityId));
+    }
+
     @Operation(summary = "Tạo hoạt động mới cho sự kiện (SADMIN, ORGANIZER)")
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SADMIN', 'ORGANIZER')")

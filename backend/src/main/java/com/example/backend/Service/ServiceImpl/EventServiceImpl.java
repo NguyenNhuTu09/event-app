@@ -373,7 +373,6 @@ public class EventServiceImpl implements EventService {
         
         if (act.getStartTime() != null && act.getEndTime() != null) {
             boolean isSameDay = act.getStartTime().toLocalDate().isEqual(act.getEndTime().toLocalDate());
-
             if (isSameDay) {
                 timeDisplayStr = act.getStartTime().format(timeFormatter) + " - " + 
                                  act.getEndTime().format(timeFormatter) + 
@@ -396,7 +395,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void rejectRegistration(Long registrationId) {
+    public void rejectRegistration(Long registrationId, String reason) {
         EventAttendees registration = eventAttendeesRepository.findById(registrationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
                 
@@ -407,6 +406,14 @@ public class EventServiceImpl implements EventService {
         }
 
         registration.setStatus(RegistrationStatus.REJECTED);
-        eventAttendeesRepository.save(registration);
+            eventAttendeesRepository.save(registration);
+            emailService.sendRegistrationRejectedEmail(
+            registration.getUser().getEmail(),
+            registration.getUser().getUsername(),
+            registration.getEvent().getEventName(),
+            registration.getEvent().getStartDate(),
+            registration.getEvent().getLocation(),
+            reason
+        );
     }
 }
