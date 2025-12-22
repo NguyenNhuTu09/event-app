@@ -14,6 +14,7 @@ public interface PresentersRepository extends JpaRepository<Presenters, Integer>
     List<Presenters> findByFullNameContainingIgnoreCase(String name);
     List<Presenters> findByCompany(String company);
     boolean existsByFullNameAndCompany(String fullName, String company);
+    List<Presenters> findByOrganizer_Slug(String slug);
 
     @Query("SELECT p FROM Presenters p WHERE " +
            "LOWER(p.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

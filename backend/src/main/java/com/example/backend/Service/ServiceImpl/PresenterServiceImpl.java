@@ -3,16 +3,25 @@ package com.example.backend.Service.ServiceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.DTO.Request.PresenterRequestDTO;
 import com.example.backend.DTO.Response.PresenterResponseDTO;
+import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Activity;
+import com.example.backend.Models.Entity.FavoritePresenter;
+import com.example.backend.Models.Entity.Organizers;
 import com.example.backend.Models.Entity.Presenters;
+import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.ActivityRepository;
+import com.example.backend.Repository.FavoritePresenterRepository;
+import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.PresentersRepository;
+import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.PresenterService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +31,44 @@ import lombok.RequiredArgsConstructor;
 public class PresenterServiceImpl implements PresenterService {
     private final PresentersRepository presentersRepository;
     private final ActivityRepository activityRepository;
+    private final OrganizersRepository organizersRepository;
+
+    private final FavoritePresenterRepository favoritePresenterRepository;
+    private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email;
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            email = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            email = principal.toString();
+        }
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng (User not found)"));
+    }
+
+
+    private Organizers getCurrentOrganizer() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentIdentity;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            currentIdentity = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            currentIdentity = principal.toString();
+        }
+
+        final String emailToSearch = currentIdentity;
+
+        Organizers organizer = organizersRepository.findByUser_Email(emailToSearch)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn chưa đăng ký làm Organizer hoặc tài khoản không tồn tại."));
+        
+        if (!organizer.isApproved()) {
+            throw new IllegalArgumentException("Tài khoản Organizer của bạn chưa được phê duyệt.");
+        }
+        return organizer;
+    }
 
     @Override
     public List<PresenterResponseDTO> getAllPresenters() {
@@ -39,10 +86,16 @@ public class PresenterServiceImpl implements PresenterService {
 
     @Override
     public PresenterResponseDTO createPresenter(PresenterRequestDTO requestDTO) {
+        Organizers currentOrganizer = getCurrentOrganizer();
+
         if (presentersRepository.existsByFullNameAndCompany(requestDTO.getFullName(), requestDTO.getCompany())) {
-            throw new RuntimeException("Diễn giả này đã tồn tại trong hệ thống (Trùng tên và công ty)");
+             throw new RuntimeException("Diễn giả này đã tồn tại trong hệ thống (Trùng tên và công ty)");
         }
+
         Presenters presenter = mapToEntity(requestDTO);
+
+        presenter.setOrganizer(currentOrganizer);
+
         Presenters savedPresenter = presentersRepository.save(presenter);
         return mapToDTO(savedPresenter);
     }
@@ -115,7 +168,7 @@ public class PresenterServiceImpl implements PresenterService {
 
     @Override
     public List<PresenterResponseDTO> getPresentersByOrganizerSlug(String organizerSlug) {
-        List<Presenters> presenters = presentersRepository.findByOrganizerSlug(organizerSlug);
+        List<Presenters> presenters = presentersRepository.findByOrganizer_Slug(organizerSlug);
         return presenters.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -129,5 +182,38 @@ public class PresenterServiceImpl implements PresenterService {
         entity.setBio(dto.getBio());
         entity.setAvatarUrl(dto.getAvatarUrl());
         return entity;
+    }
+
+
+    @Override
+    public void toggleFavoritePresenter(Integer presenterId) {
+        User currentUser = getCurrentUser();
+        Presenters presenter = presentersRepository.findById(presenterId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy diễn giả với ID: " + presenterId));
+
+        Optional<FavoritePresenter> existingFavorite = favoritePresenterRepository
+                .findByUser_IdAndPresenter_PresenterId(currentUser.getId(), presenterId);
+
+        if (existingFavorite.isPresent()) {
+            favoritePresenterRepository.delete(existingFavorite.get());
+        } else {
+            FavoritePresenter favorite = FavoritePresenter.builder()
+                    .user(currentUser)
+                    .presenter(presenter)
+                    .likedAt(java.time.LocalDateTime.now())
+                    .build();
+            favoritePresenterRepository.save(favorite);
+        }
+    }
+
+    @Override
+    public List<PresenterResponseDTO> getMyFavoritePresenters() {
+        User currentUser = getCurrentUser();
+        
+        List<FavoritePresenter> favorites = favoritePresenterRepository.findByUser_IdOrderByLikedAtDesc(currentUser.getId());
+        
+        return favorites.stream()
+                .map(fav -> mapToDTO(fav.getPresenter())) 
+                .collect(Collectors.toList());
     }
 }

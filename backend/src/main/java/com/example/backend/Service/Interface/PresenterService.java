@@ -25,4 +25,8 @@ public interface PresenterService {
     boolean isPresenterBusy(Integer presenterId, String startTime, String endTime);
 
     List<PresenterResponseDTO> getPresentersByOrganizerSlug(String organizerSlug);
+
+    void toggleFavoritePresenter(Integer presenterId);
+    
+    List<PresenterResponseDTO> getMyFavoritePresenters();
 }

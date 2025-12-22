@@ -105,4 +105,17 @@ public class PresenterController {
     public ResponseEntity<List<PresenterResponseDTO>> getPresentersByOrganizer(@PathVariable String slug) {
         return ResponseEntity.ok(presenterService.getPresentersByOrganizerSlug(slug));
     }
+
+    @Operation(summary = "Yêu thích / Bỏ yêu thích một diễn giả (User đã đăng nhập)")
+    @PostMapping("/{presenterId}/favorite")
+    public ResponseEntity<String> toggleFavorite(@PathVariable Integer presenterId) {
+        presenterService.toggleFavoritePresenter(presenterId);
+        return ResponseEntity.ok("Cập nhật trạng thái yêu thích thành công!");
+    }
+
+    @Operation(summary = "Lấy danh sách diễn giả yêu thích của tôi")
+    @GetMapping("/favorites")
+    public ResponseEntity<List<PresenterResponseDTO>> getMyFavorites() {
+        return ResponseEntity.ok(presenterService.getMyFavoritePresenters());
+    }
 }
