@@ -14,11 +14,11 @@ import com.example.backend.DTO.Request.LoginRequest;
 import com.example.backend.DTO.Request.RegistrationRequest;
 import com.example.backend.DTO.Request.TokenExchangeRequest;
 import com.example.backend.DTO.Response.JwtAuthenticationResponse;
-import com.example.backend.DTO.Response.JwtResponse;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,10 +49,11 @@ public class AuthController {
     }
 
     @PostMapping("/token/exchange")
+    @SecurityRequirements()
     @Operation(summary = "Đổi mã dùng một lần lấy JWT Token sau khi đăng nhập OAuth2")
     public ResponseEntity<?> exchangeCodeForToken(@RequestBody TokenExchangeRequest tokenExchangeRequest) {
         try {
-            JwtResponse jwtResponse = authService.exchangeCodeForJwt(tokenExchangeRequest);
+            JwtAuthenticationResponse jwtResponse = authService.exchangeCodeForJwt(tokenExchangeRequest);
             return ResponseEntity.ok(jwtResponse);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

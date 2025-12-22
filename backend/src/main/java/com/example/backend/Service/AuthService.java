@@ -13,7 +13,6 @@ import com.example.backend.DTO.Request.LoginRequest;
 import com.example.backend.DTO.Request.RegistrationRequest;
 import com.example.backend.DTO.Request.TokenExchangeRequest;
 import com.example.backend.DTO.Response.JwtAuthenticationResponse;
-import com.example.backend.DTO.Response.JwtResponse;
 import com.example.backend.DTO.UserResponseDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
@@ -72,24 +71,34 @@ public class AuthService {
                 return userRepository.save(newUser);
             });
     }
-    public JwtResponse exchangeCodeForJwt(TokenExchangeRequest request) {
-        String code = request.getRefreshToken();
+    
+    public JwtAuthenticationResponse exchangeCodeForJwt(TokenExchangeRequest request) {
+        String code = request.getRefreshToken(); 
         String email = oneTimeCodeService.getEmailForCode(code);
-        
         if (email == null) {
             throw new RuntimeException("Mã không hợp lệ hoặc đã hết hạn.");
         }
-        User userEntity = userRepository.findByEmail(email)
+        
+        // Lấy User
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email: " + email));
         
-        String jwt = jwtService.generateToken(email);
-        return new JwtResponse(
-            jwt,
-            "Bearer",
-            userEntity.getId(),
-            userEntity.getUsername(),
-            userEntity.getEmail()
+        // Tạo Access Token
+        String accessToken = jwtService.generateToken(user.getEmail());
+        
+        String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+
+        UserResponseDTO userDto = new UserResponseDTO(
+            user.getUid(), user.getUsername(), user.getEmail(), 
+            user.getAddress(), user.getGender(), user.getDateOfBirth(), 
+            user.getPhoneNumber(), user.getAvatarUrl(), user.getRole()
         );
+
+        return JwtAuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userDto)
+                .build();
     }
 
     public JwtAuthenticationResponse authenticateUser(LoginRequest loginRequest) {
