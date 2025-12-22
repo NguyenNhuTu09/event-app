@@ -43,6 +43,9 @@ public class AuthService {
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new RuntimeException("Lỗi: Email đã được sử dụng!");
         }
+        if (userRepository.existsByEmail(registrationRequest.getEmail())) {
+            throw new RuntimeException("Email này đã được sử dụng. Vui lòng đăng nhập.");
+        }
         User newUser = new User();
         newUser.setUsername(registrationRequest.getUsername());
         newUser.setEmail(registrationRequest.getEmail());
@@ -52,22 +55,27 @@ public class AuthService {
         return userRepository.save(newUser);
     }
 
-    @Transactional
-    public User processOAuthPostLogin(String email, String username, String avatarUrl) {
+     @Transactional
+    public User processOAuthPostLogin(String email, String name, String avatarUrl) {
         return userRepository.findByEmail(email)
             .map(existingUser -> {
-                existingUser.setUsername(username); 
                 existingUser.setAvatarUrl(avatarUrl);
+                if (existingUser.getUsername() == null || existingUser.getUsername().isEmpty()) {
+                    existingUser.setUsername(name);
+                }
+                
                 return userRepository.save(existingUser);
             })
             .orElseGet(() -> {
                 User newUser = new User();
-                newUser.setUsername(username);
                 newUser.setEmail(email);
+                newUser.setUsername(name);
                 newUser.setAvatarUrl(avatarUrl);
+                newUser.setRole(Role.USER);
                 newUser.setProvider(AuthProvider.GOOGLE);
-                newUser.setRole(Role.USER); 
                 newUser.setEnabled(true);
+                newUser.setUid(java.util.UUID.randomUUID().toString()); 
+                
                 return userRepository.save(newUser);
             });
     }

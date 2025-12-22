@@ -10,7 +10,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Service.AuthService;
+import com.example.backend.Service.JwtService;
 import com.example.backend.Service.OneTimeCodeService;
+import com.example.backend.Service.RefreshTokenService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +26,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final AuthService authService;
     private final OneTimeCodeService oneTimeCodeService;
+    private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -33,11 +37,16 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
         String picture = oauthUser.getAttribute("picture");
+
         User user = authService.processOAuthPostLogin(email, name, picture);
-        String oneTimeCode = oneTimeCodeService.generateAndStoreCode(user.getEmail());
+
+        String accessToken = jwtService.generateToken(user.getEmail());
+        String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2/redirect")
-        // String targetUrl = UriComponentsBuilder.fromUriString("https://ems-backend-jkjx.onrender.com/oauth2/redirect")
-                .queryParam("token", oneTimeCode)
+                .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
+                .queryParam("uid", user.getUid())
                 .build().toUriString();
 
         response.sendRedirect(targetUrl);
