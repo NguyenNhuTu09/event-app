@@ -24,6 +24,7 @@ import com.example.backend.Repository.PresentersRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.PresenterService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -162,7 +163,8 @@ public class PresenterServiceImpl implements PresenterService {
                 entity.getTitle(),
                 entity.getCompany(),
                 entity.getBio(),
-                entity.getAvatarUrl()
+                entity.getAvatarUrl(),
+                entity.isFeatured()
         );
     }
 
@@ -215,5 +217,36 @@ public class PresenterServiceImpl implements PresenterService {
         return favorites.stream()
                 .map(fav -> mapToDTO(fav.getPresenter())) 
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PresenterResponseDTO> getFeaturedPresenters() {
+        List<Presenters> featured = presentersRepository.findByIsFeaturedTrue();
+        
+        return featured.stream()
+                .limit(4) 
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateFeaturedPresenters(List<Integer> presenterIds) {
+        if (presenterIds.size() > 4) {
+            throw new IllegalArgumentException("Chỉ được phép chọn tối đa 4 diễn giả nổi bật.");
+        }
+
+        presentersRepository.resetAllFeaturedPresenters();
+
+        if (!presenterIds.isEmpty()) {
+            List<Presenters> selectedPresenters = presentersRepository.findAllById(presenterIds);
+            
+            if (selectedPresenters.size() != presenterIds.size()) {
+                throw new RuntimeException("Một số ID diễn giả không tồn tại.");
+            }
+
+            selectedPresenters.forEach(p -> p.setFeatured(true));
+            presentersRepository.saveAll(selectedPresenters);
+        }
     }
 }

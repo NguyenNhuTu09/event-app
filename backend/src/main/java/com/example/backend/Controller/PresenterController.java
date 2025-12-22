@@ -118,4 +118,19 @@ public class PresenterController {
     public ResponseEntity<List<PresenterResponseDTO>> getMyFavorites() {
         return ResponseEntity.ok(presenterService.getMyFavoritePresenters());
     }
+
+    @Operation(summary = "Lấy danh sách 4 diễn giả nổi bật (Hiển thị trang chủ)")
+    @SecurityRequirements() 
+    @GetMapping("/featured")
+    public ResponseEntity<List<PresenterResponseDTO>> getFeaturedPresenters() {
+        return ResponseEntity.ok(presenterService.getFeaturedPresenters());
+    }
+
+    @Operation(summary = "Cập nhật danh sách diễn giả nổi bật (Chỉ SADMIN)")
+    @PutMapping("/featured")
+    @PreAuthorize("hasAuthority('SADMIN')") 
+    public ResponseEntity<String> updateFeaturedPresenters(@RequestBody List<Integer> presenterIds) {
+        presenterService.updateFeaturedPresenters(presenterIds);
+        return ResponseEntity.ok("Đã cập nhật danh sách diễn giả nổi bật thành công.");
+    }
 }

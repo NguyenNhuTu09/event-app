@@ -22,10 +22,10 @@ import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.PresentersRepository;
 import com.example.backend.Service.Interface.ActivityService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -245,7 +245,8 @@ public class ActivityServiceImpl implements ActivityService {
                     p.getTitle(),
                     p.getCompany(),
                     p.getBio(),
-                    p.getAvatarUrl()
+                    p.getAvatarUrl(),
+                    p.isFeatured()
             ));
         }
 

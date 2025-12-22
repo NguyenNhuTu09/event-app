@@ -54,4 +54,7 @@ public class Presenters {
     @ToString.Exclude
     @JsonIgnore 
     private Organizers organizer;
+
+    @Column(name = "is_featured", nullable = false)
+    private boolean isFeatured = false; 
 }

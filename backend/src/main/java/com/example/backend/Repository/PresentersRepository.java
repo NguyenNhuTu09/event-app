@@ -3,10 +3,13 @@ package com.example.backend.Repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.backend.Models.Entity.Presenters;
+
+import jakarta.transaction.Transactional;
 
 public interface PresentersRepository extends JpaRepository<Presenters, Integer> {
     Presenters findByFullName(String fullName);
@@ -26,4 +29,11 @@ public interface PresentersRepository extends JpaRepository<Presenters, Integer>
            "WHERE a.event.organizer.slug = :slug " +
            "AND a.presenter IS NOT NULL")
     List<Presenters> findByOrganizerSlug(@Param("slug") String slug);
+
+    List<Presenters> findByIsFeaturedTrue();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Presenters p SET p.isFeatured = false WHERE p.isFeatured = true")
+    void resetAllFeaturedPresenters();
 }
