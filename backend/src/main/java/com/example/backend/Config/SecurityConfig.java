@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/presenters/search").permitAll()
                 .requestMatchers("/api/presenters").permitAll()
                 .requestMatchers("/api/presenters/{presenterId}").permitAll()
+                .requestMatchers("/api/presenters/featured").permitAll()
                 .requestMatchers("/api/activities/{activityId}").permitAll()
                 .requestMatchers("/api/activities/search").permitAll()
                 .requestMatchers("/api/activities/by-event/{eventId}").permitAll()

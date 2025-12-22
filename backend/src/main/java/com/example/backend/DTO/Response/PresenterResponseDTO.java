@@ -15,6 +15,7 @@ public class PresenterResponseDTO {
     private String company;
     private String bio;
     private String avatarUrl;
+    private boolean isFeatured;
 
     // Có thể mở rộng sau này:
     // private int totalActivities; (Số lượng hoạt động tham gia)

@@ -27,6 +27,10 @@ public interface PresenterService {
     List<PresenterResponseDTO> getPresentersByOrganizerSlug(String organizerSlug);
 
     void toggleFavoritePresenter(Integer presenterId);
-    
+
     List<PresenterResponseDTO> getMyFavoritePresenters();
+
+    List<PresenterResponseDTO> getFeaturedPresenters();
+    
+    void updateFeaturedPresenters(List<Integer> presenterIds);
 }
