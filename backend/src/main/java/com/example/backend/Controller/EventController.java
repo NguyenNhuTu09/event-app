@@ -140,4 +140,34 @@ public class EventController {
         eventService.rejectRegistration(registrationId, finalReason);
         return ResponseEntity.ok("Đã từ chối vé.");
     }
+
+
+    @Operation(summary = "Lấy danh sách 4 sự kiện nổi bật (User/Public)")
+    @SecurityRequirements()
+    @GetMapping("/featured")
+    public ResponseEntity<List<EventResponseDTO>> getFeaturedEvents() {
+        return ResponseEntity.ok(eventService.getFeaturedEvents());
+    }
+
+    @Operation(summary = "Lấy danh sách 8 sự kiện sắp diễn ra được chọn (User/Public)")
+    @SecurityRequirements()
+    @GetMapping("/upcoming-selected")
+    public ResponseEntity<List<EventResponseDTO>> getUpcomingEvents() {
+        return ResponseEntity.ok(eventService.getUpcomingEvents());
+    }
+
+
+    @Operation(summary = "Cập nhật danh sách sự kiện nổi bật (Max 4) - SADMIN")
+    @PutMapping("/featured")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<List<EventResponseDTO>> updateFeaturedEvents(@RequestBody List<Long> eventIds) {
+        return ResponseEntity.ok(eventService.updateFeaturedEvents(eventIds));
+    }
+
+    @Operation(summary = "Cập nhật danh sách sự kiện sắp diễn ra (Max 8) - SADMIN")
+    @PutMapping("/upcoming-selected")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<List<EventResponseDTO>> updateUpcomingEvents(@RequestBody List<Long> eventIds) {
+        return ResponseEntity.ok(eventService.updateUpcomingEvents(eventIds));
+    }
 }

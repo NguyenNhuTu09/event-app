@@ -208,6 +208,8 @@ public class EventServiceImpl implements EventService {
                 .registrationDeadline(event.getRegistrationDeadline())
                 .organizerId(event.getOrganizer().getOrganizerId())
                 .organizerName(event.getOrganizer().getName())
+                .isFeatured(event.isFeatured())
+                .isUpcoming(event.isUpcoming())
                 .build();
     }
 
@@ -416,4 +418,81 @@ public class EventServiceImpl implements EventService {
             reason
         );
     }
+
+    @Override
+    public List<EventResponseDTO> getFeaturedEvents() {
+        List<Event> events = eventRepository.findByIsFeaturedTrueAndStatusAndVisibility(
+                EventStatus.PUBLISHED, EventVisibility.PUBLIC);
+        return events.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<EventResponseDTO> updateFeaturedEvents(List<Long> eventIds) {
+        if (eventIds.size() > 4) {
+            throw new IllegalArgumentException("Chỉ được chọn tối đa 4 sự kiện nổi bật.");
+        }
+
+        List<Event> currentFeatured = eventRepository.findByIsFeaturedTrue();
+        for (Event event : currentFeatured) {
+            event.setFeatured(false);
+        }
+        eventRepository.saveAll(currentFeatured);
+
+        List<Event> newFeatured = eventRepository.findAllById(eventIds);
+        
+        if (newFeatured.size() != eventIds.size()) {
+            throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
+        }
+
+        for (Event event : newFeatured) {
+            if (event.getStatus() != EventStatus.PUBLISHED) {
+                throw new IllegalArgumentException("Sự kiện " + event.getEventName() + " chưa được công bố, không thể set nổi bật.");
+            }
+            event.setFeatured(true);
+        }
+        
+        List<Event> savedEvents = eventRepository.saveAll(newFeatured);
+        return savedEvents.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    // --- LOGIC SỰ KIỆN SẮP DIỄN RA (UPCOMING - MAX 8) ---
+
+    @Override
+    public List<EventResponseDTO> getUpcomingEvents() {
+        List<Event> events = eventRepository.findByIsUpcomingTrueAndStatusAndVisibility(
+                EventStatus.PUBLISHED, EventVisibility.PUBLIC);
+        return events.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<EventResponseDTO> updateUpcomingEvents(List<Long> eventIds) {
+        if (eventIds.size() > 8) {
+            throw new IllegalArgumentException("Chỉ được chọn tối đa 8 sự kiện sắp diễn ra.");
+        }
+
+        List<Event> currentUpcoming = eventRepository.findByIsUpcomingTrue();
+        for (Event event : currentUpcoming) {
+            event.setUpcoming(false);
+        }
+        eventRepository.saveAll(currentUpcoming);
+
+        List<Event> newUpcoming = eventRepository.findAllById(eventIds);
+        
+        if (newUpcoming.size() != eventIds.size()) {
+            throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
+        }
+
+        for (Event event : newUpcoming) {
+            if (event.getStatus() != EventStatus.PUBLISHED) {
+                throw new IllegalArgumentException("Sự kiện " + event.getEventName() + " chưa được công bố.");
+            }
+            event.setUpcoming(true);
+        }
+
+        List<Event> savedEvents = eventRepository.saveAll(newUpcoming);
+        return savedEvents.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+    
 }

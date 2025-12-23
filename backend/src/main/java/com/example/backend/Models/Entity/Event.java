@@ -18,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -51,7 +50,7 @@ public class Event {
     private String description;
 
     @NotNull(message = "Thời gian bắt đầu là bắt buộc")
-    @Future(message = "Thời gian bắt đầu phải ở tương lai")
+    // @Future(message = "Thời gian bắt đầu phải ở tương lai")
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
@@ -81,6 +80,12 @@ public class Event {
 
     @Column(nullable = false, unique = true)
     private String slug;
+
+    @Column(name = "is_featured", nullable = false)
+    private boolean isFeatured = false; 
+
+    @Column(name = "is_upcoming", nullable = false)
+    private boolean isUpcoming = false; 
 
     @PrePersist
     protected void onCreate() {

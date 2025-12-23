@@ -61,6 +61,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/events/public").permitAll()
                 .requestMatchers("/api/events/{slug}").permitAll()
+                .requestMatchers("/api/events/featured").permitAll()
+                .requestMatchers("/api/events/upcoming-selected").permitAll()
                 .requestMatchers("/api/presenters/search").permitAll()
                 .requestMatchers("/api/presenters").permitAll()
                 .requestMatchers("/api/presenters/{presenterId}").permitAll()
