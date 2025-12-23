@@ -25,4 +25,7 @@ public class EventResponseDTO {
     
     private Integer organizerId;
     private String organizerName;
+
+    private boolean isFeatured;
+    private boolean isUpcoming;
 }

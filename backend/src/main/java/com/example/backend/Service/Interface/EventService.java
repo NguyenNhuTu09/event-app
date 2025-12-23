@@ -23,4 +23,10 @@ public interface EventService {
     List<EventAttendeeResponseDTO> getEventRegistrations(Long eventId);
     void approveRegistration(Long registrationId);
     void rejectRegistration(Long registrationId, String reason);
+
+    List<EventResponseDTO> getFeaturedEvents();
+    List<EventResponseDTO> updateFeaturedEvents(List<Long> eventIds);
+
+    List<EventResponseDTO> getUpcomingEvents();
+    List<EventResponseDTO> updateUpcomingEvents(List<Long> eventIds);
 }

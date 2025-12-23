@@ -1,6 +1,7 @@
 package com.example.backend.Service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,7 +76,7 @@ public class AuthService {
                 newUser.setProvider(AuthProvider.GOOGLE);
                 newUser.setEnabled(true);
                 newUser.setUid(java.util.UUID.randomUUID().toString()); 
-                
+                newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                 return userRepository.save(newUser);
             });
     }

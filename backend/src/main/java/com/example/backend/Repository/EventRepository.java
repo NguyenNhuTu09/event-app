@@ -14,4 +14,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByOrganizer_OrganizerId(Integer organizerId);
     Optional<Event> findBySlug(String slug);
     boolean existsBySlug(String slug);
+
+    List<Event> findByIsFeaturedTrueAndStatusAndVisibility(EventStatus status, EventVisibility visibility);
+
+    List<Event> findByIsUpcomingTrueAndStatusAndVisibility(EventStatus status, EventVisibility visibility);
+
+    List<Event> findByIsFeaturedTrue();
+
+    List<Event> findByIsUpcomingTrue();
 }
