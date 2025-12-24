@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sự kiện đã được duyệt - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #000000; padding: 30px; text-align: center; border-bottom: 3px solid #d4af37; }
+        .logo { max-width: 130px; }
+        .content { padding: 40px 35px; color: #e0e0e0; text-align: center; }
+        
+        .success-icon { font-size: 40px; margin-bottom: 20px; display: block; }
+        
+        .btn-link {
+            display: inline-block;
+            background-color: #d4af37; /* Gold */
+            color: #000;
+            padding: 14px 30px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-top: 25px;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        .btn-link:hover { background-color: #b8860b; }
+        
+        .event-card {
+            background-color: #222;
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .footer { background-color: #000; color: #555; text-align: center; padding: 20px; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <span class="success-icon">🎉</span>
+            <h2 style="color: #d4af37; margin: 0 0 10px 0; font-family: Georgia, serif;">Sự kiện đã được công khai!</h2>
+            <p>Chúc mừng <strong th:text="${username}">Organizer</strong>, sự kiện của bạn đã được phê duyệt thành công.</p>
+            
+            <div class="event-card">
+                <div style="color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">Sự kiện</div>
+                <div th:text="${eventName}" style="font-size: 18px; font-weight: bold; color: #fff;">Tên Sự Kiện</div>
+                <div style="margin-top: 10px; font-size: 14px; color: #ccc;">
+                    📅 <span th:text="${eventDate}">01/01/2026</span>
+                </div>
+            </div>
+
+            <a th:href="${eventLink}" class="btn-link">Xem sự kiện trên Website</a>
+            
+            <p style="margin-top: 30px; font-size: 13px; color: #666;">
+                Người dùng hiện có thể tìm thấy và đăng ký tham gia sự kiện của bạn ngay bây giờ.
+            </p>
+        </div>
+        <div class="footer">&copy; 2025 Webie Event Management</div>
+    </div>
+</body>
+</html>

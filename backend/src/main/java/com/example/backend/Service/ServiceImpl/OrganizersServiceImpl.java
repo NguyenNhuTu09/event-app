@@ -14,6 +14,7 @@ import com.example.backend.Models.Entity.Organizers;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.OrganizersService;
 import com.example.backend.Utils.Role;
 import com.github.slugify.Slugify;
@@ -28,6 +29,7 @@ public class OrganizersServiceImpl implements OrganizersService {
     private final OrganizersRepository organizersRepository;
     private final UserRepository userRepository;
     private final Slugify slugify = Slugify.builder().build();
+    private final EmailService emailService;
 
     private String generateUniqueSlug(String name) {
         String baseSlug = slugify.slugify(name);
@@ -87,6 +89,15 @@ public class OrganizersServiceImpl implements OrganizersService {
         newOrganizer.setApproved(false); 
         
         Organizers savedOrganizer = organizersRepository.save(newOrganizer);
+        try {
+            emailService.sendOrganizerRegistrationPending(
+                user.getEmail(),
+                user.getUsername(),
+                savedOrganizer.getName()
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail Organizer Pending: " + e.getMessage());
+        }
         return convertToResponseDTO(savedOrganizer);
     }
 
@@ -112,6 +123,15 @@ public class OrganizersServiceImpl implements OrganizersService {
         }
 
         Organizers updatedOrganizer = organizersRepository.save(organizer);
+        try {
+            emailService.sendOrganizerApproved(
+                owner.getEmail(),
+                owner.getUsername(),
+                updatedOrganizer.getName()
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail Organizer Approved: " + e.getMessage());
+        }
         return convertToResponseDTO(updatedOrganizer);
     }
 
@@ -172,5 +192,34 @@ public class OrganizersServiceImpl implements OrganizersService {
             .username(organizer.getUser() != null ? organizer.getUser().getUsername() : null)
             .isApproved(organizer.isApproved())
             .build();
+    }
+
+    @Override
+    @Transactional
+    public void rejectOrganizer(Integer organizerId, String reason) {
+        Organizers organizer = organizersRepository.findById(organizerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
+
+        if (organizer.isApproved()) {
+            throw new IllegalArgumentException("Không thể từ chối Organizer đã được duyệt (Hãy dùng chức năng Khóa/Xóa).");
+        }
+
+        User owner = organizer.getUser();
+        String organizerName = organizer.getName();
+
+        organizersRepository.delete(organizer);
+
+        try {
+            String finalReason = (reason != null && !reason.trim().isEmpty()) ? reason : "Thông tin đăng ký không hợp lệ.";
+            
+            emailService.sendOrganizerRejected(
+                owner.getEmail(),
+                owner.getUsername(),
+                organizerName,
+                finalReason
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail Organizer Rejected: " + e.getMessage());
+        }
     }
 }

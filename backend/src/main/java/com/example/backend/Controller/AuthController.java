@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.DTO.Request.LoginRequest;
 import com.example.backend.DTO.Request.RegistrationRequest;
 import com.example.backend.DTO.Request.TokenExchangeRequest;
+import com.example.backend.DTO.Request.VerifyAccountRequest;
 import com.example.backend.DTO.Response.JwtAuthenticationResponse;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Service.AuthService;
@@ -36,7 +37,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         try {
             User newUser = authService.registerNewUser(registrationRequest);
-            return new ResponseEntity<>("Đăng ký thành công cho user: " + newUser.getUsername(), HttpStatus.CREATED);
+            return new ResponseEntity<>("Kiểm tra Email của bạn để xác thực tài khoản: " + newUser.getUsername(), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -89,5 +90,20 @@ public class AuthController {
         }
         authService.logout(email);
         return ResponseEntity.ok("User logged out successfully!");
+    }
+
+    @PostMapping("/verify")
+    @SecurityRequirements()
+    @Operation(summary = "Xác thực tài khoản qua email")
+    public ResponseEntity<?> verifyUser(@RequestBody VerifyAccountRequest request) {
+        try {
+            if (authService.verifyUser(request.getEmail(), request.getVerificationCode())) {
+                return ResponseEntity.ok("Xác thực tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.");
+            } else {
+                return ResponseEntity.badRequest().body("Mã xác thực không chính xác hoặc tài khoản đã được kích hoạt.");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

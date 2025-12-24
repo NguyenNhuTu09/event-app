@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.OrganizersRequestDTO;
@@ -76,5 +77,16 @@ public class OrganizersController {
     public ResponseEntity<List<OrganizersResponseDTO>> getAllOrganizersAsDTO() {
         List<OrganizersResponseDTO> responseDTOs = organizersService.getAllOrganizersAsDTO();
         return ResponseEntity.ok(responseDTOs);
+    }
+
+    @Operation(summary = "Từ chối đăng ký Organizer (SADMIN only)")
+    @PutMapping("/{organizerId}/reject")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<String> rejectOrganizer(
+            @PathVariable Integer organizerId, 
+            @RequestParam(required = false) String reason) {
+        
+        organizersService.rejectOrganizer(organizerId, reason);
+        return ResponseEntity.ok("Đã từ chối đơn đăng ký Organizer và gửi email thông báo.");
     }
 }

@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/token/exchange").permitAll()
                 .requestMatchers("/api/users/forgot-password").permitAll()
                 .requestMatchers("/api/users/reset-password").permitAll()
+                .requestMatchers("/api/users/verify").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/events/public").permitAll()
                 .requestMatchers("/api/events/{slug}").permitAll()

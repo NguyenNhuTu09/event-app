@@ -109,19 +109,29 @@ public class EventServiceImpl implements EventService {
         event.setLocation(requestDTO.getLocation());
         event.setBannerImageUrl(requestDTO.getBannerImageUrl());
         event.setRegistrationDeadline(requestDTO.getRegistrationDeadline());
-        
-        event.setStatus(requestDTO.getStatus() != null ? requestDTO.getStatus() : EventStatus.DRAFT);
         event.setVisibility(requestDTO.getVisibility() != null ? requestDTO.getVisibility() : EventVisibility.PUBLIC);
 
-        if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
-            event.setStatus(EventStatus.PENDING_APPROVAL);
-        } else {
-            event.setStatus(requestDTO.getStatus() != null ? requestDTO.getStatus() : EventStatus.DRAFT);
-        }
+        event.setStatus(EventStatus.DRAFT); 
 
         Event savedEvent = eventRepository.save(event);
+
+        try {
+            String organizerEmail = currentOrganizer.getUser().getEmail();
+            String organizerName = currentOrganizer.getUser().getUsername();
+
+            emailService.sendEventSubmissionPending(
+                organizerEmail,
+                organizerName,
+                savedEvent.getEventName(),
+                java.time.LocalDateTime.now()
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi email chờ duyệt: " + e.getMessage());
+        }
+
         return convertToDTO(savedEvent);
     }
+
 
     @Override
     @Transactional
@@ -239,7 +249,22 @@ public class EventServiceImpl implements EventService {
         }
 
         event.setStatus(EventStatus.PUBLISHED); 
-        return convertToDTO(eventRepository.save(event));
+        Event savedEvent = eventRepository.save(event);
+        try {
+            String organizerEmail = event.getOrganizer().getUser().getEmail();
+            String organizerName = event.getOrganizer().getName();
+
+            emailService.sendEventApprovedEmail(
+                organizerEmail,
+                organizerName,
+                savedEvent.getEventName(),
+                savedEvent.getStartDate(),
+                savedEvent.getSlug()
+            );
+        } catch (Exception e) {
+            System.err.println("Không thể gửi mail approve: " + e.getMessage());
+        }
+        return convertToDTO(savedEvent);
     }
 
     @Override
@@ -252,7 +277,27 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Không thể từ chối sự kiện đã công bố.");
         }
         event.setStatus(EventStatus.REJECTED);
-        return convertToDTO(eventRepository.save(event));
+        Event savedEvent = eventRepository.save(event);
+
+        try {
+            String organizerEmail = event.getOrganizer().getUser().getEmail();
+            String organizerName = event.getOrganizer().getName();
+            
+            String finalReason = (reason != null && !reason.trim().isEmpty()) 
+                               ? reason 
+                               : "Không đáp ứng tiêu chuẩn cộng đồng.";
+
+            emailService.sendEventRejectedEmail(
+                organizerEmail,
+                organizerName,
+                savedEvent.getEventName(),
+                finalReason
+            );
+        } catch (Exception e) {
+            System.err.println("Không thể gửi mail reject: " + e.getMessage());
+        }
+
+        return convertToDTO(savedEvent);
     }
 
 

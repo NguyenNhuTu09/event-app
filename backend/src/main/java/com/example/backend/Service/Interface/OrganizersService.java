@@ -14,4 +14,5 @@ public interface OrganizersService {
     // void deleteOrganizer(Integer organizerId);
     void deleteOrganizer(String slug);
     OrganizersResponseDTO approveOrganizer(Integer organizerId);
+    void rejectOrganizer(Integer organizerId, String reason);
 }
