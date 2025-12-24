@@ -72,7 +72,7 @@ public class EventController {
 
     @Operation(summary = "Xóa sự kiện (Chỉ ORGANIZER sở hữu)")
     @DeleteMapping("/{slug}")
-    @PreAuthorize("hasAuthority('ORGANIZER')")
+    @PreAuthorize("hasAnyAuthority('ORGANIZER', 'SADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable String slug) {
         eventService.deleteEvent(slug);
         return ResponseEntity.noContent().build();

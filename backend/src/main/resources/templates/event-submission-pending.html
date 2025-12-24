@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sự kiện đang chờ duyệt - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header { background-color: #000000; padding: 30px; text-align: center; border-bottom: 3px solid #d4af37; }
+        .logo { max-width: 130px; height: auto; }
+        .content { padding: 40px 35px; color: #e0e0e0; }
+        .status-box {
+            background-color: #2a2a2a;
+            border-left: 4px solid #f39c12; /* Màu cam cho Pending */
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .event-name { font-size: 18px; font-weight: bold; color: #fff; display: block; margin-bottom: 5px; }
+        .footer { background-color: #000; color: #555; text-align: center; padding: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}" style="color: #d4af37;">Organizer</strong>,</p>
+            <p>Chúng tôi đã nhận được yêu cầu tạo sự kiện của bạn. Hiện tại, sự kiện đang được đưa vào hàng chờ kiểm duyệt.</p>
+            
+            <div class="status-box">
+                <span style="color: #f39c12; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">TRẠNG THÁI: CHỜ PHÊ DUYỆT</span>
+                <br><br>
+                <span class="event-name" th:text="${eventName}">Tên sự kiện demo</span>
+                <span style="font-size: 13px; color: #999;">Thời gian gửi: <span th:text="${submittedDate}">12:30 24/12/2025</span></span>
+            </div>
+
+            <p style="font-size: 14px; color: #bbb; line-height: 1.6;">
+                Đội ngũ Admin sẽ xem xét nội dung sự kiện trong vòng 24h làm việc. Bạn sẽ nhận được email thông báo ngay khi có kết quả.
+            </p>
+        </div>
+        <div class="footer">&copy; 2025 Webie Event Management</div>
+    </div>
+</body>
+</html>

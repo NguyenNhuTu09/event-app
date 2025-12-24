@@ -72,7 +72,6 @@ public class User {
     @Column(name = "refresh_token_expiry_date")
     private Instant refreshTokenExpiryDate;
 
-    // token đổi mật khẩu và nhận OTP khi quên mật khẩu
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
 
@@ -81,6 +80,10 @@ public class User {
 
     @Column(nullable = false, unique = true, updatable = false)
     private String uid;
+
+    @Column(name = "verification_code")
+    private String verificationCode;
+
     @PrePersist
     protected void onCreate() {
         if (this.uid == null) {

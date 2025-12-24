@@ -1,6 +1,7 @@
 package com.example.backend.Service;
 
 import java.time.Instant;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +34,7 @@ public class AuthService {
     
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final EmailService emailService;
 
     public User registerNewUser(RegistrationRequest registrationRequest) {
         if (!registrationRequest.getPassword().equals(registrationRequest.getConfirmPassword())) {
@@ -53,6 +55,14 @@ public class AuthService {
         newUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
         newUser.setRole(Role.USER);
         newUser.setProvider(AuthProvider.LOCAL);
+        newUser.setEnabled(false); // Chưa kích hoạt
+
+        Random random = new Random();
+        int otpValue = 100000 + random.nextInt(900000);
+        String verificationCode = String.valueOf(otpValue);
+        newUser.setVerificationCode(verificationCode);
+        User savedUser = userRepository.save(newUser);
+        emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getUsername(), verificationCode);
         return userRepository.save(newUser);
     }
 
@@ -173,5 +183,23 @@ public class AuthService {
         user.setRefreshToken(null);
         user.setRefreshTokenExpiryDate(null);
         userRepository.save(user);
+    }
+
+    public boolean verifyUser(String email, String inputCode) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với email này."));
+        
+        if (user.isEnabled()) {
+            return false; // Đã kích hoạt rồi
+        }
+        
+        if (inputCode.equals(user.getVerificationCode())) {
+            user.setVerificationCode(null); // Xóa mã
+            user.setEnabled(true); // Kích hoạt
+            userRepository.save(user);
+            return true;
+        } else {
+            return false; // Mã sai
+        }
     }
 }

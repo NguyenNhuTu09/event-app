@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mã xác thực - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        
+        .header { background-color: #000000; padding: 30px 20px; text-align: center; border-bottom: 2px solid #d4af37; }
+        .logo { max-width: 120px; height: auto; margin-bottom: 10px; }
+        .header h2 { color: #d4af37; margin: 10px 0 0; font-family: 'Georgia', serif; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; }
+
+        .content { padding: 40px 30px; color: #e0e0e0; text-align: center; }
+        
+        /* Style cho khung chứa mã OTP */
+        .otp-box {
+            background-color: #252525;
+            border: 2px dashed #d4af37;
+            color: #d4af37;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            padding: 20px;
+            margin: 30px auto;
+            width: fit-content;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .footer { background-color: #000; color: #444; text-align: center; padding: 20px; font-size: 11px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+            <h2>Account Verification</h2>
+        </div>
+        
+        <div class="content">
+            <p style="font-size: 16px; color: #fff;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            
+            <p style="color: #cccccc; line-height: 1.6;">
+                Cảm ơn bạn đã đăng ký tài khoản. Vui lòng sử dụng mã xác thực dưới đây để hoàn tất quá trình đăng ký:
+            </p>
+            
+            <!-- Hiển thị Mã OTP -->
+            <div class="otp-box" th:text="${otpCode}">123456</div>
+            
+            <p style="color: #666; font-size: 13px; margin-top: 30px;">
+                Mã này có hiệu lực trong vòng 15 phút.<br>
+                Tuyệt đối không chia sẻ mã này cho bất kỳ ai.
+            </p>
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 Webie Event Security Team
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo từ chối sự kiện - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #000000; padding: 30px; text-align: center; border-bottom: 3px solid #d4af37; }
+        .logo { max-width: 130px; }
+        .content { padding: 40px 35px; color: #e0e0e0; }
+        
+        .alert-box {
+            background-color: #3e1b1b; /* Đỏ tối */
+            border: 1px solid #7f2828;
+            color: #ffcccc;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .reason-title {
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .footer { background-color: #000; color: #555; text-align: center; padding: 20px; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p>Chào <strong th:text="${username}">Organizer</strong>,</p>
+            <p>Rất tiếc, sự kiện <strong th:text="${eventName}" style="color: #fff;">Tên sự kiện</strong> của bạn chưa phù hợp để công khai trên nền tảng Webie Event vào lúc này.</p>
+            
+            <div class="alert-box">
+                <span class="reason-title">Lý do từ chối:</span>
+                <span th:text="${reason}" style="font-size: 15px; line-height: 1.5;">Nội dung không phù hợp...</span>
+            </div>
+
+            <p style="font-size: 14px; color: #bbb;">
+                Bạn có thể chỉnh sửa lại thông tin sự kiện dựa trên góp ý trên và gửi lại yêu cầu xét duyệt, hoặc liên hệ với bộ phận hỗ trợ nếu có thắc mắc.
+            </p>
+        </div>
+        <div class="footer">&copy; 2025 Webie Event Management</div>
+    </div>
+</body>
+</html>

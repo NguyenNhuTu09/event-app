@@ -202,4 +202,164 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void sendVerificationEmail(String to, String username, String otpCode) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("otpCode", otpCode); // Truyền mã OTP
+
+            String htmlContent = templateEngine.process("verify-account", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Mã xác thực tài khoản Webie Event")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+            System.out.println("Verification OTP sent to " + to);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendEventSubmissionPending(String to, String username, String eventName, LocalDateTime submittedDate) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("submittedDate", submittedDate.format(fullDateTimeFormatter));
+
+            String htmlContent = templateEngine.process("event-submission-pending", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Xác nhận gửi yêu cầu duyệt: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error sending Pending email: " + e.getMessage());
+        }
+    }
+
+
+    public void sendEventApprovedEmail(String to, String username, String eventName, LocalDateTime eventStartDate, String eventSlug) {
+        try {
+            // Giả lập đường dẫn FE,sau này thay bằng domain thật
+            String eventLink = "http://localhost:3000/events/" + eventSlug; 
+
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("eventDate", eventStartDate.format(fullDateTimeFormatter));
+            context.setVariable("eventLink", eventLink);
+
+            String htmlContent = templateEngine.process("event-submission-approved", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Sự kiện của bạn đã được duyệt: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendEventRejectedEmail(String to, String username, String eventName, String reason) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("reason", reason);
+
+            String htmlContent = templateEngine.process("event-submission-rejected", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Thông báo từ chối sự kiện: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public void sendOrganizerRegistrationPending(String to, String username, String organizerName) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("organizerName", organizerName);
+
+            String htmlContent = templateEngine.process("organizer-pending", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Xác nhận đăng ký Organizer: " + organizerName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendOrganizerApproved(String to, String username, String organizerName) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("organizerName", organizerName);
+
+            String htmlContent = templateEngine.process("organizer-approved", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Chúc mừng! Bạn đã trở thành Organizer")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendOrganizerRejected(String to, String username, String organizerName, String reason) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("organizerName", organizerName);
+            context.setVariable("reason", reason);
+
+            String htmlContent = templateEngine.process("organizer-rejected", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Thông báo kết quả đăng ký Organizer")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
