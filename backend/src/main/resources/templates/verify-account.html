@@ -2,61 +2,120 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Mã xác thực - Webie Event</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực tài khoản - Webie Event</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        /* Reset cho Email */
+        body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important; background-color: #1a1a1a; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        table { border-collapse: collapse; }
+        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
         
-        .header { background-color: #000000; padding: 30px 20px; text-align: center; border-bottom: 2px solid #d4af37; }
-        .logo { max-width: 120px; height: auto; margin-bottom: 10px; }
-        .header h2 { color: #d4af37; margin: 10px 0 0; font-family: 'Georgia', serif; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; }
+        /* Layout chính */
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #000000; border: 1px solid #333333; }
+        
+        /* Hiệu ứng Luxury Border phía trên */
+        .top-bar { height: 4px; background: linear-gradient(90deg, #8e6d13 0%, #d4af37 50%, #8e6d13 100%); }
 
-        .content { padding: 40px 30px; color: #e0e0e0; text-align: center; }
+        /* Nội dung */
+        .content-box { padding: 48px 40px; }
         
-        /* Style cho khung chứa mã OTP */
-        .otp-box {
-            background-color: #252525;
-            border: 2px dashed #d4af37;
-            color: #d4af37;
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 10px;
-            padding: 20px;
-            margin: 30px auto;
-            width: fit-content;
+        /* Typography */
+        .title-h1 { color: #ffffff; font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 20px 0; }
+        .text-p { color: #aaaaaa; font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
+        
+        /* OTP Box - Nâng cấp hiện đại */
+        .otp-wrapper {
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px dashed #d4af37;
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
+            padding: 30px;
+            margin: 35px 0;
+            text-align: center;
+        }
+        .otp-label { color: #d4af37; font-size: 12px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px; display: block; }
+        .otp-code {
+            color: #d4af37;
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: 12px;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        .footer { background-color: #000; color: #444; text-align: center; padding: 20px; font-size: 11px; text-transform: uppercase; }
+        /* Footer */
+        .footer { padding: 30px; background-color: #0a0a0a; text-align: center; border-top: 1px solid #222; }
+        .footer-text { color: #555555; font-size: 12px; line-height: 1.5; margin: 5px 0; }
+        .social-link { color: #d4af37; text-decoration: none; font-weight: bold; }
+        
+        /* Responsive */
+        @media only screen and (max-width: 480px) {
+            .content-box { padding: 30px 20px; }
+            .otp-code { font-size: 32px; letter-spacing: 8px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
-            <h2>Account Verification</h2>
-        </div>
-        
-        <div class="content">
-            <p style="font-size: 16px; color: #fff;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
-            
-            <p style="color: #cccccc; line-height: 1.6;">
-                Cảm ơn bạn đã đăng ký tài khoản. Vui lòng sử dụng mã xác thực dưới đây để hoàn tất quá trình đăng ký:
-            </p>
-            
-            <!-- Hiển thị Mã OTP -->
-            <div class="otp-box" th:text="${otpCode}">123456</div>
-            
-            <p style="color: #666; font-size: 13px; margin-top: 30px;">
-                Mã này có hiệu lực trong vòng 15 phút.<br>
-                Tuyệt đối không chia sẻ mã này cho bất kỳ ai.
-            </p>
-        </div>
-        
-        <div class="footer">
-            &copy; 2025 Webie Event Security Team
-        </div>
-    </div>
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#1a1a1a">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table class="email-container" width="600" border="0" cellspacing="0" cellpadding="0">
+                    <tr><td class="top-bar"></td></tr>
+
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 0 40px;">
+                            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" 
+                                 alt="Webie Event Logo" width="120" style="display: block;">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="content-box">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center">
+                                        <h1 class="title-h1">Xác Thực Tài Khoản</h1>
+                                        <p class="text-p">
+                                            Chào <strong style="color: #ffffff;" th:text="${username}">Hoàng Phi</strong>,<br>
+                                            Cảm ơn bạn đã lựa chọn <strong>Webie Event</strong>. Để hoàn tất quy trình đăng ký, vui lòng sử dụng mã xác thực dưới đây:
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="otp-wrapper">
+                                            <span class="otp-label">Mã OTP của bạn</span>
+                                            <div class="otp-code" th:text="${otpCode}">924103</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <p class="text-p" style="font-size: 14px italic;">
+                                            Mã này có hiệu lực trong <span style="color: #d4af37;">15 phút</span>.<br>
+                                            Vì lý do bảo mật, tuyệt đối không chia sẻ mã này cho bất kỳ ai.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="footer">
+                            <p class="footer-text">
+                                &copy; 2025 <strong>Webie Event Platform</strong>. All rights reserved.
+                            </p>
+                            <p class="footer-text">
+                                Bạn nhận được email này vì đã đăng ký tại <a href="#" class="social-link">webie-event.com</a>
+                            </p>
+                            <div style="margin-top: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                                <p class="footer-text">Kết nối với chúng tôi qua Facebook | LinkedIn | Instagram</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
