@@ -45,7 +45,3 @@ build/
 *.secret
 secrets/
 config/*.secret.json
-
-
-src/main/resources/firebase-service-account.json
-**/firebase-service-account.json
