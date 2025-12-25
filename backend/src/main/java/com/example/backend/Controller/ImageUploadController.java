@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.Service.CloudinaryService;
-import com.example.backend.Service.FirebaseStorageService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -25,8 +24,8 @@ public class ImageUploadController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @Autowired
-    private FirebaseStorageService firebaseStorageService;
+    // @Autowired
+    // private FirebaseStorageService firebaseStorageService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
