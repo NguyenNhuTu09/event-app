@@ -24,9 +24,6 @@ public class ImageUploadController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    // @Autowired
-    // private FirebaseStorageService firebaseStorageService;
-
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
         try {
@@ -41,14 +38,4 @@ public class ImageUploadController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi upload ảnh");
         }
     }
-
-    // @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    // public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
-    //     try {
-    //         String imageUrl = firebaseStorageService.uploadImage(file);
-    //         return ResponseEntity.ok(imageUrl);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(500).body("Lỗi upload ảnh: " + e.getMessage());
-    //     }
-    // }
 }
