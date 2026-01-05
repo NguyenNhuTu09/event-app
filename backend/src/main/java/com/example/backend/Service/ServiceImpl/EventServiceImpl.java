@@ -13,6 +13,7 @@ import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
+import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Activity;
 import com.example.backend.Models.Entity.ActivityAttendees;
@@ -114,21 +115,6 @@ public class EventServiceImpl implements EventService {
         event.setStatus(EventStatus.DRAFT); 
 
         Event savedEvent = eventRepository.save(event);
-
-        try {
-            String organizerEmail = currentOrganizer.getUser().getEmail();
-            String organizerName = currentOrganizer.getUser().getUsername();
-
-            emailService.sendEventSubmissionPending(
-                organizerEmail,
-                organizerName,
-                savedEvent.getEventName(),
-                java.time.LocalDateTime.now()
-            );
-        } catch (Exception e) {
-            System.err.println("Lỗi gửi email chờ duyệt: " + e.getMessage());
-        }
-
         return convertToDTO(savedEvent);
     }
 
@@ -187,7 +173,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponseDTO> getAllEvents() {
-        return eventRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return eventRepository.findByStatusNot(EventStatus.DRAFT)
+                .stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -540,4 +527,67 @@ public class EventServiceImpl implements EventService {
         return savedEvents.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
     
+    @Override
+    @Transactional
+    public EventResponseDTO submitEventForApproval(String slug) {
+        Event event = eventRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
+
+        Organizers currentOrganizer = getCurrentOrganizer();
+        
+        if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền gửi yêu cầu duyệt cho sự kiện này.");
+        }
+
+        if (event.getStatus() != EventStatus.DRAFT && event.getStatus() != EventStatus.REJECTED) {
+            throw new IllegalArgumentException("Sự kiện này đang chờ duyệt hoặc đã được công bố, không thể gửi yêu cầu.");
+        }
+
+        event.setStatus(EventStatus.PENDING_APPROVAL);
+        Event savedEvent = eventRepository.save(event);
+
+        try {
+            String organizerEmail = currentOrganizer.getUser().getEmail();
+            String organizerName = currentOrganizer.getUser().getUsername();
+
+            emailService.sendEventSubmissionPending(
+                organizerEmail,
+                organizerName,
+                savedEvent.getEventName(),
+                java.time.LocalDateTime.now()
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi email chờ duyệt: " + e.getMessage());
+        }
+
+        return convertToDTO(savedEvent);
+    }
+
+    @Override
+    public List<UserRegistrationHistoryDTO> getMyRegistrationHistory() {
+        User currentUser = getCurrentUser();
+
+        List<EventAttendees> registrations = eventAttendeesRepository.findByUser_IdOrderByRegistrationDateDesc(currentUser.getId());
+
+        return registrations.stream().map(reg -> {
+            Event event = reg.getEvent();
+            return UserRegistrationHistoryDTO.builder()
+                    .eventId(event.getEventId())
+                    .eventName(event.getEventName())
+                    .slug(event.getSlug())
+                    .bannerImageUrl(event.getBannerImageUrl())
+                    .location(event.getLocation())
+                    .startDate(event.getStartDate())
+                    .endDate(event.getEndDate())
+                    .organizerName(event.getOrganizer().getName())
+                    
+                    // Map thông tin đăng ký
+                    .registrationId(reg.getId())
+                    .status(reg.getStatus())
+                    .ticketCode(reg.getStatus() == RegistrationStatus.APPROVED ? reg.getTicketCode() : null)
+                    .registrationDate(reg.getRegistrationDate())
+                    .eventCheckInStatus(reg.getEventCheckInStatus())
+                    .build();
+        }).collect(Collectors.toList());
+    }
 }

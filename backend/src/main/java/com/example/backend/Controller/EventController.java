@@ -19,6 +19,7 @@ import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
+import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
 import com.example.backend.Service.Interface.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -169,5 +170,20 @@ public class EventController {
     @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<List<EventResponseDTO>> updateUpcomingEvents(@RequestBody List<Long> eventIds) {
         return ResponseEntity.ok(eventService.updateUpcomingEvents(eventIds));
+    }
+
+
+    @Operation(summary = "Gửi yêu cầu duyệt sự kiện (Chỉ ORGANIZER sở hữu) - Chuyển từ DRAFT sang PENDING_APPROVAL")
+    @PutMapping("/{slug}/submit")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<EventResponseDTO> submitEventForApproval(@PathVariable String slug) {
+        return ResponseEntity.ok(eventService.submitEventForApproval(slug));
+    }
+
+    @Operation(summary = "Xem lịch sử đăng ký sự kiện của tôi (User)")
+    @GetMapping("/my-registrations")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<List<UserRegistrationHistoryDTO>> getMyRegistrations() {
+        return ResponseEntity.ok(eventService.getMyRegistrationHistory());
     }
 }
