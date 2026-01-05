@@ -6,6 +6,7 @@ import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
+import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
 
 public interface EventService {
     EventResponseDTO createEvent(EventRequestDTO requestDTO);
@@ -17,7 +18,9 @@ public interface EventService {
     List<EventResponseDTO> getPublicEvents(); 
     EventResponseDTO approveEvent(Long eventId);
     EventResponseDTO rejectEvent(Long eventId, String reason);
+    EventResponseDTO submitEventForApproval(String slug); 
 
+    List<UserRegistrationHistoryDTO> getMyRegistrationHistory();
     
     void registerForEvent(EventRegistrationRequestDTO requestDTO);
     List<EventAttendeeResponseDTO> getEventRegistrations(Long eventId);
