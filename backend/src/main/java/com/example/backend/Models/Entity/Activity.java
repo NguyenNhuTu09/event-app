@@ -72,8 +72,6 @@ public class Activity {
     @Column(name = "max_attendees")
     private Long maxAttendees;
 
-    // Lưu trữ JSON dưới dạng String. 
-    // Ví dụ: "['ROLE_VIP', 'ROLE_MEMBER']"
     @Column(name = "accessible_to", columnDefinition = "json")
     private String accessibleTo;
 

@@ -22,4 +22,6 @@ public interface EventAttendeesRepository extends JpaRepository<EventAttendees, 
     Optional<EventAttendees> findByTicketCode(String ticketCode);
 
     List<EventAttendees> findByUser_IdOrderByRegistrationDateDesc(Long userId);
+
+    Optional<EventAttendees> findByEvent_EventIdAndUser_Id(Long eventId, Long userId);
 }
