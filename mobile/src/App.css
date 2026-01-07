@@ -1,42 +1,197 @@
-#root {
-  max-width: 1280px;
+/* App.css */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap');
+
+:root {
+  --bg-color: #050505;
+  --gold-primary: #d4af37; /* Màu vàng trong ảnh */
+  --gold-hover: #b5952f;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(212, 175, 55, 0.3);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif; /* Font tiêu đề giống ảnh */
+  color: var(--gold-primary);
+}
+
+/* Button Style */
+.btn-gold {
+  background: var(--gold-primary);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-gold:hover {
+  background: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--gold-primary);
+  color: var(--gold-primary);
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Scanner Overlay Styles */
+.scanner-container {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid var(--border-color);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.scan-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Để click xuyên qua nếu cần */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.scan-box {
+  width: 250px;
+  height: 250px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); /* Tạo hiệu ứng tối xung quanh */
+  border-radius: 16px;
+  position: relative;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* 4 góc của khung quét */
+.scan-box::before, .scan-box::after,
+.scan-corner-bl, .scan-corner-br {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-color: var(--gold-primary);
+  border-style: solid;
+  border-width: 4px;
 }
 
-.card {
-  padding: 2em;
+.scan-box::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
+.scan-box::after { top: -2px; right: -2px; border-left: 0; border-bottom: 0; border-top-right-radius: 12px; }
+.scan-corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; border-bottom-left-radius: 12px; }
+.scan-corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
+
+/* Thanh quét chạy lên xuống */
+.scan-line {
+  width: 100%;
+  height: 2px;
+  background: var(--gold-primary);
+  position: absolute;
+  top: 0;
+  animation: scanMove 2s infinite linear;
+  box-shadow: 0 0 10px var(--gold-primary);
 }
 
-.read-the-docs {
-  color: #888;
+@keyframes scanMove {
+  0% { top: 10px; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 240px; opacity: 0; }
+}
+
+
+/* --- THÊM VÀO CUỐI FILE App.css --- */
+
+/* Navigation Bar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: rgba(5, 5, 5, 0.9); /* Nền đen mờ */
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--gold-primary);
+  text-decoration: none;
+  margin-right: 40px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-item {
+  color: var(--text-primary); /* Màu trắng */
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: var(--gold-primary); /* Hover ra màu vàng */
+}
+
+/* Nút đăng xuất nhỏ gọn style outline */
+.btn-logout {
+  background: transparent;
+  border: 1px solid #ff4d4f; /* Màu đỏ cho nút thoát */
+  color: #ff4d4f;
+  padding: 6px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
+
+/* FIX LỖI CAMERA: Ép thẻ video của thư viện hiển thị chuẩn */
+#reader-element {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Cắt bỏ phần thừa */
+    position: relative;
+    border-radius: 20px; /* Bo góc theo container */
+}
+
+#reader-element video {
+    /* Quan trọng: Ép video full khung hình và không bị méo */
+    object-fit: cover; 
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 20px;
 }

@@ -1,129 +1,133 @@
-import React, { useState } from 'react';
+// pages/OrganizerCheckIn.js
+import React, { useState, useCallback } from 'react';
 import QRScanner from '../components/QRScanner';
 import axiosClient from '../api/axiosClient';
+// Nhớ import file CSS nếu chưa import global
 
 const OrganizerCheckIn = () => {
-    // State lưu toàn bộ cục data backend trả về
-    const [checkInData, setCheckInData] = useState(null); 
+    const [checkInData, setCheckInData] = useState(null);
     const [message, setMessage] = useState('');
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [status, setStatus] = useState('idle'); // idle, processing, success, error
 
-    const onNewScanResult = (decodedText) => {
-        if (isProcessing) return;
-        setIsProcessing(true);
+    // Hàm gọi API
+    const handleScan = useCallback((decodedText) => {
+        if (status === 'processing' || status === 'success') return; // Chặn quét liên tục khi đang xử lý
 
+        setStatus('processing');
+        
         axiosClient.post('/checkin/event', { ticketCode: decodedText })
             .then(response => {
-                // response.data bây giờ là EventCheckInResultDTO
-                setCheckInData(response.data); 
-                setMessage(`✅ CHECK-IN THÀNH CÔNG`);
-                // Play sound beep...
+                setCheckInData(response.data);
+                setStatus('success');
+                setMessage('CHECK-IN THÀNH CÔNG');
+                // Tự động reset sau 5 giây nếu muốn, hoặc để user bấm nút
             })
             .catch(error => {
-                setCheckInData(null); // Reset nếu lỗi
-                setMessage(`❌ LỖI: ${error.response?.data?.message || "Vé không hợp lệ"}`);
-            })
-            .finally(() => {
-                setTimeout(() => setIsProcessing(false), 2000);
+                setStatus('error');
+                setMessage(error.response?.data?.message || "Vé không hợp lệ");
+                setTimeout(() => setStatus('idle'), 3000); // Tự động cho phép quét lại sau 3s nếu lỗi
             });
+    }, [status]);
+
+    const resetScan = () => {
+        setCheckInData(null);
+        setStatus('idle');
+        setMessage('');
     };
-
-    // Hàm render danh sách hoạt động
-    const renderAgenda = () => {
-        if (!checkInData?.agenda || checkInData.agenda.length === 0) {
-            return <p>Sự kiện này chưa có hoạt động nào.</p>;
-        }
-
-        return (
-            <div style={{ marginTop: 15, textAlign: 'left' }}>
-                <h4 style={{ borderBottom: '2px solid #ddd', paddingBottom: 5 }}>📅 Lịch trình sự kiện</h4>
-                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    {checkInData.agenda.map((act) => (
-                        <div key={act.activityId} style={styles.activityCard}>
-                            <div style={{ fontWeight: 'bold', color: '#007bff' }}>
-                                {formatTime(act.startTime)} - {formatTime(act.endTime)}
-                            </div>
-                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                {act.activityName}
-                            </div>
-                            <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                                📍 {act.roomOrVenue || "Chưa cập nhật phòng"} | 🎤 {act.presenter?.fullName || "Không có diễn giả"}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const formatTime = (timeString) => {
-        if(!timeString) return "";
-        return new Date(timeString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
 
     return (
-        <div style={{ padding: 20, maxWidth: 600, margin: '0 auto' }}>
-            <h2 style={{ textAlign: 'center' }}>Cổng Check-in</h2>
-            
-            <div style={{ marginBottom: 20 }}>
-                <QRScanner fps={10} qrbox={250} qrCodeSuccessCallback={onNewScanResult} />
+        <div style={{ minHeight: '100vh', padding: '20px', background: 'var(--bg-color)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                <img src="/logo-webie.png" alt="Webie" style={{ height: '40px', marginBottom: '10px' }} /> {/* Thay logo của bạn */}
+                <h2>CỔNG CHECK-IN SỰ KIỆN</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>Quét vé tham dự của khách mời</p>
             </div>
 
-            {/* Khu vực hiển thị thông báo trạng thái */}
-            <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                <h3 style={{ color: message.includes('LỖI') ? 'red' : 'green' }}>{message}</h3>
-            </div>
+            {/* Khu vực Camera */}
+            <QRScanner onScanSuccess={handleScan} />
 
-            {/* Khu vực hiển thị thông tin chi tiết sau khi quét thành công */}
-            {checkInData && (
-                <div style={styles.resultContainer}>
-                    {/* 1. Thông tin Khách */}
-                    <div style={styles.attendeeBox}>
-                        <h3>👤 {checkInData.attendee.username}</h3>
-                        <p>Email: {checkInData.attendee.email}</p>
-                        <p>Mã vé: <span style={{ fontFamily: 'monospace', background: '#eee', padding: '2px 5px' }}>
-                            {checkInData.attendee.ticketCode}
-                        </span></p>
-                    </div>
-
-                    {/* 2. Thông tin Sự kiện */}
-                    <div style={{ marginTop: 15 }}>
-                        <h4 style={{ margin: '10px 0 5px 0', color: '#555' }}>Đang tham gia:</h4>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#333' }}>
-                            {checkInData.event.eventName}
+            {/* Kết quả Check-in (Hiện lên như Modal/Card) */}
+            {status !== 'idle' && (
+                <div style={styles.resultOverlay}>
+                    <div style={styles.resultCard}>
+                        <div style={{ textAlign: 'center', marginBottom: 15 }}>
+                            {status === 'processing' && <span style={{fontSize: 40}}>⏳</span>}
+                            {status === 'success' && <span style={{fontSize: 40}}>✅</span>}
+                            {status === 'error' && <span style={{fontSize: 40}}>❌</span>}
                         </div>
-                        <p style={{ fontSize: '0.9rem', color: '#777' }}>📍 {checkInData.event.location}</p>
-                    </div>
 
-                    {/* 3. Danh sách Hoạt động (Agenda) */}
-                    {renderAgenda()}
+                        <h3 style={{ textAlign: 'center', color: status === 'error' ? '#ff4d4f' : 'var(--gold-primary)' }}>
+                            {status === 'processing' ? 'Đang kiểm tra vé...' : message}
+                        </h3>
+
+                        {checkInData && (
+                            <div style={{ marginTop: 20 }}>
+                                <div style={styles.infoRow}>
+                                    <span style={styles.label}>Họ tên:</span>
+                                    <span style={styles.value}>{checkInData.attendee.username}</span>
+                                </div>
+                                <div style={styles.infoRow}>
+                                    <span style={styles.label}>Email:</span>
+                                    <span style={styles.value}>{checkInData.attendee.email}</span>
+                                </div>
+                                <div style={styles.infoRow}>
+                                    <span style={styles.label}>Loại vé:</span>
+                                    <span style={styles.valueTag}>{checkInData.attendee.ticketCode}</span>
+                                </div>
+                                <hr style={{ borderColor: 'rgba(255,255,255,0.1)', margin: '15px 0' }} />
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                    Sự kiện: {checkInData.event.eventName}
+                                </p>
+                            </div>
+                        )}
+
+                        <div style={{ marginTop: 25, textAlign: 'center' }}>
+                            {(status === 'success' || status === 'error') && (
+                                <button onClick={resetScan} className="btn-gold">
+                                    Tiếp tục quét vé khác
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
     );
 };
 
-// CSS styles đơn giản
 const styles = {
-    resultContainer: {
-        background: 'white',
-        padding: 20,
-        borderRadius: 10,
-        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-        border: '1px solid #eee'
+    resultOverlay: {
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: 'rgba(0,0,0,0.85)',
+        padding: '20px',
+        borderTopLeftRadius: '20px',
+        borderTopRightRadius: '20px',
+        zIndex: 100,
+        animation: 'slideUp 0.3s ease-out',
+        display: 'flex', justifyContent: 'center'
     },
-    attendeeBox: {
-        background: '#e3f2fd', // Màu xanh nhạt
-        padding: 15,
-        borderRadius: 8,
-        borderLeft: '5px solid #2196f3'
+    resultCard: {
+        width: '100%', maxWidth: '500px',
+        background: '#1a1a1a',
+        borderRadius: '15px',
+        padding: '25px',
+        border: '1px solid var(--gold-primary)',
+        boxShadow: '0 -5px 20px rgba(212, 175, 55, 0.2)'
     },
-    activityCard: {
-        background: '#f9f9f9',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 6,
-        border: '1px solid #eee'
+    infoRow: {
+        display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center'
+    },
+    label: {
+        color: 'var(--text-secondary)', fontSize: '0.9rem'
+    },
+    value: {
+        color: 'white', fontWeight: '600', fontSize: '1.1rem'
+    },
+    valueTag: {
+        background: 'rgba(212, 175, 55, 0.2)',
+        color: 'var(--gold-primary)',
+        padding: '4px 8px', borderRadius: '4px',
+        fontFamily: 'monospace'
     }
 };
 

@@ -1,12 +1,11 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import OrganizerCheckIn from './pages/OrganizerCheckIn';
 import ActivityQRGenerator from './pages/ActivityQRGenerator';
 import UserActivityCheckIn from './pages/UserActivityCheckIn';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/LoginPage'; // Giả sử bạn đã có trang Login
 import PrivateRoute from './components/PrivateRoute';
 
-// Component Menu điều hướng đơn giản
+// Component Menu điều hướng (Đã được Style lại)
 const Navigation = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -21,25 +20,31 @@ const Navigation = () => {
     if (!token) return null; // Chưa login thì không hiện menu
 
     return (
-        <nav style={{ padding: 10, background: '#333', color: 'white', display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-                {/* Chỉ hiện link dựa trên Role (Logic đơn giản) */}
-                {role === 'ORGANIZER' && (
-                    <>
-                         <Link style={linkStyle} to="/organizer/checkin">Org: Quét Vé</Link>
-                         <Link style={linkStyle} to="/organizer/activity-qr/1">Org: Mã QR HĐ</Link>
-                    </>
-                )}
-                <Link style={linkStyle} to="/user/checkin">User: Quét HĐ</Link>
+        <nav className="navbar">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                {/* Logo giả lập */}
+                <Link to="/" className="nav-brand">Webie</Link>
+                
+                <div className="nav-links">
+                    {/* Menu cho Organizer */}
+                    {role === 'ORGANIZER' && (
+                        <>
+                             <Link className="nav-item" to="/organizer/checkin">Check-in Sự kiện</Link>
+                             <Link className="nav-item" to="/organizer/activity-qr/1">Tạo QR Hoạt động</Link>
+                        </>
+                    )}
+                    
+                    {/* Menu cho User */}
+                    <Link className="nav-item" to="/user/checkin">Quét Hoạt động</Link>
+                </div>
             </div>
-            <button onClick={handleLogout} style={{background: 'red', color: 'white', border: 'none', cursor: 'pointer'}}>
+
+            <button onClick={handleLogout} className="btn-logout">
                 Đăng xuất
             </button>
         </nav>
     );
 };
-
-const linkStyle = { color: 'white', marginRight: 15, textDecoration: 'none' };
 
 function App() {
   return (
@@ -47,20 +52,25 @@ function App() {
       <div className="App">
         <Navigation />
 
-        <Routes>
-          {/* Route công khai */}
-          <Route path="/login" element={<LoginPage />} />
+        <div className="content-container"> 
+        {/* Container này dùng để đảm bảo nội dung không bị dính sát lề nếu cần, 
+            nhưng với CSS body margin:0 ở bước trước thì không bắt buộc */}
+            
+            <Routes>
+            {/* Route công khai */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Route cần đăng nhập mới vào được */}
-          <Route element={<PrivateRoute />}>
-              <Route path="/organizer/checkin" element={<OrganizerCheckIn />} />
-              <Route path="/organizer/activity-qr/:activityId" element={<ActivityQRGenerator />} />
-              <Route path="/user/checkin" element={<UserActivityCheckIn />} />
-          </Route>
+            {/* Route cần đăng nhập mới vào được */}
+            <Route element={<PrivateRoute />}>
+                <Route path="/organizer/checkin" element={<OrganizerCheckIn />} />
+                <Route path="/organizer/activity-qr/:activityId" element={<ActivityQRGenerator />} />
+                <Route path="/user/checkin" element={<UserActivityCheckIn />} />
+            </Route>
 
-          {/* Mặc định vào login nếu sai đường dẫn */}
-          <Route path="*" element={<LoginPage />} />
-        </Routes>
+            {/* Mặc định vào login nếu sai đường dẫn */}
+            <Route path="*" element={<LoginPage />} />
+            </Routes>
+        </div>
       </div>
     </Router>
   );

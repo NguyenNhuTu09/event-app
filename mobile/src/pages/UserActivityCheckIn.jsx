@@ -1,45 +1,74 @@
-import React, { useState } from 'react';
+// pages/UserActivityCheckIn.js
+import React, { useState, useCallback } from 'react';
 import QRScanner from '../components/QRScanner';
 import axiosClient from '../api/axiosClient';
 
 const UserActivityCheckIn = () => {
+    const [status, setStatus] = useState('idle'); // idle, success, error
     const [message, setMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleScan = (decodedText) => {
+    const handleScan = useCallback((decodedText) => {
+        if (status === 'success') return; // Nếu đã thành công thì dừng quét cho đến khi user bấm nút
+
         axiosClient.post('/checkin/activity', { activityQrCode: decodedText })
             .then(response => {
-                setMessage(response.data); // "Điểm danh thành công..."
-                setIsSuccess(true);
+                setStatus('success');
+                setMessage(response.data || "Điểm danh hoạt động thành công!");
             })
             .catch(error => {
-                setMessage(error.response?.data?.message || "Lỗi điểm danh");
-                setIsSuccess(false);
+                // Với user, nếu quét sai mã (ví dụ quét nhầm mã wifi), ta chỉ hiện toast nhỏ hoặc log, 
+                // không nhất thiết phải chặn màn hình như Organizer
+                setStatus('error');
+                setMessage(error.response?.data?.message || "Mã QR không hợp lệ");
+                setTimeout(() => {
+                    setStatus('idle'); // Tự reset lỗi sau 2s để quét lại
+                    setMessage('');
+                }, 2000);
             });
-    };
+    }, [status]);
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Điểm danh hoạt động</h2>
-            {!isSuccess ? (
+        <div style={{ 
+            minHeight: '100vh', 
+            background: 'var(--bg-color)', 
+            padding: '20px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center' 
+        }}>
+            <h2 style={{ marginBottom: '10px' }}>ĐIỂM DANH HOẠT ĐỘNG</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', textAlign: 'center' }}>
+                Quét mã QR tại khu vực hoạt động để ghi nhận tham gia
+            </p>
+
+            {status !== 'success' ? (
                 <>
-                    <p>Hãy hướng camera về phía mã QR của hoạt động</p>
-                    <QRScanner qrCodeSuccessCallback={handleScan} />
+                    <QRScanner onScanSuccess={handleScan} />
+                    {status === 'error' && (
+                        <div style={{ 
+                            marginTop: '20px', color: '#ff4d4f', background: 'rgba(255, 77, 79, 0.1)', 
+                            padding: '10px 20px', borderRadius: '8px' 
+                        }}>
+                            ⚠️ {message}
+                        </div>
+                    )}
                 </>
             ) : (
-                <div style={{ textAlign: 'center', color: 'green', marginTop: 50 }}>
-                    <h1>✅</h1>
-                    <h3>{message}</h3>
-                    <button onClick={() => { setIsSuccess(false); setMessage(''); }}>
+                // Màn hình thành công
+                <div style={{ 
+                    textAlign: 'center', marginTop: '50px', 
+                    background: 'var(--glass-bg)', padding: '40px', 
+                    borderRadius: '20px', border: '1px solid var(--gold-primary)',
+                    maxWidth: '400px'
+                }}>
+                    <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎉</div>
+                    <h3 style={{ color: 'var(--gold-primary)', marginBottom: '15px' }}>CHECK-IN THÀNH CÔNG</h3>
+                    <p style={{ color: 'white', marginBottom: '30px' }}>{message}</p>
+                    <button 
+                        onClick={() => { setStatus('idle'); setMessage(''); }} 
+                        className="btn-gold"
+                    >
                         Quét hoạt động khác
                     </button>
                 </div>
-            )}
-            
-            {message && !isSuccess && (
-                <p style={{ color: 'red', textAlign: 'center', fontWeight: 'bold' }}>
-                    {message}
-                </p>
             )}
         </div>
     );
