@@ -58,10 +58,33 @@ h1, h2, h3, h4 {
   width: 100%;
   max-width: 450px;
   margin: 0 auto;
+  
+  /* --- THÊM 3 DÒNG NÀY --- */
+  aspect-ratio: 1 / 1;      /* Luôn giữ tỷ lệ hình vuông */
+  min-height: 300px;        /* Chiều cao tối thiểu nếu lỗi */
+  background-color: #000;   /* Nền đen để tránh bị chớp trắng */
+  
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   border: 1px solid var(--border-color);
+  transition: filter 0.3s ease; /* Hiệu ứng làm mờ */
+}
+
+.scanner-container.blurred {
+    filter: blur(8px) grayscale(80%);
+}
+
+/* Ép video hiển thị full */
+#reader-element {
+    width: 100%;
+    height: 100%;
+}
+#reader-element video {
+    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 20px;
 }
 
 .scan-overlay {
@@ -194,4 +217,20 @@ h1, h2, h3, h4 {
     width: 100% !important;
     height: 100% !important;
     border-radius: 20px;
+}
+
+/* Đảm bảo có đoạn này trong App.css */
+.btn-gold {
+  background: #d4af37; /* Vàng kim */
+  color: #000;         /* Chữ đen */
+  font-weight: 700;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s;
+}
+.btn-gold:hover {
+  background: #b5952f;
+  transform: scale(1.05);
 }
