@@ -1,5 +1,6 @@
 package com.example.backend.Service.ServiceImpl;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -298,9 +299,23 @@ public class EventServiceImpl implements EventService {
         if (event.getStatus() != EventStatus.PUBLISHED) {
             throw new IllegalArgumentException("Sự kiện chưa được công bố.");
         }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        
+        if (now.isAfter(event.getEndDate())) {
+            throw new IllegalArgumentException("Sự kiện đã kết thúc, không thể đăng ký.");
+        }
+        
+        if (event.getRegistrationDeadline() != null && now.isAfter(event.getRegistrationDeadline())) {
+            throw new IllegalArgumentException("Đã hết thời hạn đăng ký tham gia sự kiện này.");
+        }
+        
         if (eventAttendeesRepository.existsByEventAndUser(event, currentUser)) {
             throw new IllegalArgumentException("Bạn đã đăng ký sự kiện này rồi.");
         }
+        
+
 
         EventAttendees registration = new EventAttendees();
         registration.setUser(currentUser);
