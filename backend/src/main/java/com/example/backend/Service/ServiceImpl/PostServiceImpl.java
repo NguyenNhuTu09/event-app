@@ -119,4 +119,11 @@ public class PostServiceImpl {
         }
         return slug;
     }
+
+    public PostResponseDTO getPostById(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại với ID: " + id));
+        
+        return mapToDTO(post);
+    }
 }
