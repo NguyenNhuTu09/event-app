@@ -72,6 +72,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/activities/search").permitAll()
                 .requestMatchers("/api/activities/by-event/{eventId}").permitAll()
                 .requestMatchers("/api/presenters/by-organizer/{slug}").permitAll()
+                .requestMatchers("/api/posts").permitAll()
+                .requestMatchers("/api/posts/{slug}").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
