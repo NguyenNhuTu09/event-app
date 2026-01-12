@@ -20,7 +20,9 @@ public class CorsConfig {
                                                 "https://event-app-ten-flax.vercel.app",
                                                 "https://ems-webie.vercel.app",
                                                 "http://webie.io.vn",
-                                                "http://ems.webie.com.vn"
+                                                "https://webie.io.vn",
+                                                "http://ems.webie.com.vn",
+                                                "https://ems.webie.com.vn"
                                                 ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
