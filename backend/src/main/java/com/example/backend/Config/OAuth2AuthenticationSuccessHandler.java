@@ -43,7 +43,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String accessToken = jwtService.generateToken(user.getEmail());
         String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-        String targetUrl = UriComponentsBuilder.fromUriString("https://ems-backend-jkjx.onrender.com/oauth2/redirect")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://ems.webie.com.vn/oauth2/redirect")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("uid", user.getUid())
