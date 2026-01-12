@@ -89,4 +89,28 @@ public class OrganizersController {
         organizersService.rejectOrganizer(organizerId, reason);
         return ResponseEntity.ok("Đã từ chối đơn đăng ký Organizer và gửi email thông báo.");
     }
+
+    @Operation(summary = "Khóa tạm thời Organizer (SADMIN)")
+    @PutMapping("/{organizerId}/lock")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<String> lockOrganizer(@PathVariable Integer organizerId) {
+        organizersService.lockOrganizer(organizerId);
+        return ResponseEntity.ok("Đã khóa tài khoản Organizer thành công.");
+    }
+
+    @Operation(summary = "Mở khóa Organizer (SADMIN)")
+    @PutMapping("/{organizerId}/unlock")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<String> unlockOrganizer(@PathVariable Integer organizerId) {
+        organizersService.unlockOrganizer(organizerId);
+        return ResponseEntity.ok("Đã mở khóa tài khoản Organizer thành công.");
+    }
+
+    @Operation(summary = "Gửi yêu cầu mở khóa (Dành cho ORGANIZER)")
+    @PostMapping("/{organizerId}/request-unlock")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<String> requestUnlock(@PathVariable Integer organizerId) {
+        organizersService.requestUnlock(organizerId);
+        return ResponseEntity.ok("Đã gửi yêu cầu mở khóa. Vui lòng chờ SADMIN phê duyệt.");
+    }
 }
