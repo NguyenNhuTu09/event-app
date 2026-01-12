@@ -21,4 +21,7 @@ public class OrganizersResponseDTO {
 
     private Long userId;
     private String username; 
+
+    private boolean isLocked;
+    private boolean isUnlockRequested;
 }

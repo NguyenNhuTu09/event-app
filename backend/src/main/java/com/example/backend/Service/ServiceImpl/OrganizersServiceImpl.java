@@ -191,6 +191,8 @@ public class OrganizersServiceImpl implements OrganizersService {
             .userId(organizer.getUser() != null ? organizer.getUser().getId() : null) 
             .username(organizer.getUser() != null ? organizer.getUser().getUsername() : null)
             .isApproved(organizer.isApproved())
+            .isLocked(organizer.isLocked())
+            .isUnlockRequested(organizer.isUnlockRequested())
             .build();
     }
 
@@ -221,5 +223,80 @@ public class OrganizersServiceImpl implements OrganizersService {
         } catch (Exception e) {
             System.err.println("Lỗi gửi mail Organizer Rejected: " + e.getMessage());
         }
+    }
+
+    // --- CHỨC NĂNG 1: SADMIN khóa tài khoản ---
+    @Override
+    @Transactional
+    public void lockOrganizer(Integer organizerId) {
+        Organizers organizer = organizersRepository.findById(organizerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
+
+        if (organizer.isLocked()) {
+            throw new IllegalArgumentException("Organizer này đã bị khóa rồi.");
+        }
+
+        organizer.setLocked(true);
+        organizersRepository.save(organizer);
+
+        try {
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi mail lock: " + e.getMessage());
+        }
+    }
+
+    // --- CHỨC NĂNG 2: SADMIN mở khóa (Chấp nhận yêu cầu) ---
+    @Override
+    @Transactional
+    public void unlockOrganizer(Integer organizerId) {
+        Organizers organizer = organizersRepository.findById(organizerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
+
+        if (!organizer.isLocked()) {
+            throw new IllegalArgumentException("Organizer này đang hoạt động bình thường, không cần mở khóa.");
+        }
+
+        organizer.setLocked(false);
+        organizer.setUnlockRequested(false); // Reset trạng thái yêu cầu
+        organizersRepository.save(organizer);
+
+        // Optional: Gửi mail thông báo đã mở khóa
+    }
+
+    // --- CHỨC NĂNG 3: ORGANIZER gửi yêu cầu mở khóa ---
+    @Override
+    @Transactional
+    public void requestUnlock(Integer organizerId) {
+        // 1. Lấy thông tin người đang đăng nhập (Thường là Email)
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentLoginEmail; // Đặt tên biến là Email cho rõ nghĩa
+        
+        if (principal instanceof UserDetails) {
+            currentLoginEmail = ((UserDetails) principal).getUsername();
+        } else {
+            currentLoginEmail = principal.toString();
+        }
+
+        // 2. Tìm Organizer
+        Organizers organizer = organizersRepository.findById(organizerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
+
+        String ownerEmail = organizer.getUser().getEmail();
+        
+        if (!ownerEmail.equals(currentLoginEmail)) {
+            throw new IllegalArgumentException("Bạn không có quyền gửi yêu cầu cho Organizer này (Email không khớp).");
+        }
+
+        if (!organizer.isLocked()) {
+            throw new IllegalArgumentException("Tài khoản của bạn hiện không bị khóa.");
+        }
+        if (organizer.isUnlockRequested()) {
+            throw new IllegalArgumentException("Bạn đã gửi yêu cầu rồi, vui lòng chờ SADMIN duyệt.");
+        }
+
+        // 5. Cập nhật
+        organizer.setUnlockRequested(true);
+        organizersRepository.save(organizer);
+        
     }
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -101,6 +102,10 @@ public class EventServiceImpl implements EventService {
     public EventResponseDTO createEvent(EventRequestDTO requestDTO) {
         Organizers currentOrganizer = getCurrentOrganizer();
 
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
+        }
+
         Event event = new Event();
         event.setOrganizer(currentOrganizer); 
         event.setEventName(requestDTO.getEventName());
@@ -127,6 +132,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
 
         Organizers currentOrganizer = getCurrentOrganizer();
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Bạn chỉ có thể xem dữ liệu.");
+        }
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa sự kiện này.");
         }
@@ -159,6 +167,9 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
         
         Organizers currentOrganizer = getCurrentOrganizer();
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Không thể xóa sự kiện.");
+        }
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
              throw new RuntimeException("Bạn không có quyền xóa sự kiện này.");
         }
@@ -383,6 +394,10 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
                 
         Organizers currentOrganizer = getCurrentOrganizer();
+
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể duyệt vé.");
+        }
         
         if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền duyệt vé này.");
@@ -449,6 +464,10 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
                 
         Organizers currentOrganizer = getCurrentOrganizer();
+
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể duyệt vé.");
+        }
         
         if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền từ chối vé này.");
@@ -549,6 +568,10 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with slug: " + slug));
 
         Organizers currentOrganizer = getCurrentOrganizer();
+
+        if (currentOrganizer.isLocked()) {
+            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể gửi yêu cầu phê duyệt.");
+        }
         
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền gửi yêu cầu duyệt cho sự kiện này.");

@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import com.example.backend.DTO.Response.ErrorResponse;
 
@@ -77,5 +78,20 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        Map<String, Object> response = new HashMap<>();
+        
+        response.put("status", HttpStatus.PAYLOAD_TOO_LARGE.value()); // 413
+        response.put("error", "Payload Too Large");
+        
+        response.put("message", "File tải lên quá lớn! Vui lòng chọn ảnh nhỏ hơn 2MB."); // Sửa số 2MB theo config của bạn
+        
+        response.put("timestamp", System.currentTimeMillis());
+
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(response);
     }
 }

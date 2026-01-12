@@ -59,4 +59,10 @@ public class Organizers {
 
     @Column(nullable = false, unique = true)
     private String slug;
+
+    @Column(name = "is_locked", nullable = false)
+    private boolean isLocked = false; 
+
+    @Column(name = "is_unlock_requested", nullable = false)
+    private boolean isUnlockRequested = false; 
 }

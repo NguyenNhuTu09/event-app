@@ -15,4 +15,8 @@ public interface OrganizersService {
     void deleteOrganizer(String slug);
     OrganizersResponseDTO approveOrganizer(Integer organizerId);
     void rejectOrganizer(Integer organizerId, String reason);
+
+    void lockOrganizer(Integer organizerId);
+    void unlockOrganizer(Integer organizerId);
+    void requestUnlock(Integer organizerId);
 }
