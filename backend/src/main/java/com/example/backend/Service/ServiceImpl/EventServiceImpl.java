@@ -198,8 +198,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponseDTO> getPublicEvents() {
-        return eventRepository.findByStatusAndVisibility(EventStatus.PUBLISHED, EventVisibility.PUBLIC)
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+        List<Event> events = eventRepository.findByStatusAndVisibility(EventStatus.PUBLISHED, EventVisibility.PUBLIC);
+        LocalDateTime now = LocalDateTime.now();
+        
+        return events.stream()
+                .filter(event -> event.getEndDate().isAfter(now)) // Lọc bỏ sự kiện đã qua
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private EventResponseDTO convertToDTO(Event event) {
@@ -506,6 +511,8 @@ public class EventServiceImpl implements EventService {
         eventRepository.saveAll(currentFeatured);
 
         List<Event> newFeatured = eventRepository.findAllById(eventIds);
+
+        LocalDateTime now = LocalDateTime.now();
         
         if (newFeatured.size() != eventIds.size()) {
             throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
@@ -514,6 +521,9 @@ public class EventServiceImpl implements EventService {
         for (Event event : newFeatured) {
             if (event.getStatus() != EventStatus.PUBLISHED) {
                 throw new IllegalArgumentException("Sự kiện " + event.getEventName() + " chưa được công bố, không thể set nổi bật.");
+            }
+            if (event.getEndDate().isBefore(now)) {
+                throw new IllegalArgumentException("Sự kiện '" + event.getEventName() + "' đã kết thúc, không thể chọn làm sự kiện Nổi bật.");
             }
             event.setFeatured(true);
         }
@@ -550,9 +560,14 @@ public class EventServiceImpl implements EventService {
             throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
         }
 
+        LocalDateTime now = LocalDateTime.now();
+
         for (Event event : newUpcoming) {
             if (event.getStatus() != EventStatus.PUBLISHED) {
                 throw new IllegalArgumentException("Sự kiện " + event.getEventName() + " chưa được công bố.");
+            }
+            if (event.getEndDate().isBefore(now)) {
+                throw new IllegalArgumentException("Sự kiện '" + event.getEventName() + "' đã kết thúc, không thể chọn làm sự kiện Sắp diễn ra.");
             }
             event.setUpcoming(true);
         }
