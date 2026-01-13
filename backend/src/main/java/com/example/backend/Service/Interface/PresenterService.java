@@ -33,4 +33,6 @@ public interface PresenterService {
     List<PresenterResponseDTO> getFeaturedPresenters();
     
     void updateFeaturedPresenters(List<Integer> presenterIds);
+    
+    List<PresenterResponseDTO> getMyPresenters();
 }

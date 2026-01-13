@@ -249,4 +249,15 @@ public class PresenterServiceImpl implements PresenterService {
             presentersRepository.saveAll(selectedPresenters);
         }
     }
+
+    @Override
+    public List<PresenterResponseDTO> getMyPresenters() {
+        Organizers currentOrganizer = getCurrentOrganizer();
+
+        List<Presenters> presenters = presentersRepository.findByOrganizer_OrganizerId(currentOrganizer.getOrganizerId());
+
+        return presenters.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
 }
