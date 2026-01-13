@@ -133,4 +133,11 @@ public class PresenterController {
         presenterService.updateFeaturedPresenters(presenterIds);
         return ResponseEntity.ok("Đã cập nhật danh sách diễn giả nổi bật thành công.");
     }
+
+    @Operation(summary = "Lấy danh sách diễn giả do TÔI quản lý (Dành cho Organizer)")
+    @GetMapping("/my-presenters")
+    @PreAuthorize("hasAuthority('ORGANIZER')") 
+    public ResponseEntity<List<PresenterResponseDTO>> getMyPresenters() {
+        return ResponseEntity.ok(presenterService.getMyPresenters());
+    }
 }

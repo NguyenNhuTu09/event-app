@@ -36,4 +36,6 @@ public interface PresentersRepository extends JpaRepository<Presenters, Integer>
     @Transactional
     @Query("UPDATE Presenters p SET p.isFeatured = false WHERE p.isFeatured = true")
     void resetAllFeaturedPresenters();
+
+    List<Presenters> findByOrganizer_OrganizerId(Integer organizerId);
 }
