@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.DTO.Request.OrganizersRequestDTO;
+import com.example.backend.DTO.Response.OrganizerStatusResponseDTO;
 import com.example.backend.DTO.Response.OrganizersResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Organizers;
@@ -263,40 +264,51 @@ public class OrganizersServiceImpl implements OrganizersService {
         // Optional: Gửi mail thông báo đã mở khóa
     }
 
-    // --- CHỨC NĂNG 3: ORGANIZER gửi yêu cầu mở khóa ---
+    @Override
+    public OrganizerStatusResponseDTO getMyOrganizerStatus() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentEmail;
+        if (principal instanceof UserDetails) {
+            currentEmail = ((UserDetails) principal).getUsername();
+        } else {
+            currentEmail = principal.toString();
+        }
+
+        Organizers organizer = organizersRepository.findByUser_Email(currentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Bạn chưa đăng ký làm Organizer."));
+
+        return OrganizerStatusResponseDTO.builder()
+                .organizerName(organizer.getName())
+                .slug(organizer.getSlug())
+                .isApproved(organizer.isApproved())
+                .isLocked(organizer.isLocked())
+                .isUnlockRequested(organizer.isUnlockRequested())
+                .build();
+    }
+
     @Override
     @Transactional
-    public void requestUnlock(Integer organizerId) {
-        // 1. Lấy thông tin người đang đăng nhập (Thường là Email)
+    public void requestUnlock() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String currentLoginEmail; // Đặt tên biến là Email cho rõ nghĩa
+        String currentEmail;
         
         if (principal instanceof UserDetails) {
-            currentLoginEmail = ((UserDetails) principal).getUsername();
+            currentEmail = ((UserDetails) principal).getUsername();
         } else {
-            currentLoginEmail = principal.toString();
+            currentEmail = principal.toString();
         }
-
-        // 2. Tìm Organizer
-        Organizers organizer = organizersRepository.findById(organizerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organizer not found with id: " + organizerId));
-
-        String ownerEmail = organizer.getUser().getEmail();
-        
-        if (!ownerEmail.equals(currentLoginEmail)) {
-            throw new IllegalArgumentException("Bạn không có quyền gửi yêu cầu cho Organizer này (Email không khớp).");
-        }
+        Organizers organizer = organizersRepository.findByUser_Email(currentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin Organizer của bạn."));
 
         if (!organizer.isLocked()) {
-            throw new IllegalArgumentException("Tài khoản của bạn hiện không bị khóa.");
+            throw new IllegalArgumentException("Tài khoản của bạn hiện đang hoạt động bình thường, không cần mở khóa.");
         }
+        
         if (organizer.isUnlockRequested()) {
-            throw new IllegalArgumentException("Bạn đã gửi yêu cầu rồi, vui lòng chờ SADMIN duyệt.");
+            throw new IllegalArgumentException("Bạn đã gửi yêu cầu rồi. Vui lòng kiên nhẫn chờ SADMIN phê duyệt.");
         }
 
-        // 5. Cập nhật
         organizer.setUnlockRequested(true);
         organizersRepository.save(organizer);
-        
     }
 }

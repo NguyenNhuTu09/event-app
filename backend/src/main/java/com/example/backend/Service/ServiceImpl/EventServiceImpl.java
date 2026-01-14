@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +15,7 @@ import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
+import com.example.backend.Exception.AccountLockedException;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Activity;
 import com.example.backend.Models.Entity.ActivityAttendees;
@@ -103,7 +103,7 @@ public class EventServiceImpl implements EventService {
         Organizers currentOrganizer = getCurrentOrganizer();
 
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
 
         Event event = new Event();
@@ -133,7 +133,7 @@ public class EventServiceImpl implements EventService {
 
         Organizers currentOrganizer = getCurrentOrganizer();
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Bạn chỉ có thể xem dữ liệu.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa sự kiện này.");
@@ -168,7 +168,7 @@ public class EventServiceImpl implements EventService {
         
         Organizers currentOrganizer = getCurrentOrganizer();
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản Organizer đang bị tạm khóa. Không thể xóa sự kiện.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
              throw new RuntimeException("Bạn không có quyền xóa sự kiện này.");
@@ -401,7 +401,7 @@ public class EventServiceImpl implements EventService {
         Organizers currentOrganizer = getCurrentOrganizer();
 
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể duyệt vé.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
         
         if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
@@ -471,7 +471,7 @@ public class EventServiceImpl implements EventService {
         Organizers currentOrganizer = getCurrentOrganizer();
 
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể duyệt vé.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
         
         if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
@@ -585,7 +585,7 @@ public class EventServiceImpl implements EventService {
         Organizers currentOrganizer = getCurrentOrganizer();
 
         if (currentOrganizer.isLocked()) {
-            throw new AccessDeniedException("Tài khoản đang bị khóa. Không thể gửi yêu cầu phê duyệt.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
         
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
