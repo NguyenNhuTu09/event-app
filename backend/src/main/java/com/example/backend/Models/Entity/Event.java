@@ -87,6 +87,9 @@ public class Event {
     @Column(name = "is_upcoming", nullable = false)
     private boolean isUpcoming = false; 
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
     @PrePersist
     protected void onCreate() {
         if (this.eventQrCode == null) {

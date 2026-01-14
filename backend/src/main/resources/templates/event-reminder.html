@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhắc nhở sự kiện</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { background-color: #000; color: #d4af37; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; color: #333; line-height: 1.6; }
+        .highlight { color: #d4af37; font-weight: bold; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #000; color: #d4af37; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>SỰ KIỆN SẮP DIỄN RA</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}">User</strong>,</p>
+            <p>Đây là email nhắc nhở rằng sự kiện <strong class="highlight" th:text="${eventName}">Tên Sự Kiện</strong> mà bạn đã đăng ký sẽ diễn ra vào <strong>NGÀY MAI</strong>.</p>
+            
+            <p><strong>🕒 Thời gian:</strong> <span th:text="${startTime}">08:00 20/10/2025</span></p>
+            <p><strong>📍 Địa điểm:</strong> <span th:text="${location}">Hội trường A</span></p>
+            <p><strong>🎟 Mã vé của bạn:</strong> <span th:text="${ticketCode}" style="font-family: monospace; background: #eee; padding: 2px 5px;">XYZ-123</span></p>
+
+            <p>Vui lòng chuẩn bị sẵn mã QR (đã gửi ở email trước) để check-in nhanh chóng.</p>
+            
+            <div style="text-align: center;">
+                <a th:href="${eventLink}" class="btn">Xem chi tiết sự kiện</a>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; 2025 Webie Event. Hẹn gặp bạn vào ngày mai!
+        </div>
+    </div>
+</body>
+</html>

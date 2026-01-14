@@ -12,6 +12,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.example.backend.DTO.ActivityEmailDTO;
+import com.example.backend.Models.Entity.Event;
 import com.resend.Resend;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
@@ -360,6 +361,58 @@ public class EmailService {
             resend.emails().send(params);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public void sendEventReminderEmail(String to, String username, String eventName, 
+                                    LocalDateTime startDate, String location, 
+                                    String ticketCode, String eventSlug) {
+        try {
+            String timeStr = startDate.format(fullDateTimeFormatter);
+            String eventLink = "https://ems.webie.com.vn/event/" + eventSlug; 
+
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("startTime", timeStr);
+            context.setVariable("location", location);
+            context.setVariable("ticketCode", ticketCode);
+            context.setVariable("eventLink", eventLink);
+
+            String htmlContent = templateEngine.process("event-reminder", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Nhắc nhở: Sự kiện " + eventName + " diễn ra vào ngày mai!")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+            System.out.println("Reminder email sent to " + to);
+        } catch (Exception e) {
+            System.err.println("Error sending reminder to " + to + ": " + e.getMessage());
+        }
+    }
+
+    public void sendWeeklyNewsletter(String to, List<Event> newEvents) {
+        try {
+            Context context = new Context();
+            context.setVariable("events", newEvents);
+
+            String htmlContent = templateEngine.process("weekly-newsletter", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("🔥 Tổng hợp sự kiện mới tuần qua - Webie Event")
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi Newsletter cho " + to + ": " + e.getMessage());
         }
     }
 }

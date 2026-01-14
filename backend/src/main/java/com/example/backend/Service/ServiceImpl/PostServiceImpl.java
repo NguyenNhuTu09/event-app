@@ -25,7 +25,6 @@ public class PostServiceImpl {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    // --- PUBLIC METHODS ---
 
     public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable) {
         return postRepository.findByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED, pageable)
@@ -36,14 +35,12 @@ public class PostServiceImpl {
         Post post = postRepository.findBySlugAndStatus(slug, PostStatus.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại"));
         
-        // Tăng view
         post.setViewCount(post.getViewCount() + 1);
         postRepository.save(post);
         
         return mapToDTO(post);
     }
 
-    // --- ADMIN METHODS ---
 
     public PostResponseDTO createPost(PostRequestDTO request, Long userId) {
         User author = userRepository.findById(userId)
@@ -75,11 +72,6 @@ public class PostServiceImpl {
         post.setThumbnailUrl(request.getThumbnailUrl());
         post.setStatus(request.getStatus());
 
-        // Nếu muốn đổi slug khi đổi title thì mở comment này:
-        // if (!post.getTitle().equals(request.getTitle())) {
-        //     post.setSlug(generateSlug(request.getTitle()));
-        // }
-
         return mapToDTO(postRepository.save(post));
     }
 
@@ -90,7 +82,6 @@ public class PostServiceImpl {
         postRepository.deleteById(id);
     }
 
-    // --- UTILS ---
 
     private PostResponseDTO mapToDTO(Post post) {
         return PostResponseDTO.builder()
@@ -115,7 +106,7 @@ public class PostServiceImpl {
         slug = slug.replaceAll("\\s+", "-");
 
         if (postRepository.existsBySlug(slug)) {
-            slug += "-" + System.currentTimeMillis(); // Thêm timestamp nếu trùng
+            slug += "-" + System.currentTimeMillis(); 
         }
         return slug;
     }
