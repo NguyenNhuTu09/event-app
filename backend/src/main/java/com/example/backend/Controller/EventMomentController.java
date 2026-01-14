@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.MomentRequestDTO;
 import com.example.backend.DTO.Response.MomentResponseDTO;
+import com.example.backend.DTO.Response.SocketResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
@@ -37,14 +39,24 @@ public class EventMomentController {
 
     private final EventMomentServiceImpl momentService;
     private final UserRepository userRepository; 
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Operation(summary = "Đăng khoảnh khắc mới")
     @PostMapping
     public ResponseEntity<MomentResponseDTO> postMoment(
             @PathVariable Long eventId,
             @RequestBody MomentRequestDTO request) {
-        Long userId = getCurrentUserId(); 
-        return ResponseEntity.ok(momentService.createMoment(eventId, request, userId));
+        Long userId = getCurrentUserId();
+        MomentResponseDTO newMoment = momentService.createMoment(eventId, request, userId);
+
+        SocketResponseDTO socketPayload = SocketResponseDTO.builder()
+                .type("CREATE")
+                .data(newMoment)
+                .build();
+        
+        messagingTemplate.convertAndSend("/topic/event/" + eventId + "/moments", socketPayload);
+
+        return ResponseEntity.ok(newMoment);
     }
     
     private Long getCurrentUserId() {
@@ -87,6 +99,14 @@ public class EventMomentController {
             @PathVariable Long momentId) {
         Long userId = getCurrentUserId();
         momentService.deleteMoment(eventId, momentId, userId);
+
+        SocketResponseDTO socketPayload = SocketResponseDTO.builder()
+                .type("DELETE")
+                .data(momentId) 
+                .build();
+
+        messagingTemplate.convertAndSend("/topic/event/" + eventId + "/moments", socketPayload);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -97,6 +117,15 @@ public class EventMomentController {
             @PathVariable Long momentId,
             @RequestBody MomentRequestDTO request) {
         Long userId = getCurrentUserId();
-        return ResponseEntity.ok(momentService.updateMoment(eventId, momentId, request, userId));
+        MomentResponseDTO updatedMoment = momentService.updateMoment(eventId, momentId, request, userId);
+
+        SocketResponseDTO socketPayload = SocketResponseDTO.builder()
+                .type("UPDATE")
+                .data(updatedMoment)
+                .build();
+
+        messagingTemplate.convertAndSend("/topic/event/" + eventId + "/moments", socketPayload);
+
+        return ResponseEntity.ok(updatedMoment);
     }
 }
