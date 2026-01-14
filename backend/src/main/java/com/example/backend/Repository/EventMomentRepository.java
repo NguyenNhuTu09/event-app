@@ -31,6 +31,7 @@ public interface EventMomentRepository extends JpaRepository<EventMoment, Long> 
 
     Optional<EventMoment> findByIdAndUser_Id(Long id, Long userId);
     
+    
     @Query("SELECT m FROM EventMoment m JOIN FETCH m.user WHERE m.event.id = :eventId AND m.user.id = :userId ORDER BY m.postedAt DESC")
     List<EventMoment> findByEventIdAndUserId(@Param("eventId") Long eventId, @Param("userId") Long userId);
 }

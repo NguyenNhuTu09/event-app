@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.OrganizersRequestDTO;
+import com.example.backend.DTO.Response.OrganizerStatusResponseDTO;
 import com.example.backend.DTO.Response.OrganizersResponseDTO;
 import com.example.backend.Service.Interface.OrganizersService;
 
@@ -106,11 +107,18 @@ public class OrganizersController {
         return ResponseEntity.ok("Đã mở khóa tài khoản Organizer thành công.");
     }
 
-    @Operation(summary = "Gửi yêu cầu mở khóa (Dành cho ORGANIZER)")
-    @PostMapping("/{organizerId}/request-unlock")
+    @Operation(summary = "Gửi yêu cầu mở khóa (Dành cho ORGANIZER đang đăng nhập)")
+    @PostMapping("/me/request-unlock") 
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<String> requestUnlock(@PathVariable Integer organizerId) {
-        organizersService.requestUnlock(organizerId);
+    public ResponseEntity<String> requestUnlock() {
+        organizersService.requestUnlock(); 
         return ResponseEntity.ok("Đã gửi yêu cầu mở khóa. Vui lòng chờ SADMIN phê duyệt.");
+    }
+
+    @Operation(summary = "Kiểm tra trạng thái tài khoản Organizer của tôi")
+    @GetMapping("/me/status") 
+    @PreAuthorize("hasAuthority('ORGANIZER')") 
+    public ResponseEntity<OrganizerStatusResponseDTO> getMyStatus() {
+        return ResponseEntity.ok(organizersService.getMyOrganizerStatus());
     }
 }
