@@ -186,4 +186,13 @@ public class EventController {
     public ResponseEntity<List<UserRegistrationHistoryDTO>> getMyRegistrations() {
         return ResponseEntity.ok(eventService.getMyRegistrationHistory());
     }
+
+    @Operation(summary = "Đăng ký/Hủy đăng ký nhận tin tức sự kiện hàng tuần")
+    @PostMapping("/newsletter/subscribe")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> toggleNewsletter(@RequestParam boolean subscribe) {
+        eventService.toggleNewsletterSubscription(subscribe);
+        String message = subscribe ? "Đăng ký nhận tin thành công!" : "Đã hủy đăng ký nhận tin.";
+        return ResponseEntity.ok(message);
+    }
 }

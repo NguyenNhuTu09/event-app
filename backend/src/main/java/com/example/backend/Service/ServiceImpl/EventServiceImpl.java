@@ -117,7 +117,7 @@ public class EventServiceImpl implements EventService {
         event.setBannerImageUrl(requestDTO.getBannerImageUrl());
         event.setRegistrationDeadline(requestDTO.getRegistrationDeadline());
         event.setVisibility(requestDTO.getVisibility() != null ? requestDTO.getVisibility() : EventVisibility.PUBLIC);
-
+        event.setCreatedAt(LocalDateTime.now());
         event.setStatus(EventStatus.DRAFT); 
 
         Event savedEvent = eventRepository.save(event);
@@ -642,5 +642,13 @@ public class EventServiceImpl implements EventService {
                     .eventCheckInStatus(reg.getEventCheckInStatus())
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void toggleNewsletterSubscription(boolean subscribe) {
+        User currentUser = getCurrentUser(); // Hàm helper có sẵn trong code của bạn
+        currentUser.setSubscribedNews(subscribe);
+        userRepository.save(currentUser);
     }
 }

@@ -84,6 +84,9 @@ public class User {
     @Column(name = "verification_code")
     private String verificationCode;
 
+    @Column(name = "is_subscribed_news")
+    private boolean isSubscribedNews = false;   
+
     @PrePersist
     protected void onCreate() {
         if (this.uid == null) {

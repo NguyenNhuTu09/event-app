@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tin tức sự kiện tuần qua</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; }
+        .event-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .event-title { color: #d4af37; font-size: 18px; font-weight: bold; text-decoration: none; }
+        .btn { display: inline-block; background: #000; color: #d4af37; padding: 8px 15px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-size: 12px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="text-align: center; color: #000;">🔥 SỰ KIỆN MỚI TUẦN QUA 🔥</h2>
+        <p>Xin chào <strong>User</strong>,</p>
+        <p>Dưới đây là danh sách các sự kiện mới nhất vừa được công bố mà bạn có thể quan tâm:</p>
+
+        <!-- Loop qua danh sách sự kiện -->
+        <div th:each="event : ${events}" class="event-card">
+            <div>
+                <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" class="event-title" th:text="${event.eventName}">Tên sự kiện</a>
+            </div>
+            <div style="font-size: 13px; color: #666; margin: 5px 0;">
+                🗓 <span th:text="${#temporals.format(event.startDate, 'HH:mm dd/MM/yyyy')}"></span> <br>
+                📍 <span th:text="${event.location}"></span>
+            </div>
+            <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" class="btn">Xem chi tiết & Đăng ký</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(events)}">
+            <p style="text-align: center; color: #888;">Tuần này chưa có sự kiện mới nào. Quay lại sau nhé!</p>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 11px; text-align: center; color: #999;">
+            Nếu bạn không muốn nhận email này nữa, vui lòng <a href="#">hủy đăng ký</a> trong cài đặt tài khoản.
+        </p>
+    </div>
+</body>
+</html>
