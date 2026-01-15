@@ -22,8 +22,8 @@
 
         function connect() {
             var eventId = document.getElementById('eventId').value;
-            // var socket = new SockJS('https://ems-backend-jkjx.onrender.com/ws');
-            var socket = new SockJS('http://localhost:5000/ws/');
+            var socket = new SockJS('https://ems-backend-jkjx.onrender.com/ws');
+            // var socket = new SockJS('http://localhost:5000/ws/');
             
             stompClient = Stomp.over(socket);
 

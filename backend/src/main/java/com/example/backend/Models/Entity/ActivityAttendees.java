@@ -3,6 +3,7 @@ package com.example.backend.Models.Entity;
 import java.time.LocalDateTime;
 
 import com.example.backend.Utils.CheckInStatus;
+import com.example.backend.Utils.RegistrationStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,4 +50,8 @@ public class ActivityAttendees {
     
     @Column(name = "check_in_time")
     private LocalDateTime checkInTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "registration_status") 
+    private RegistrationStatus status = RegistrationStatus.PENDING; 
 }

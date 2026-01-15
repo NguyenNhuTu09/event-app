@@ -1,6 +1,7 @@
 package com.example.backend.Service.ServiceImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +17,14 @@ import com.example.backend.Models.Entity.ActivityCategories;
 import com.example.backend.Models.Entity.Event;
 import com.example.backend.Models.Entity.Organizers;
 import com.example.backend.Models.Entity.Presenters;
+import com.example.backend.Repository.ActivityAttendeesRepository;
 import com.example.backend.Repository.ActivityCategoriesRepository;
 import com.example.backend.Repository.ActivityRepository;
 import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.PresentersRepository;
 import com.example.backend.Service.Interface.ActivityService;
+import com.example.backend.Utils.RegistrationStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,6 +39,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityCategoriesRepository categoryRepository;
     private final PresentersRepository presentersRepository;
     private final OrganizersRepository organizersRepository; 
+    private final ActivityAttendeesRepository activityAttendeesRepository;
     private final ObjectMapper objectMapper; 
 
     private Organizers getCurrentOrganizer() {
@@ -49,6 +53,83 @@ public class ActivityServiceImpl implements ActivityService {
         return organizersRepository.findByUser_Email(email)
                 .orElseThrow(() -> new RuntimeException("Bạn chưa đăng ký làm Organizer"));
     }
+
+    private String getCurrentUserEmailSafe() {
+        try {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            
+            // Log xem principal là gì
+            System.out.println("Principal class: " + principal.getClass().getName());
+            System.out.println("Principal value: " + principal.toString());
+
+            if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+                return ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+            } else if (principal instanceof String && !"anonymousUser".equals(principal)) {
+                 return (String) principal;
+            } else if (principal instanceof org.springframework.security.oauth2.core.user.DefaultOAuth2User) {
+                // Nếu dùng Google Login/OAuth2
+                return ((org.springframework.security.oauth2.core.user.DefaultOAuth2User) principal).getAttribute("email");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
+    private List<ActivityResponseDTO> processActivityList(List<Activity> activities, Long eventId) {
+        if (activities == null || activities.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String currentUserEmail = getCurrentUserEmailSafe();
+        
+        // --- LOG DEBUG BẮT ĐẦU ---
+        System.out.println("DEBUG CHECK: EventId = " + eventId);
+        System.out.println("DEBUG CHECK: User Email = " + currentUserEmail);
+        // --- LOG DEBUG KẾT THÚC ---
+
+        List<Integer> registeredIds = new ArrayList<>();
+
+        if (currentUserEmail != null && eventId != null) {
+            List<RegistrationStatus> validStatuses = Arrays.asList(
+                    RegistrationStatus.PENDING, 
+                    RegistrationStatus.APPROVED
+            );
+            
+            registeredIds = activityAttendeesRepository.findRegisteredActivityIds(
+                    currentUserEmail, 
+                    eventId, 
+                    validStatuses
+            );
+            
+            // --- LOG DEBUG ---
+            System.out.println("DEBUG CHECK: Registered IDs found in DB: " + registeredIds);
+        } else {
+             System.out.println("DEBUG CHECK: User not logged in or EventId null");
+        }
+
+        final List<Integer> finalRegisteredIds = registeredIds;
+
+        return activities.stream().map(activity -> {
+            ActivityResponseDTO dto = mapToDTO(activity);
+            
+            // Kiểm tra xem ID của activity hiện tại có nằm trong list đã đăng ký không
+            if (finalRegisteredIds.contains(activity.getActivityId())) {
+                dto.setRegistered(true); 
+            } else {
+                dto.setRegistered(false);
+            }
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ActivityResponseDTO> getActivitiesByEventId(Long eventId) {
+        List<Activity> activities = activityRepository.findByEvent_EventIdOrderByStartTimeAsc(eventId);
+        return processActivityList(activities, eventId);
+    }
+
+
 
     @Override
     @Transactional
@@ -162,14 +243,14 @@ public class ActivityServiceImpl implements ActivityService {
         return mapToDTO(activity);
     }
 
-    @Override
-    public List<ActivityResponseDTO> getActivitiesByEventId(Long eventId) {
-        List<Activity> activities = activityRepository.findByEvent_EventIdOrderByStartTimeAsc(eventId);
-        return activities.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
 
     @Override
     public List<ActivityResponseDTO> getActivitiesByPresenterId(Integer presenterId) {
+        // Lưu ý: Hàm này trả về hoạt động từ NHIỀU event khác nhau.
+        // Việc check registered ở đây phức tạp hơn (cần loop query hoặc query in).
+        // Tạm thời trả về mapToDTO thường (isRegistered = false) hoặc
+        // nếu cần thiết phải implement logic phức tạp hơn check từng eventId.
+        
         List<Activity> activities = activityRepository.findByPresenter_PresenterIdOrderByStartTimeAsc(presenterId);
         return activities.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
@@ -177,7 +258,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public List<ActivityResponseDTO> searchActivitiesInEvent(Long eventId, String keyword) {
         List<Activity> activities = activityRepository.searchActivitiesInEvent(eventId, keyword);
-        return activities.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return processActivityList(activities, eventId);
     }
 
     // --- PRIVATE HELPER METHODS ---

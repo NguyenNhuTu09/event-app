@@ -195,4 +195,15 @@ public class EventController {
         String message = subscribe ? "Đăng ký nhận tin thành công!" : "Đã hủy đăng ký nhận tin.";
         return ResponseEntity.ok(message);
     }
+
+
+    @Operation(summary = "Đăng ký thêm hoạt động cho sự kiện đã tham gia")
+    @PostMapping("/{eventId}/add-activities")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<String> addActivitiesToEvent(
+            @PathVariable Long eventId, 
+            @RequestBody List<Integer> activityIds) { 
+        eventService.addActivitiesToRegistration(eventId, activityIds);
+        return ResponseEntity.ok("Yêu cầu đăng ký thêm hoạt động đã được gửi. Vui lòng chờ Organizer duyệt.");
+    }
 }
