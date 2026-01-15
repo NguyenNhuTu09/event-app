@@ -34,7 +34,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/api/auth/refresh-token",  
             "/oauth2/",
             "/swagger-ui/",
-            "/v3/api-docs/"
+            "/v3/api-docs/",
+            "/ws/"
     };
 
     @Override
