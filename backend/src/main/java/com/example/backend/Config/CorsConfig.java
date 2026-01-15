@@ -24,6 +24,9 @@ public class CorsConfig {
                                                 "http://ems.webie.com.vn",
                                                 "https://ems.webie.com.vn"
                                                 ));
+                                                
+        configuration.setAllowedOriginPatterns(List.of("*")); // sau khi kết thúc giai đoạn test, nhớ xóa quyền truy cập này
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

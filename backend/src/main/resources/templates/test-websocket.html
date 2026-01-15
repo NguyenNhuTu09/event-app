@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test WebSocket Backend</title>
+    <!-- Import thư viện SockJS và Stomp -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>WebSocket Test Console</h2>
+    <div>
+        <label>Event ID:</label>
+        <input type="text" id="eventId" value="1">
+        <button onclick="connect()">Kết nối & Lắng nghe</button>
+    </div>
+    <hr/>
+    <h3>Log nhận được:</h3>
+    <div id="response" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd; min-height: 200px;"></div>
+
+    <script type="text/javascript">
+        var stompClient = null;
+
+        function connect() {
+            var eventId = document.getElementById('eventId').value;
+            // var socket = new SockJS('https://ems-backend-jkjx.onrender.com/ws');
+            var socket = new SockJS('http://localhost:5000/ws/');
+            
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                log("Đã kết nối thành công: " + frame);
+                
+                // Subscribe vào topic
+                var topic = '/topic/event/' + eventId + '/moments';
+                log("Đang lắng nghe tại topic: " + topic);
+                
+                stompClient.subscribe(topic, function (message) {
+                    log("NHẬN ĐƯỢC TIN NHẮN REALTIME:");
+                    log(message.body); // In nội dung JSON ra màn hình
+                });
+            }, function(error) {
+                log("Lỗi kết nối: " + error);
+            });
+        }
+
+        function log(message) {
+            var response = document.getElementById('response');
+            var p = document.createElement('p');
+            p.style.wordWrap = 'break-word';
+            p.appendChild(document.createTextNode(message));
+            response.appendChild(p);
+            console.log(message);
+        }
+    </script>
+</body>
+</html>
