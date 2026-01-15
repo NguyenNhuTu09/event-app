@@ -34,4 +34,5 @@ public class ActivityResponseDTO {
 
     // 3. Diễn giả (Trả về full DTO để hiển thị ảnh, chức danh...)
     private PresenterResponseDTO presenter; 
+    private boolean isRegistered;
 }

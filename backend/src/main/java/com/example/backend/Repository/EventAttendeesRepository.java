@@ -29,6 +29,8 @@ public interface EventAttendeesRepository extends JpaRepository<EventAttendees, 
 
     Optional<EventAttendees> findByEvent_EventIdAndUser_Id(Long eventId, Long userId);
 
+    Optional<EventAttendees> findByEventAndUser(Event event, User user);
+
     @Query("SELECT ea FROM EventAttendees ea " +
            "WHERE ea.status = :status " +
            "AND ea.event.status = com.example.backend.Utils.EventStatus.PUBLISHED " +

@@ -392,43 +392,97 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    // @Override
+    // @Transactional
+    // public void approveRegistration(Long registrationId) {
+    //     EventAttendees registration = eventAttendeesRepository.findById(registrationId)
+    //             .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+                
+    //     Organizers currentOrganizer = getCurrentOrganizer();
+
+    //     if (currentOrganizer.isLocked()) {
+    //         throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
+    //     }
+        
+    //     if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+    //         throw new RuntimeException("Bạn không có quyền duyệt vé này.");
+    //     }
+
+    //     registration.setStatus(RegistrationStatus.APPROVED);
+    //     eventAttendeesRepository.save(registration);
+
+    //     List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
+
+    //     List<ActivityEmailDTO> activityEmailList = new ArrayList<>();
+    //     if (activities != null) {
+    //         activityEmailList = activities.stream()
+    //                 .map(this::mapActivityToDTO) // Gọi hàm riêng
+    //                 .collect(Collectors.toList());
+    //     }
+    //     emailService.sendRegistrationApprovedEmail(
+    //         registration.getUser().getEmail(),
+    //         registration.getUser().getUsername(),
+    //         registration.getEvent().getEventName(),
+    //         registration.getEvent().getStartDate(), 
+    //         registration.getEvent().getEndDate(),
+    //         registration.getEvent().getLocation(),
+    //         registration.getTicketCode(),
+    //         activityEmailList
+    //     );
+    // }
+
     @Override
     @Transactional
     public void approveRegistration(Long registrationId) {
+        // 1. Lấy thông tin vé
         EventAttendees registration = eventAttendeesRepository.findById(registrationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
                 
         Organizers currentOrganizer = getCurrentOrganizer();
 
         if (currentOrganizer.isLocked()) {
-            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
+            throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa.");
         }
         
         if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền duyệt vé này.");
         }
 
-        registration.setStatus(RegistrationStatus.APPROVED);
-        eventAttendeesRepository.save(registration);
+        if (registration.getStatus() != RegistrationStatus.APPROVED) {
+            registration.setStatus(RegistrationStatus.APPROVED);
+            eventAttendeesRepository.save(registration);
+        }
 
         List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
-
         List<ActivityEmailDTO> activityEmailList = new ArrayList<>();
+
         if (activities != null) {
-            activityEmailList = activities.stream()
-                    .map(this::mapActivityToDTO) // Gọi hàm riêng
-                    .collect(Collectors.toList());
+            for (ActivityAttendees actAttendee : activities) {
+                if (actAttendee.getStatus() == RegistrationStatus.PENDING) {
+                    actAttendee.setStatus(RegistrationStatus.APPROVED);
+                    activityAttendeesRepository.save(actAttendee);
+                }
+
+                if (actAttendee.getStatus() == RegistrationStatus.APPROVED) {
+                    activityEmailList.add(mapActivityToDTO(actAttendee));
+                }
+            }
         }
-        emailService.sendRegistrationApprovedEmail(
-            registration.getUser().getEmail(),
-            registration.getUser().getUsername(),
-            registration.getEvent().getEventName(),
-            registration.getEvent().getStartDate(), 
-            registration.getEvent().getEndDate(),
-            registration.getEvent().getLocation(),
-            registration.getTicketCode(),
-            activityEmailList
-        );
+
+        try {
+            emailService.sendRegistrationApprovedEmail(
+                registration.getUser().getEmail(),
+                registration.getUser().getUsername(),
+                registration.getEvent().getEventName(),
+                registration.getEvent().getStartDate(), 
+                registration.getEvent().getEndDate(),
+                registration.getEvent().getLocation(),
+                registration.getTicketCode(),
+                activityEmailList
+            );
+        } catch (Exception e) {
+            System.err.println("Lỗi gửi email approve: " + e.getMessage());
+        }
     }
 
     private ActivityEmailDTO mapActivityToDTO(ActivityAttendees actAttendee) {
@@ -650,5 +704,83 @@ public class EventServiceImpl implements EventService {
         User currentUser = getCurrentUser(); // Hàm helper có sẵn trong code của bạn
         currentUser.setSubscribedNews(subscribe);
         userRepository.save(currentUser);
+    }
+
+    @Override
+    @Transactional
+    public void addActivitiesToRegistration(Long eventId, List<Integer> activityIds) {
+        User currentUser = getCurrentUser();
+        
+        // 1. Validate sự kiện và vé
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sự kiện"));
+
+        EventAttendees registration = eventAttendeesRepository.findByEventAndUser(event, currentUser)
+                .orElseThrow(() -> new IllegalArgumentException("Bạn chưa đăng ký tham gia sự kiện này. Vui lòng đăng ký vé trước."));
+
+        if (registration.getStatus() == RegistrationStatus.REJECTED) {
+            throw new IllegalArgumentException("Vé của bạn đã bị từ chối, không thể đăng ký thêm hoạt động.");
+        }
+        
+        // Check thời hạn sự kiện (tùy logic dự án, có thể bỏ qua nếu muốn cho phép đk muộn)
+        LocalDateTime now = LocalDateTime.now();
+        if (event.getEndDate().isBefore(now)) {
+            throw new IllegalArgumentException("Sự kiện đã kết thúc.");
+        }
+
+        boolean hasNewPendingActivity = false;
+
+        // 2. Xử lý thêm hoạt động
+        if (activityIds != null && !activityIds.isEmpty()) {
+            for (Integer activityId : activityIds) {
+                Activity activity = activityRepository.findById(activityId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hoạt động ID: " + activityId));
+
+                // Check hoạt động thuộc event
+                if (!activity.getEvent().getEventId().equals(eventId)) {
+                    throw new IllegalArgumentException("Hoạt động " + activity.getActivityName() + " không thuộc sự kiện này.");
+                }
+
+                // Check trùng lặp (nếu đã đk rồi thì bỏ qua)
+                boolean alreadyRegistered = activityAttendeesRepository.existsByEventAttendee_IdAndActivity_ActivityId(registration.getId(), activityId);
+                if (alreadyRegistered) {
+                    continue; 
+                }
+
+                // Check số lượng chỗ (Capacity)
+                if (activity.getMaxAttendees() != null) {
+                    long currentCount = activityAttendeesRepository.countByActivity_ActivityId(activityId);
+                    if (currentCount >= activity.getMaxAttendees()) {
+                        throw new IllegalArgumentException("Hoạt động " + activity.getActivityName() + " đã hết chỗ.");
+                    }
+                }
+
+                // Tạo ActivityAttendees mới
+                ActivityAttendees newActAttendee = new ActivityAttendees();
+                newActAttendee.setEventAttendee(registration);
+                newActAttendee.setActivity(activity);
+                newActAttendee.setActCheckInStatus(CheckInStatus.NOT_CHECKED_IN);
+                newActAttendee.setRegisteredAt(LocalDateTime.now()); // Set thời gian đăng ký
+
+                // --- LOGIC QUAN TRỌNG: XỬ LÝ TRẠNG THÁI ---
+                if (registration.getEventCheckInStatus() == CheckInStatus.CHECKED_IN) {
+                    // CASE A: User ĐÃ Check-in tại sự kiện -> Auto Approve để vào cửa ngay
+                    newActAttendee.setStatus(RegistrationStatus.APPROVED);
+                } else {
+                    // CASE B: User CHƯA Check-in -> Để PENDING chờ duyệt
+                    newActAttendee.setStatus(RegistrationStatus.PENDING);
+                    hasNewPendingActivity = true;
+                }
+                
+                activityAttendeesRepository.save(newActAttendee);
+            }
+        }
+        if (hasNewPendingActivity 
+            && registration.getStatus() == RegistrationStatus.APPROVED 
+            && registration.getEventCheckInStatus() != CheckInStatus.CHECKED_IN) {
+            
+            registration.setStatus(RegistrationStatus.PENDING);
+            eventAttendeesRepository.save(registration);
+        }
     }
 }

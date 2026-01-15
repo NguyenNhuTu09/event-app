@@ -34,4 +34,6 @@ public interface EventService {
     List<EventResponseDTO> updateUpcomingEvents(List<Long> eventIds);
 
     void toggleNewsletterSubscription(boolean subscribe);
+
+    void addActivitiesToRegistration(Long eventId, List<Integer> activityIds);
 }
