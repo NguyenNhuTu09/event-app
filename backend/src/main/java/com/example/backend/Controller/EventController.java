@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
+import com.example.backend.DTO.Response.EventAttendeeDetailResponseDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
@@ -205,5 +206,12 @@ public class EventController {
             @RequestBody List<Integer> activityIds) { 
         eventService.addActivitiesToRegistration(eventId, activityIds);
         return ResponseEntity.ok("Yêu cầu đăng ký thêm hoạt động đã được gửi. Vui lòng chờ Organizer duyệt.");
+    }
+
+    @Operation(summary = "Xem chi tiết vé và danh sách hoạt động của người tham dự (Chỉ Organizer)")
+    @GetMapping("/registrations/{registrationId}/detail")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<EventAttendeeDetailResponseDTO> getAttendeeDetail(@PathVariable Long registrationId) {
+        return ResponseEntity.ok(eventService.getEventAttendeeDetail(registrationId));
     }
 }

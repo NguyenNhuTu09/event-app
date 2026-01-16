@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
+import com.example.backend.DTO.Response.EventAttendeeDetailResponseDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
@@ -36,4 +37,6 @@ public interface EventService {
     void toggleNewsletterSubscription(boolean subscribe);
 
     void addActivitiesToRegistration(Long eventId, List<Integer> activityIds);
+
+    EventAttendeeDetailResponseDTO getEventAttendeeDetail(Long registrationId);
 }
