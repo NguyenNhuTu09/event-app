@@ -41,7 +41,7 @@ public class ActivityController {
     }
 
     @Operation(summary = "Lấy toàn bộ lịch trình của một sự kiện (Agenda)")
-    // @SecurityRequirements()
+    @SecurityRequirements()
     @GetMapping("/by-event/{eventId}")
     public ResponseEntity<List<ActivityResponseDTO>> getActivitiesByEvent(@PathVariable Long eventId) {
         return ResponseEntity.ok(activityService.getActivitiesByEventId(eventId));
@@ -91,6 +91,13 @@ public class ActivityController {
     public ResponseEntity<Void> deleteActivity(@PathVariable Integer activityId) {
         activityService.deleteActivity(activityId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Lấy danh sách hoạt động mà người dùng hiện tại đã đăng ký trong Event")
+    @GetMapping("/by-event/{eventId}/registered")
+    @PreAuthorize("isAuthenticated()") 
+    public ResponseEntity<List<ActivityResponseDTO>> getMyRegisteredActivities(@PathVariable Long eventId) {
+        return ResponseEntity.ok(activityService.getRegisteredActivitiesByEvent(eventId));
     }
 
 }

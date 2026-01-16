@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.backend.Models.Entity.Activity;
+import com.example.backend.Utils.RegistrationStatus;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Integer> {
@@ -21,6 +22,17 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     List<Activity> findByEvent_EventIdAndCategory_CategoryId(Long eventId, Integer categoryId);
 
     Optional<Activity> findByActivityQrCode(String activityQrCode);
+
+    @Query("SELECT aa.activity FROM ActivityAttendees aa " +
+           "WHERE aa.eventAttendee.event.eventId = :eventId " +
+           "AND aa.eventAttendee.user.email = :email " +
+           "AND aa.status IN :statuses " +
+           "ORDER BY aa.activity.startTime ASC")
+    List<Activity> findRegisteredActivitiesByEventAndUser(
+            @Param("eventId") Long eventId,
+            @Param("email") String email,
+            @Param("statuses") List<RegistrationStatus> statuses
+    );
 
     @Query("SELECT a FROM Activity a WHERE a.event.eventId = :eventId AND " +
            "a.startTime >= :startOfDay AND a.startTime < :endOfDay " +
@@ -57,4 +69,5 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
                                       @Param("startTime") LocalDateTime startTime,
                                       @Param("endTime") LocalDateTime endTime,
                                       @Param("currentActivityId") Integer currentActivityId);
+
 }
