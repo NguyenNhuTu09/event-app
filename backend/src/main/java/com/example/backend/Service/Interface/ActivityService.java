@@ -24,4 +24,6 @@ public interface ActivityService {
     List<ActivityResponseDTO> searchActivitiesInEvent(Long eventId, String keyword);
 
     String getActivityQrCode(Integer activityId);
+
+    List<ActivityResponseDTO> getRegisteredActivitiesByEvent(Long eventId);
 }

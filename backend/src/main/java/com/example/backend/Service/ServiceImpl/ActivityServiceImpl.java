@@ -358,4 +358,29 @@ public class ActivityServiceImpl implements ActivityService {
         }
         return activity.getActivityQrCode();
     }
+
+    @Override
+    public List<ActivityResponseDTO> getRegisteredActivitiesByEvent(Long eventId) {
+        String email = getCurrentUserEmailSafe();
+        if (email == null) {
+            throw new RuntimeException("Bạn cần đăng nhập để xem danh sách hoạt động đã đăng ký.");
+        }
+
+        List<RegistrationStatus> validStatuses = Arrays.asList(
+                RegistrationStatus.PENDING, 
+                RegistrationStatus.APPROVED
+        );
+
+        List<Activity> registeredActivities = activityRepository.findRegisteredActivitiesByEventAndUser(
+                eventId, 
+                email, 
+                validStatuses
+        );
+
+        return registeredActivities.stream().map(activity -> {
+            ActivityResponseDTO dto = mapToDTO(activity);
+            dto.setRegistered(true); 
+            return dto;
+        }).collect(Collectors.toList());
+    }
 }
