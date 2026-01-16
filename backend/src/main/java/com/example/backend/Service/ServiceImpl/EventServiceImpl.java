@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.backend.DTO.ActivityEmailDTO;
 import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
+import com.example.backend.DTO.Response.EventAttendeeDetailResponseDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
 import com.example.backend.DTO.Response.UserRegistrationHistoryDTO;
@@ -782,5 +783,45 @@ public class EventServiceImpl implements EventService {
             registration.setStatus(RegistrationStatus.PENDING);
             eventAttendeesRepository.save(registration);
         }
+    }
+
+
+    @Override
+    public EventAttendeeDetailResponseDTO getEventAttendeeDetail(Long registrationId) {
+        EventAttendees registration = eventAttendeesRepository.findById(registrationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin đăng ký (Vé) với ID: " + registrationId));
+
+        Organizers currentOrganizer = getCurrentOrganizer();
+        if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền xem chi tiết vé của sự kiện này.");
+        }
+
+        List<ActivityAttendees> activityAttendeesList = activityAttendeesRepository.findByEventAttendee(registration);
+
+        List<EventAttendeeDetailResponseDTO.RegisteredActivityDTO> activityDTOs = activityAttendeesList.stream()
+                .map(aa -> EventAttendeeDetailResponseDTO.RegisteredActivityDTO.builder()
+                        .activityId(aa.getActivity().getActivityId())
+                        .activityName(aa.getActivity().getActivityName())
+                        .startTime(aa.getActivity().getStartTime())
+                        .endTime(aa.getActivity().getEndTime())
+                        .roomOrVenue(aa.getActivity().getRoomOrVenue())
+                        .activityStatus(aa.getStatus()) 
+                        .activityCheckInStatus(aa.getActCheckInStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        return EventAttendeeDetailResponseDTO.builder()
+                .id(registration.getId())
+                .ticketCode(registration.getTicketCode())
+                .status(registration.getStatus())
+                .registrationDate(registration.getRegistrationDate())
+                .eventCheckInStatus(registration.getEventCheckInStatus())
+                .userId(registration.getUser().getId())
+                .username(registration.getUser().getUsername())
+                .email(registration.getUser().getEmail())
+                .phoneNumber(registration.getUser().getPhoneNumber())
+                .avatarUrl(registration.getUser().getAvatarUrl())
+                .activities(activityDTOs)
+                .build();
     }
 }
