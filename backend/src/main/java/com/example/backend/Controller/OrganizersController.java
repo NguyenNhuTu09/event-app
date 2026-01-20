@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.DTO.Request.OrganizerUnlockRequestDTO;
 import com.example.backend.DTO.Request.OrganizersRequestDTO;
 import com.example.backend.DTO.Response.OrganizerStatusResponseDTO;
 import com.example.backend.DTO.Response.OrganizersResponseDTO;
@@ -107,12 +108,12 @@ public class OrganizersController {
         return ResponseEntity.ok("Đã mở khóa tài khoản Organizer thành công.");
     }
 
-    @Operation(summary = "Gửi yêu cầu mở khóa (Dành cho ORGANIZER đang đăng nhập)")
+    @Operation(summary = "Gửi yêu cầu mở khóa kèm lý do (Dành cho ORGANIZER đang đăng nhập)")
     @PostMapping("/me/request-unlock") 
     @PreAuthorize("hasAuthority('ORGANIZER')")
-    public ResponseEntity<String> requestUnlock() {
-        organizersService.requestUnlock(); 
-        return ResponseEntity.ok("Đã gửi yêu cầu mở khóa. Vui lòng chờ SADMIN phê duyệt.");
+    public ResponseEntity<String> requestUnlock(@Valid @RequestBody OrganizerUnlockRequestDTO requestDTO) {
+        organizersService.requestUnlock(requestDTO); 
+        return ResponseEntity.ok("Đã gửi yêu cầu mở khóa thành công. Vui lòng chờ SADMIN phê duyệt.");
     }
 
     @Operation(summary = "Kiểm tra trạng thái tài khoản Organizer của tôi")

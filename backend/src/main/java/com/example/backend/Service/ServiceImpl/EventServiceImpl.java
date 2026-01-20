@@ -807,6 +807,7 @@ public class EventServiceImpl implements EventService {
                         .roomOrVenue(aa.getActivity().getRoomOrVenue())
                         .activityStatus(aa.getStatus()) 
                         .activityCheckInStatus(aa.getActCheckInStatus())
+                        .activityImageUrl(aa.getActivity().getActivityImageUrl())
                         .build())
                 .collect(Collectors.toList());
 

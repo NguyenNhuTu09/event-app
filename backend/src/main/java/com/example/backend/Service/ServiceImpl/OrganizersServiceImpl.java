@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.DTO.Request.OrganizerUnlockRequestDTO;
 import com.example.backend.DTO.Request.OrganizersRequestDTO;
 import com.example.backend.DTO.Response.OrganizerStatusResponseDTO;
 import com.example.backend.DTO.Response.OrganizersResponseDTO;
@@ -194,6 +195,7 @@ public class OrganizersServiceImpl implements OrganizersService {
             .isApproved(organizer.isApproved())
             .isLocked(organizer.isLocked())
             .isUnlockRequested(organizer.isUnlockRequested())
+            .unlockRequestReason(organizer.getUnlockRequestReason())
             .build();
     }
 
@@ -259,6 +261,7 @@ public class OrganizersServiceImpl implements OrganizersService {
 
         organizer.setLocked(false);
         organizer.setUnlockRequested(false); // Reset trạng thái yêu cầu
+        organizer.setUnlockRequestReason(null);
         organizersRepository.save(organizer);
 
         // Optional: Gửi mail thông báo đã mở khóa
@@ -288,7 +291,7 @@ public class OrganizersServiceImpl implements OrganizersService {
 
     @Override
     @Transactional
-    public void requestUnlock() {
+    public void requestUnlock(OrganizerUnlockRequestDTO requestDTO) { 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentEmail;
         
@@ -305,10 +308,11 @@ public class OrganizersServiceImpl implements OrganizersService {
         }
         
         if (organizer.isUnlockRequested()) {
-            throw new IllegalArgumentException("Bạn đã gửi yêu cầu rồi. Vui lòng kiên nhẫn chờ SADMIN phê duyệt.");
+            throw new IllegalArgumentException("Bạn đã gửi yêu cầu rồi. Vui lòng chờ SADMIN phê duyệt.");
         }
 
         organizer.setUnlockRequested(true);
+        organizer.setUnlockRequestReason(requestDTO.getReason());
         organizersRepository.save(organizer);
     }
 }

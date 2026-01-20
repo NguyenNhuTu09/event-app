@@ -65,4 +65,7 @@ public class Organizers {
 
     @Column(name = "is_unlock_requested", nullable = false)
     private boolean isUnlockRequested = false; 
+
+    @Column(name = "unlock_request_reason", columnDefinition = "TEXT")
+    private String unlockRequestReason;
 }

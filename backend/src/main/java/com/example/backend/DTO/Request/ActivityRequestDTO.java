@@ -44,4 +44,6 @@ public class ActivityRequestDTO {
     private String roomOrVenue;
 
     private String materialsUrl;
+
+    private String activityImageUrl;
 }

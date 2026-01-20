@@ -42,5 +42,6 @@ public class EventAttendeeDetailResponseDTO {
         private String roomOrVenue;
         private RegistrationStatus activityStatus; 
         private CheckInStatus activityCheckInStatus; 
+        private String activityImageUrl;
     }
 }

@@ -24,6 +24,8 @@ public class ActivityResponseDTO {
     private String roomOrVenue;
     private String materialsUrl;
 
+    private String activityImageUrl;
+
     // --- Thông tin liên kết (Flatten hoặc Nested Object) ---
 
     // 1. Thuộc Event nào

@@ -86,6 +86,9 @@ public class Activity {
     @Column(name = "activity_qr_code", unique = true, nullable = false, updatable = false)
     private String activityQrCode;
 
+    @Column(name = "activity_image_url", columnDefinition = "TEXT")
+    private String activityImageUrl;
+
     @PrePersist
     protected void onCreate() {
         if (this.activityQrCode == null) {

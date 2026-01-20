@@ -281,6 +281,7 @@ public class ActivityServiceImpl implements ActivityService {
         entity.setMaxAttendees(dto.getMaxAttendees());
         entity.setRoomOrVenue(dto.getRoomOrVenue());
         entity.setMaterialsUrl(dto.getMaterialsUrl());
+        entity.setActivityImageUrl(dto.getActivityImageUrl());
 
         try {
             if (dto.getAccessibleTo() != null) {
@@ -305,7 +306,7 @@ public class ActivityServiceImpl implements ActivityService {
         dto.setMaxAttendees(entity.getMaxAttendees());
         dto.setRoomOrVenue(entity.getRoomOrVenue());
         dto.setMaterialsUrl(entity.getMaterialsUrl());
-        
+        dto.setActivityImageUrl(entity.getActivityImageUrl());
         dto.setEventId(entity.getEvent().getEventId());
 
         // Map Category

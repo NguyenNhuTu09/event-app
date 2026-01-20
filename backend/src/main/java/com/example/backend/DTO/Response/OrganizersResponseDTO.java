@@ -18,6 +18,7 @@ public class OrganizersResponseDTO {
     private String contactPhoneNumber;
     private String contactEmail;
     private boolean isApproved;
+    private String unlockRequestReason;
 
     private Long userId;
     private String username; 
