@@ -2,6 +2,7 @@ package com.example.backend.DTO.Response;
 
 import java.time.LocalDateTime;
 
+import com.example.backend.Utils.EditRequestStatus;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
 
@@ -28,4 +29,8 @@ public class EventResponseDTO {
 
     private boolean isFeatured;
     private boolean isUpcoming;
+    
+    private boolean isEditLocked;
+    private EditRequestStatus editRequestStatus;
+    private String editRequestReason;
 }

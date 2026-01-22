@@ -3,6 +3,7 @@ package com.example.backend.Models.Entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.example.backend.Utils.EditRequestStatus;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
 
@@ -89,6 +90,16 @@ public class Event {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "is_edit_locked", nullable = false)
+    private boolean isEditLocked = false; 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "edit_request_status")
+    private EditRequestStatus editRequestStatus = EditRequestStatus.NONE;
+
+    @Column(name = "edit_request_reason", columnDefinition = "TEXT")
+    private String editRequestReason;
 
     @PrePersist
     protected void onCreate() {

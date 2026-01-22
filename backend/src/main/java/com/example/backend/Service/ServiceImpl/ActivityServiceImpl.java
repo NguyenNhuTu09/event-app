@@ -42,6 +42,20 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityAttendeesRepository activityAttendeesRepository;
     private final ObjectMapper objectMapper; 
 
+    private void updateEventStatusAfterActivityChange(Event event) {
+        if (event.getStatus() == com.example.backend.Utils.EventStatus.PUBLISHED) {
+            event.setStatus(com.example.backend.Utils.EventStatus.PENDING_APPROVAL);
+            eventRepository.save(event);
+        }
+    }
+
+    private void checkEventLock(Event event) {
+        if (event.getStatus() == com.example.backend.Utils.EventStatus.PUBLISHED 
+            && event.isEditLocked()) {
+            throw new IllegalStateException("Sự kiện đang bị khóa. Bạn cần gửi yêu cầu chỉnh sửa Event trước khi thay đổi Activity.");
+        }
+    }
+
     private Organizers getCurrentOrganizer() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email;
@@ -136,7 +150,7 @@ public class ActivityServiceImpl implements ActivityService {
     public ActivityResponseDTO createActivity(ActivityRequestDTO requestDTO) {
         Event event = eventRepository.findById(requestDTO.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + requestDTO.getEventId()));
-
+        checkEventLock(event);
         ActivityCategories category = categoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy loại hoạt động"));
 
@@ -175,6 +189,7 @@ public class ActivityServiceImpl implements ActivityService {
         mapRequestToEntity(requestDTO, activity, event, category, presenter);
         
         Activity savedActivity = activityRepository.save(activity);
+        updateEventStatusAfterActivityChange(event); 
         return mapToDTO(savedActivity);
     }
 
@@ -183,6 +198,9 @@ public class ActivityServiceImpl implements ActivityService {
     public ActivityResponseDTO updateActivity(Integer activityId, ActivityRequestDTO requestDTO) {
         Activity existingActivity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hoạt động để cập nhật"));
+
+        Event event = existingActivity.getEvent();
+        checkEventLock(event);
 
         if (!existingActivity.getCategory().getCategoryId().equals(requestDTO.getCategoryId())) {
             ActivityCategories newCategory = categoryRepository.findById(requestDTO.getCategoryId())
@@ -224,16 +242,22 @@ public class ActivityServiceImpl implements ActivityService {
         }
 
         mapRequestToEntity(requestDTO, existingActivity, existingActivity.getEvent(), existingActivity.getCategory(), existingActivity.getPresenter());
-        
+        updateEventStatusAfterActivityChange(existingActivity.getEvent());
         return mapToDTO(activityRepository.save(existingActivity));
     }
 
     @Override
+    @Transactional
     public void deleteActivity(Integer activityId) {
-        if (!activityRepository.existsById(activityId)) {
-            throw new RuntimeException("Không tìm thấy hoạt động");
-        }
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hoạt động"));
+        
+        checkEventLock(activity.getEvent());
+
         activityRepository.deleteById(activityId);
+        
+        updateEventStatusAfterActivityChange(activity.getEvent());
+
     }
 
     @Override

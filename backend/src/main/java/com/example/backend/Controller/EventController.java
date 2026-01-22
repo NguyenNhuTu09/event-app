@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.DTO.Request.EventEditPermissionRequestDTO;
 import com.example.backend.DTO.Request.EventRegistrationRequestDTO;
 import com.example.backend.DTO.Request.EventRequestDTO;
 import com.example.backend.DTO.Response.EventAttendeeDetailResponseDTO;
@@ -213,5 +214,35 @@ public class EventController {
     @PreAuthorize("hasAuthority('ORGANIZER')")
     public ResponseEntity<EventAttendeeDetailResponseDTO> getAttendeeDetail(@PathVariable Long registrationId) {
         return ResponseEntity.ok(eventService.getEventAttendeeDetail(registrationId));
+    }
+
+    @Operation(summary = "Gửi yêu cầu cấp quyền chỉnh sửa sự kiện (Organizer)")
+    @PostMapping("/{eventId}/request-edit")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<String> requestEditPermission(
+            @PathVariable Long eventId,
+            @RequestBody @Valid EventEditPermissionRequestDTO requestDTO) {
+        
+        eventService.requestEditPermission(eventId, requestDTO.getReason());
+        return ResponseEntity.ok("Đã gửi yêu cầu chỉnh sửa thành công. Vui lòng chờ SADMIN duyệt.");
+    }
+
+    @Operation(summary = "Duyệt yêu cầu chỉnh sửa sự kiện (SADMIN)")
+    @PutMapping("/{eventId}/approve-edit-request")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<String> approveEditPermission(@PathVariable Long eventId) {
+        eventService.approveEditPermission(eventId);
+        return ResponseEntity.ok("Đã cấp quyền chỉnh sửa cho Organizer.");
+    }
+
+    @Operation(summary = "Từ chối yêu cầu chỉnh sửa sự kiện (SADMIN)")
+    @PutMapping("/{eventId}/reject-edit-request")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<String> rejectEditPermission(
+            @PathVariable Long eventId, 
+            @RequestParam String reason) {
+        
+        eventService.rejectEditPermission(eventId, reason);
+        return ResponseEntity.ok("Đã từ chối yêu cầu chỉnh sửa.");
     }
 }
