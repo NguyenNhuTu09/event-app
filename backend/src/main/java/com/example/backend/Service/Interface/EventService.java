@@ -39,4 +39,8 @@ public interface EventService {
     void addActivitiesToRegistration(Long eventId, List<Integer> activityIds);
 
     EventAttendeeDetailResponseDTO getEventAttendeeDetail(Long registrationId);
+
+    void requestEditPermission(Long eventId, String reason);
+    void approveEditPermission(Long eventId);
+    void rejectEditPermission(Long eventId, String rejectReason);
 }

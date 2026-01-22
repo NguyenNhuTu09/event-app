@@ -415,4 +415,76 @@ public class EmailService {
             System.err.println("Lỗi gửi Newsletter cho " + to + ": " + e.getMessage());
         }
     }
+
+    public void sendEditRequestPendingEmail(String to, String username, String eventName, String reason) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("reason", reason);
+            context.setVariable("submittedDate", LocalDateTime.now().format(fullDateTimeFormatter));
+
+            String htmlContent = templateEngine.process("event-edit-request-pending", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Đã tiếp nhận yêu cầu chỉnh sửa: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 2. Gửi email thông báo yêu cầu chỉnh sửa ĐƯỢC DUYỆT (Gửi cho Organizer)
+    public void sendEditRequestApprovedEmail(String to, String username, String eventName, String eventSlug) {
+        try {
+            // Link dẫn đến trang quản lý sự kiện của Organizer để họ sửa
+            String editLink = "http://localhost:3000/organizer/events/" + eventSlug + "/edit";
+
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("editLink", editLink);
+
+            String htmlContent = templateEngine.process("event-edit-request-approved", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Yêu cầu chỉnh sửa được CHẤP THUẬN: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 3. Gửi email thông báo yêu cầu chỉnh sửa BỊ TỪ CHỐI (Gửi cho Organizer)
+    public void sendEditRequestRejectedEmail(String to, String username, String eventName, String reason) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", username);
+            context.setVariable("eventName", eventName);
+            context.setVariable("reason", reason);
+
+            String htmlContent = templateEngine.process("event-edit-request-rejected", context);
+
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(fromEmail)
+                    .to(to)
+                    .subject("Yêu cầu chỉnh sửa BỊ TỪ CHỐI: " + eventName)
+                    .html(htmlContent)
+                    .build();
+
+            resend.emails().send(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -33,6 +33,7 @@ import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.EventService;
 import com.example.backend.Utils.CheckInStatus;
+import com.example.backend.Utils.EditRequestStatus;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
 import com.example.backend.Utils.RegistrationStatus;
@@ -120,7 +121,8 @@ public class EventServiceImpl implements EventService {
         event.setVisibility(requestDTO.getVisibility() != null ? requestDTO.getVisibility() : EventVisibility.PUBLIC);
         event.setCreatedAt(LocalDateTime.now());
         event.setStatus(EventStatus.DRAFT); 
-
+        event.setEditLocked(false); 
+        event.setEditRequestStatus(com.example.backend.Utils.EditRequestStatus.NONE);
         Event savedEvent = eventRepository.save(event);
         return convertToDTO(savedEvent);
     }
@@ -139,6 +141,9 @@ public class EventServiceImpl implements EventService {
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa sự kiện này.");
         }
+        if (event.getStatus() == EventStatus.PUBLISHED && event.isEditLocked()) {
+            throw new IllegalStateException("Sự kiện đã được công bố và đang bị khóa chỉnh sửa. Vui lòng gửi yêu cầu cấp quyền chỉnh sửa trước.");
+        }
 
         if (!event.getEventName().equals(requestDTO.getEventName())) {
             event.setEventName(requestDTO.getEventName());
@@ -153,12 +158,16 @@ public class EventServiceImpl implements EventService {
         event.setRegistrationDeadline(requestDTO.getRegistrationDeadline());
         
         if(requestDTO.getVisibility() != null) event.setVisibility(requestDTO.getVisibility());
-
-        if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
+        if (event.getStatus() == EventStatus.PUBLISHED) {
             event.setStatus(EventStatus.PENDING_APPROVAL);
-        } else if (requestDTO.getStatus() != null) {
-            event.setStatus(requestDTO.getStatus());
-        }
+        } 
+        else if (requestDTO.getStatus() != null) {
+            if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
+                event.setStatus(EventStatus.PENDING_APPROVAL);
+            } else {
+                event.setStatus(requestDTO.getStatus());
+            }
+        }        
         return convertToDTO(eventRepository.save(event));
     }
 
@@ -254,6 +263,9 @@ public class EventServiceImpl implements EventService {
         }
 
         event.setStatus(EventStatus.PUBLISHED); 
+        event.setEditLocked(true); 
+        event.setEditRequestStatus(EditRequestStatus.NONE); 
+        event.setEditRequestReason(null);
         Event savedEvent = eventRepository.save(event);
         try {
             String organizerEmail = event.getOrganizer().getUser().getEmail();
@@ -302,6 +314,7 @@ public class EventServiceImpl implements EventService {
             System.err.println("Không thể gửi mail reject: " + e.getMessage());
         }
 
+        event.setEditLocked(false);
         return convertToDTO(savedEvent);
     }
 
@@ -702,7 +715,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void toggleNewsletterSubscription(boolean subscribe) {
-        User currentUser = getCurrentUser(); // Hàm helper có sẵn trong code của bạn
+        User currentUser = getCurrentUser(); 
         currentUser.setSubscribedNews(subscribe);
         userRepository.save(currentUser);
     }
@@ -712,7 +725,6 @@ public class EventServiceImpl implements EventService {
     public void addActivitiesToRegistration(Long eventId, List<Integer> activityIds) {
         User currentUser = getCurrentUser();
         
-        // 1. Validate sự kiện và vé
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sự kiện"));
 
@@ -723,7 +735,6 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Vé của bạn đã bị từ chối, không thể đăng ký thêm hoạt động.");
         }
         
-        // Check thời hạn sự kiện (tùy logic dự án, có thể bỏ qua nếu muốn cho phép đk muộn)
         LocalDateTime now = LocalDateTime.now();
         if (event.getEndDate().isBefore(now)) {
             throw new IllegalArgumentException("Sự kiện đã kết thúc.");
@@ -731,24 +742,20 @@ public class EventServiceImpl implements EventService {
 
         boolean hasNewPendingActivity = false;
 
-        // 2. Xử lý thêm hoạt động
         if (activityIds != null && !activityIds.isEmpty()) {
             for (Integer activityId : activityIds) {
                 Activity activity = activityRepository.findById(activityId)
                         .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hoạt động ID: " + activityId));
 
-                // Check hoạt động thuộc event
                 if (!activity.getEvent().getEventId().equals(eventId)) {
                     throw new IllegalArgumentException("Hoạt động " + activity.getActivityName() + " không thuộc sự kiện này.");
                 }
 
-                // Check trùng lặp (nếu đã đk rồi thì bỏ qua)
                 boolean alreadyRegistered = activityAttendeesRepository.existsByEventAttendee_IdAndActivity_ActivityId(registration.getId(), activityId);
                 if (alreadyRegistered) {
                     continue; 
                 }
 
-                // Check số lượng chỗ (Capacity)
                 if (activity.getMaxAttendees() != null) {
                     long currentCount = activityAttendeesRepository.countByActivity_ActivityId(activityId);
                     if (currentCount >= activity.getMaxAttendees()) {
@@ -756,19 +763,15 @@ public class EventServiceImpl implements EventService {
                     }
                 }
 
-                // Tạo ActivityAttendees mới
                 ActivityAttendees newActAttendee = new ActivityAttendees();
                 newActAttendee.setEventAttendee(registration);
                 newActAttendee.setActivity(activity);
                 newActAttendee.setActCheckInStatus(CheckInStatus.NOT_CHECKED_IN);
                 newActAttendee.setRegisteredAt(LocalDateTime.now()); // Set thời gian đăng ký
 
-                // --- LOGIC QUAN TRỌNG: XỬ LÝ TRẠNG THÁI ---
                 if (registration.getEventCheckInStatus() == CheckInStatus.CHECKED_IN) {
-                    // CASE A: User ĐÃ Check-in tại sự kiện -> Auto Approve để vào cửa ngay
                     newActAttendee.setStatus(RegistrationStatus.APPROVED);
                 } else {
-                    // CASE B: User CHƯA Check-in -> Để PENDING chờ duyệt
                     newActAttendee.setStatus(RegistrationStatus.PENDING);
                     hasNewPendingActivity = true;
                 }
@@ -824,5 +827,96 @@ public class EventServiceImpl implements EventService {
                 .avatarUrl(registration.getUser().getAvatarUrl())
                 .activities(activityDTOs)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void requestEditPermission(Long eventId, String reason) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        Organizers currentOrganizer = getCurrentOrganizer();
+
+        if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền gửi yêu cầu cho sự kiện này.");
+        }
+
+        if (event.getStatus() != EventStatus.PUBLISHED) {
+            throw new IllegalArgumentException("Chỉ có thể gửi yêu cầu chỉnh sửa cho sự kiện ĐÃ CÔNG BỐ.");
+        }
+
+        if (LocalDateTime.now().isAfter(event.getStartDate())) {
+            throw new IllegalArgumentException("Sự kiện đã hoặc đang diễn ra, không thể yêu cầu chỉnh sửa.");
+        }
+
+        if (event.getEditRequestStatus() == EditRequestStatus.PENDING) {
+            throw new IllegalArgumentException("Đang có một yêu cầu chờ duyệt, vui lòng đợi.");
+        }
+
+        event.setEditRequestStatus(EditRequestStatus.PENDING);
+        event.setEditRequestReason(reason);
+        eventRepository.save(event);
+        try {
+            emailService.sendEditRequestPendingEmail(
+                currentOrganizer.getUser().getEmail(),
+                currentOrganizer.getUser().getUsername(),
+                event.getEventName(),
+                reason
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void approveEditPermission(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        if (event.getEditRequestStatus() != EditRequestStatus.PENDING) {
+            throw new IllegalArgumentException("Không có yêu cầu chỉnh sửa nào đang chờ duyệt.");
+        }
+
+        event.setEditLocked(false);
+        event.setEditRequestStatus(EditRequestStatus.APPROVED);
+        
+        eventRepository.save(event);
+
+        try {
+            emailService.sendEditRequestApprovedEmail(
+                event.getOrganizer().getUser().getEmail(),
+                event.getOrganizer().getUser().getUsername(),
+                event.getEventName(),
+                event.getSlug()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void rejectEditPermission(Long eventId, String rejectReason) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        if (event.getEditRequestStatus() != EditRequestStatus.PENDING) {
+            throw new IllegalArgumentException("Không có yêu cầu chỉnh sửa nào đang chờ duyệt.");
+        }
+
+        event.setEditRequestStatus(EditRequestStatus.REJECTED);
+        
+        eventRepository.save(event);
+
+        try {
+            emailService.sendEditRequestRejectedEmail(
+                event.getOrganizer().getUser().getEmail(),
+                event.getOrganizer().getUser().getUsername(),
+                event.getEventName(),
+                rejectReason
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
