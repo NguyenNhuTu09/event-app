@@ -40,4 +40,6 @@ public interface EventAttendeesRepository extends JpaRepository<EventAttendees, 
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    long countByEvent_EventId(Long eventId);
 }

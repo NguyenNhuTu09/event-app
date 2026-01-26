@@ -29,8 +29,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     
     @Query("SELECT e FROM Event e WHERE " +
        "e.status = com.example.backend.Utils.EventStatus.PUBLISHED " +
-       "AND e.createdAt >= :sevenDaysAgo " + // Hoặc dùng publishedAt nếu bạn có trường đó
+       "AND e.createdAt >= :sevenDaysAgo " + 
        "AND e.endDate > CURRENT_TIMESTAMP " +
        "AND (e.registrationDeadline IS NULL OR e.registrationDeadline > CURRENT_TIMESTAMP)")
     List<Event> findNewAndOpenEvents(@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
+
+    @Query("SELECT e FROM Event e WHERE e.status = :status ORDER BY e.createdAt DESC")
+    List<Event> findByStatusOrderByCreatedAtDesc(@Param("status") EventStatus status);
+    
+    @Query("SELECT e FROM Event e WHERE e.editRequestStatus = :editStatus ORDER BY e.createdAt DESC")
+    List<Event> findByEditRequestStatus(@Param("editStatus") com.example.backend.Utils.EditRequestStatus editStatus);
 }
