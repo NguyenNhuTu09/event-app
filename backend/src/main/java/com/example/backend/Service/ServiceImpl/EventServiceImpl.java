@@ -99,6 +99,30 @@ public class EventServiceImpl implements EventService {
         return organizer;
     }
 
+    private void validateEventDates(EventRequestDTO requestDTO) {
+        if (requestDTO.getStartDate() == null || requestDTO.getEndDate() == null) {
+            throw new IllegalArgumentException("Thời gian bắt đầu và kết thúc là bắt buộc.");
+        }
+
+        if (requestDTO.getStartDate().isAfter(requestDTO.getEndDate())) {
+            throw new IllegalArgumentException("Thời gian bắt đầu phải trước thời gian kết thúc.");
+        }
+
+        if (requestDTO.getStartDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian bắt đầu phải ở tương lai.");
+        }
+
+        if (requestDTO.getRegistrationDeadline() != null) {
+            if (requestDTO.getRegistrationDeadline().isAfter(requestDTO.getStartDate())) {
+                throw new IllegalArgumentException("Deadline đăng ký phải trước hoặc bằng thời gian bắt đầu sự kiện.");
+            }
+            
+            if (requestDTO.getRegistrationDeadline().isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("Deadline đăng ký phải ở tương lai.");
+            }
+        }
+    }
+
     @Override
     @Transactional
     public EventResponseDTO createEvent(EventRequestDTO requestDTO) {
@@ -107,6 +131,8 @@ public class EventServiceImpl implements EventService {
         if (currentOrganizer.isLocked()) {
             throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
         }
+
+        validateEventDates(requestDTO);
 
         Event event = new Event();
         event.setOrganizer(currentOrganizer); 
@@ -145,6 +171,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Sự kiện đã được công bố và đang bị khóa chỉnh sửa. Vui lòng gửi yêu cầu cấp quyền chỉnh sửa trước.");
         }
 
+        validateEventDates(requestDTO);
+
         if (!event.getEventName().equals(requestDTO.getEventName())) {
             event.setEventName(requestDTO.getEventName());
             event.setSlug(generateUniqueSlug(requestDTO.getEventName()));
@@ -160,14 +188,15 @@ public class EventServiceImpl implements EventService {
         if(requestDTO.getVisibility() != null) event.setVisibility(requestDTO.getVisibility());
         if (event.getStatus() == EventStatus.PUBLISHED) {
             event.setStatus(EventStatus.PENDING_APPROVAL);
-        } 
-        else if (requestDTO.getStatus() != null) {
+            event.setEditRequestStatus(EditRequestStatus.NONE);
+            event.setEditRequestReason(null);
+        } else if (requestDTO.getStatus() != null) {
             if (requestDTO.getStatus() == EventStatus.PUBLISHED) {
                 event.setStatus(EventStatus.PENDING_APPROVAL);
             } else {
                 event.setStatus(requestDTO.getStatus());
             }
-        }        
+        }
         return convertToDTO(eventRepository.save(event));
     }
 
@@ -182,6 +211,13 @@ public class EventServiceImpl implements EventService {
         }
         if (!event.getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
              throw new RuntimeException("Bạn không có quyền xóa sự kiện này.");
+        }
+        if (event.getStatus() == EventStatus.PUBLISHED && event.isEditLocked()) {
+            throw new IllegalStateException("Sự kiện đã được công bố và đang bị khóa. Không thể xóa trực tiếp. Vui lòng liên hệ quản trị viên.");
+        }
+        long registrationCount = eventAttendeesRepository.countByEvent_EventId(event.getEventId());
+        if (registrationCount > 0) {
+            throw new IllegalStateException("Không thể xóa sự kiện đã có " + registrationCount + " người đăng ký. Vui lòng hủy sự kiện thay vì xóa.");
         }
         eventRepository.delete(event);
     }
@@ -234,6 +270,9 @@ public class EventServiceImpl implements EventService {
                 .organizerName(event.getOrganizer().getName())
                 .isFeatured(event.isFeatured())
                 .isUpcoming(event.isUpcoming())
+                .isEditLocked(event.isEditLocked())
+                .editRequestStatus(event.getEditRequestStatus())
+                .editRequestReason(event.getEditRequestReason())
                 .build();
     }
 
@@ -406,44 +445,6 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    // @Override
-    // @Transactional
-    // public void approveRegistration(Long registrationId) {
-    //     EventAttendees registration = eventAttendeesRepository.findById(registrationId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
-                
-    //     Organizers currentOrganizer = getCurrentOrganizer();
-
-    //     if (currentOrganizer.isLocked()) {
-    //         throw new AccountLockedException("Tài khoản Organizer đang bị tạm khóa. Vui lòng gửi yêu cầu mở khóa để tiếp tục.");
-    //     }
-        
-    //     if (!registration.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
-    //         throw new RuntimeException("Bạn không có quyền duyệt vé này.");
-    //     }
-
-    //     registration.setStatus(RegistrationStatus.APPROVED);
-    //     eventAttendeesRepository.save(registration);
-
-    //     List<ActivityAttendees> activities = activityAttendeesRepository.findByEventAttendee(registration);
-
-    //     List<ActivityEmailDTO> activityEmailList = new ArrayList<>();
-    //     if (activities != null) {
-    //         activityEmailList = activities.stream()
-    //                 .map(this::mapActivityToDTO) // Gọi hàm riêng
-    //                 .collect(Collectors.toList());
-    //     }
-    //     emailService.sendRegistrationApprovedEmail(
-    //         registration.getUser().getEmail(),
-    //         registration.getUser().getUsername(),
-    //         registration.getEvent().getEventName(),
-    //         registration.getEvent().getStartDate(), 
-    //         registration.getEvent().getEndDate(),
-    //         registration.getEvent().getLocation(),
-    //         registration.getTicketCode(),
-    //         activityEmailList
-    //     );
-    // }
 
     @Override
     @Transactional
@@ -852,8 +853,19 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Đang có một yêu cầu chờ duyệt, vui lòng đợi.");
         }
 
+        if (event.getEditRequestStatus() == EditRequestStatus.APPROVED && !event.isEditLocked()) {
+            throw new IllegalArgumentException(
+                "Bạn đã được cấp quyền chỉnh sửa. Vui lòng thực hiện chỉnh sửa và submit lại để SAdmin review."
+            );
+        }
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng cung cấp lý do yêu cầu chỉnh sửa.");
+        }
+
+
         event.setEditRequestStatus(EditRequestStatus.PENDING);
         event.setEditRequestReason(reason);
+        event.setEditRequestReason(null);
         eventRepository.save(event);
         try {
             emailService.sendEditRequestPendingEmail(
@@ -879,7 +891,7 @@ public class EventServiceImpl implements EventService {
 
         event.setEditLocked(false);
         event.setEditRequestStatus(EditRequestStatus.APPROVED);
-        
+        event.setEditRequestReason(null);
         eventRepository.save(event);
 
         try {
@@ -905,7 +917,7 @@ public class EventServiceImpl implements EventService {
         }
 
         event.setEditRequestStatus(EditRequestStatus.REJECTED);
-        
+        event.setEditRequestReason(null);
         eventRepository.save(event);
 
         try {

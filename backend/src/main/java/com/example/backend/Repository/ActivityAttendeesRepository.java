@@ -28,4 +28,22 @@ public interface ActivityAttendeesRepository extends JpaRepository<ActivityAtten
             @Param("eventId") Long eventId,
             @Param("statuses") List<RegistrationStatus> statuses 
     );
+
+    @Query("SELECT COUNT(aa) FROM ActivityAttendees aa " +
+           "WHERE aa.activity.activityId = :activityId " +
+           "AND aa.status = :status")
+    long countByActivity_ActivityIdAndStatus(
+            @Param("activityId") Integer activityId,
+            @Param("status") RegistrationStatus status
+    );
+
+    @Query("SELECT aa.activity FROM ActivityAttendees aa " +
+           "WHERE aa.eventAttendee.event.eventId = :eventId " +
+           "AND aa.eventAttendee.user.email = :email " +
+           "AND aa.status IN :statuses")
+    List<com.example.backend.Models.Entity.Activity> findRegisteredActivitiesByEventAndUser(
+            @Param("eventId") Long eventId,
+            @Param("email") String email,
+            @Param("statuses") List<RegistrationStatus> statuses
+    );
 }
