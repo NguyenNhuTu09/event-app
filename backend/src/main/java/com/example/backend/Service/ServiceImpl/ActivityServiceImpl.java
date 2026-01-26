@@ -24,6 +24,7 @@ import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.PresentersRepository;
 import com.example.backend.Service.Interface.ActivityService;
+import com.example.backend.Utils.EditRequestStatus;
 import com.example.backend.Utils.RegistrationStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,18 +44,39 @@ public class ActivityServiceImpl implements ActivityService {
     private final ObjectMapper objectMapper; 
 
     private void updateEventStatusAfterActivityChange(Event event) {
-        if (event.getStatus() == com.example.backend.Utils.EventStatus.PUBLISHED) {
-            event.setStatus(com.example.backend.Utils.EventStatus.PENDING_APPROVAL);
-            eventRepository.save(event);
-        }
+    if (event.getStatus() == com.example.backend.Utils.EventStatus.PUBLISHED 
+        && !event.isEditLocked()) {
+        
+        event.setStatus(com.example.backend.Utils.EventStatus.PENDING_APPROVAL);
+        
+        event.setEditRequestStatus(EditRequestStatus.NONE);
+        event.setEditRequestReason(null);
+        
+        eventRepository.save(event);
     }
+}
 
     private void checkEventLock(Event event) {
         if (event.getStatus() == com.example.backend.Utils.EventStatus.PUBLISHED 
             && event.isEditLocked()) {
-            throw new IllegalStateException("Sự kiện đang bị khóa. Bạn cần gửi yêu cầu chỉnh sửa Event trước khi thay đổi Activity.");
+            
+            String message = "Sự kiện đang bị khóa chỉnh sửa. ";
+            
+            if (event.getEditRequestStatus() == EditRequestStatus.PENDING) {
+                message += "Yêu cầu chỉnh sửa của bạn đang chờ SAdmin duyệt.";
+            } else if (event.getEditRequestStatus() == EditRequestStatus.REJECTED) {
+                message += "Yêu cầu chỉnh sửa trước đó đã bị từ chối. Vui lòng gửi yêu cầu mới nếu cần thiết.";
+            } else {
+                message += "Bạn cần gửi yêu cầu chỉnh sửa Event trước khi thay đổi Activity.";
+            }
+            
+            throw new IllegalStateException(message);
         }
     }
+
+    
+
+    
 
     private Organizers getCurrentOrganizer() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -184,7 +206,14 @@ public class ActivityServiceImpl implements ActivityService {
             }
         }
 
-        // 5. Mapping & Save
+        if (requestDTO.getStartTime().isBefore(event.getStartDate()) || 
+            requestDTO.getEndTime().isAfter(event.getEndDate())) {
+            throw new IllegalArgumentException(
+                "Thời gian hoạt động phải nằm trong khoảng thời gian của sự kiện (" + 
+                event.getStartDate() + " - " + event.getEndDate() + ")"
+            );
+        }
+
         Activity activity = new Activity();
         mapRequestToEntity(requestDTO, activity, event, category, presenter);
         
@@ -201,6 +230,13 @@ public class ActivityServiceImpl implements ActivityService {
 
         Event event = existingActivity.getEvent();
         checkEventLock(event);
+        if (requestDTO.getStartTime().isBefore(event.getStartDate()) || 
+            requestDTO.getEndTime().isAfter(event.getEndDate())) {
+            throw new IllegalArgumentException(
+                "Thời gian hoạt động phải nằm trong khoảng thời gian của sự kiện (" + 
+                event.getStartDate() + " - " + event.getEndDate() + ")"
+            );
+        }
 
         if (!existingActivity.getCategory().getCategoryId().equals(requestDTO.getCategoryId())) {
             ActivityCategories newCategory = categoryRepository.findById(requestDTO.getCategoryId())
