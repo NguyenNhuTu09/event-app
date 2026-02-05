@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.Request.ActivityRequestDTO;
+import com.example.backend.DTO.Response.ActivityParticipantResponseDTO;
 import com.example.backend.DTO.Response.ActivityResponseDTO;
 import com.example.backend.Service.Interface.ActivityService;
 
@@ -98,6 +99,13 @@ public class ActivityController {
     @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<List<ActivityResponseDTO>> getMyRegisteredActivities(@PathVariable Long eventId) {
         return ResponseEntity.ok(activityService.getRegisteredActivitiesByEvent(eventId));
+    }
+
+    @Operation(summary = "Lấy danh sách người tham gia Activity (Chỉ Organizer)")
+    @GetMapping("/{activityId}/participants")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public ResponseEntity<List<ActivityParticipantResponseDTO>> getActivityParticipants(@PathVariable Integer activityId) {
+        return ResponseEntity.ok(activityService.getActivityParticipants(activityId));
     }
 
 }
