@@ -10,13 +10,16 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.DTO.Request.ActivityRequestDTO;
 import com.example.backend.DTO.Response.ActivityCategoryResponseDTO;
+import com.example.backend.DTO.Response.ActivityParticipantResponseDTO;
 import com.example.backend.DTO.Response.ActivityResponseDTO;
 import com.example.backend.DTO.Response.PresenterResponseDTO;
 import com.example.backend.Models.Entity.Activity;
+import com.example.backend.Models.Entity.ActivityAttendees;
 import com.example.backend.Models.Entity.ActivityCategories;
 import com.example.backend.Models.Entity.Event;
 import com.example.backend.Models.Entity.Organizers;
 import com.example.backend.Models.Entity.Presenters;
+import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.ActivityAttendeesRepository;
 import com.example.backend.Repository.ActivityCategoriesRepository;
 import com.example.backend.Repository.ActivityRepository;
@@ -74,10 +77,6 @@ public class ActivityServiceImpl implements ActivityService {
         }
     }
 
-    
-
-    
-
     private Organizers getCurrentOrganizer() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email;
@@ -94,7 +93,6 @@ public class ActivityServiceImpl implements ActivityService {
         try {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             
-            // Log xem principal là gì
             System.out.println("Principal class: " + principal.getClass().getName());
             System.out.println("Principal value: " + principal.toString());
 
@@ -103,7 +101,6 @@ public class ActivityServiceImpl implements ActivityService {
             } else if (principal instanceof String && !"anonymousUser".equals(principal)) {
                  return (String) principal;
             } else if (principal instanceof org.springframework.security.oauth2.core.user.DefaultOAuth2User) {
-                // Nếu dùng Google Login/OAuth2
                 return ((org.springframework.security.oauth2.core.user.DefaultOAuth2User) principal).getAttribute("email");
             }
         } catch (Exception e) {
@@ -116,14 +113,7 @@ public class ActivityServiceImpl implements ActivityService {
         if (activities == null || activities.isEmpty()) {
             return new ArrayList<>();
         }
-
         String currentUserEmail = getCurrentUserEmailSafe();
-        
-        // --- LOG DEBUG BẮT ĐẦU ---
-        System.out.println("DEBUG CHECK: EventId = " + eventId);
-        System.out.println("DEBUG CHECK: User Email = " + currentUserEmail);
-        // --- LOG DEBUG KẾT THÚC ---
-
         List<Integer> registeredIds = new ArrayList<>();
 
         if (currentUserEmail != null && eventId != null) {
@@ -305,12 +295,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 
     @Override
-    public List<ActivityResponseDTO> getActivitiesByPresenterId(Integer presenterId) {
-        // Lưu ý: Hàm này trả về hoạt động từ NHIỀU event khác nhau.
-        // Việc check registered ở đây phức tạp hơn (cần loop query hoặc query in).
-        // Tạm thời trả về mapToDTO thường (isRegistered = false) hoặc
-        // nếu cần thiết phải implement logic phức tạp hơn check từng eventId.
-        
+    public List<ActivityResponseDTO> getActivitiesByPresenterId(Integer presenterId) { 
         List<Activity> activities = activityRepository.findByPresenter_PresenterIdOrderByStartTimeAsc(presenterId);
         return activities.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
@@ -437,11 +422,40 @@ public class ActivityServiceImpl implements ActivityService {
                 email, 
                 validStatuses
         );
-
         return registeredActivities.stream().map(activity -> {
             ActivityResponseDTO dto = mapToDTO(activity);
             dto.setRegistered(true); 
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ActivityParticipantResponseDTO> getActivityParticipants(Integer activityId) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hoạt động với ID: " + activityId));
+
+        Organizers currentOrganizer = getCurrentOrganizer();
+        if (!activity.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
+            throw new RuntimeException("Bạn không có quyền xem danh sách tham gia của hoạt động này.");
+        }
+
+        List<ActivityAttendees> attendeesList = activityAttendeesRepository.findByActivity_ActivityId(activityId);
+        return attendeesList.stream().map(this::mapToParticipantDTO).collect(Collectors.toList());
+    }
+
+    private ActivityParticipantResponseDTO mapToParticipantDTO(ActivityAttendees entity) {
+        User user = entity.getEventAttendee().getUser();
+        return ActivityParticipantResponseDTO.builder()
+                .activityAttendeeId(entity.getId())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .avatarUrl(user.getAvatarUrl())
+                .registrationStatus(entity.getStatus())       
+                .checkInStatus(entity.getActCheckInStatus())  
+                .checkInTime(entity.getCheckInTime())
+                .registeredAt(entity.getRegisteredAt())
+                .build();
     }
 }

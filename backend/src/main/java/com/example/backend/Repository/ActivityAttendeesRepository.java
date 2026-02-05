@@ -18,7 +18,7 @@ public interface ActivityAttendeesRepository extends JpaRepository<ActivityAtten
     List<ActivityAttendees> findByEventAttendee(EventAttendees eventAttendee);
     Optional<ActivityAttendees> findByActivity_ActivityIdAndEventAttendee_User_Id(Integer activityId, Long userId);
     boolean existsByEventAttendee_IdAndActivity_ActivityId(Long eventAttendeeId, Integer activityId);
-
+    List<ActivityAttendees> findByActivity_ActivityId(Integer activityId);
     @Query("SELECT aa.activity.activityId FROM ActivityAttendees aa " +
        "WHERE aa.eventAttendee.event.eventId = :eventId " +
        "AND LOWER(aa.eventAttendee.user.email) = LOWER(:email) " + 
