@@ -39,4 +39,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     
     @Query("SELECT e FROM Event e WHERE e.editRequestStatus = :editStatus ORDER BY e.createdAt DESC")
     List<Event> findByEditRequestStatus(@Param("editStatus") com.example.backend.Utils.EditRequestStatus editStatus);
+
 }

@@ -1,41 +1,136 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Tin tức sự kiện tuần qua</title>
+    <meta charset="UTF-8">
+    <title>Sự kiện mới tuần qua - Webie Event</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; }
-        .event-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
-        .event-title { color: #d4af37; font-size: 18px; font-weight: bold; text-decoration: none; }
-        .btn { display: inline-block; background: #000; color: #d4af37; padding: 8px 15px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-size: 12px;}
+        /* Đồng bộ CSS với hệ thống Webie */
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        
+        .header { 
+            background-color: #000000; 
+            padding: 40px 20px; 
+            text-align: center; 
+            border-bottom: 2px solid #d4af37; 
+        }
+        .logo { max-width: 130px; height: auto; margin-bottom: 10px; }
+        .header h2 { 
+            color: #d4af37; 
+            margin: 15px 0 0; 
+            font-family: 'Georgia', serif; 
+            font-size: 22px; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+        }
+
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+        
+        /* Event Card Design */
+        .event-card {
+            background-color: #252525;
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+            transition: background 0.3s;
+        }
+        .event-name { 
+            color: #ffffff; 
+            font-size: 18px; 
+            font-weight: bold; 
+            text-decoration: none; 
+            display: block;
+            margin-bottom: 10px;
+            font-family: 'Georgia', serif;
+        }
+        .event-meta { font-size: 13px; color: #999; margin: 4px 0; display: flex; align-items: center; }
+        .meta-icon { color: #d4af37; margin-right: 8px; font-size: 14px; }
+
+        /* Button cho từng sự kiện */
+        .btn-small {
+            display: inline-block;
+            background-color: #d4af37;
+            color: #000 !important;
+            padding: 8px 18px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border: 1px dashed #444;
+            border-radius: 8px;
+        }
+
+        .footer { 
+            background-color: #000; 
+            color: #444; 
+            text-align: center; 
+            padding: 25px; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        .footer a { color: #666; text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 style="text-align: center; color: #000;">🔥 SỰ KIỆN MỚI TUẦN QUA 🔥</h2>
-        <p>Xin chào <strong>User</strong>,</p>
-        <p>Dưới đây là danh sách các sự kiện mới nhất vừa được công bố mà bạn có thể quan tâm:</p>
-
-        <!-- Loop qua danh sách sự kiện -->
-        <div th:each="event : ${events}" class="event-card">
-            <div>
-                <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" class="event-title" th:text="${event.eventName}">Tên sự kiện</a>
-            </div>
-            <div style="font-size: 13px; color: #666; margin: 5px 0;">
-                🗓 <span th:text="${#temporals.format(event.startDate, 'HH:mm dd/MM/yyyy')}"></span> <br>
-                📍 <span th:text="${event.location}"></span>
-            </div>
-            <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" class="btn">Xem chi tiết & Đăng ký</a>
+        <!-- Header -->
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+            <h2>Weekly Highlights</h2>
         </div>
+        
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            <p>Khám phá những trải nghiệm mới nhất vừa xuất hiện trên hệ thống <strong>Webie Event</strong> tuần qua:</p>
 
-        <div th:if="${#lists.isEmpty(events)}">
-            <p style="text-align: center; color: #888;">Tuần này chưa có sự kiện mới nào. Quay lại sau nhé!</p>
+            <!-- Bắt đầu danh sách sự kiện -->
+            <div th:if="${not #lists.isEmpty(events)}">
+                <div th:each="event : ${events}" class="event-card">
+                    <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" 
+                       class="event-name" 
+                       th:text="${event.eventName}">Tên sự kiện nổi bật</a>
+                    
+                    <div class="event-meta">
+                        <span class="meta-icon">🗓</span>
+                        <span th:text="${#temporals.format(event.startDate, 'HH:mm dd/MM/yyyy')}">08:00 01/01/2025</span>
+                    </div>
+                    
+                    <div class="event-meta">
+                        <span class="meta-icon">📍</span>
+                        <span th:text="${event.location}">Địa điểm tổ chức sự kiện</span>
+                    </div>
+
+                    <a th:href="@{'https://ems.webie.com.vn/event/' + ${event.slug}}" class="btn-small">Xem chi tiết</a>
+                </div>
+            </div>
+
+            <!-- Trường hợp không có sự kiện -->
+            <div th:if="${#lists.isEmpty(events)}" class="empty-state">
+                <p>Tuần này chưa có sự kiện mới. Hãy quay lại sau nhé!</p>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 30px; text-align: center;">
+                Bạn nhận được email này vì đã đăng ký nhận tin tức từ Webie Event.
+            </p>
         </div>
-
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 11px; text-align: center; color: #999;">
-            Nếu bạn không muốn nhận email này nữa, vui lòng <a href="#">hủy đăng ký</a> trong cài đặt tài khoản.
-        </p>
+        
+        <div class="footer">
+            &copy; 2025 Webie Event Management System<br>
+            <div style="margin-top: 10px;">
+                <a href="#">Hủy đăng ký</a> | <a href="#">Cài đặt tài khoản</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -439,7 +439,6 @@ public class EmailService {
         }
     }
 
-    // 2. Gửi email thông báo yêu cầu chỉnh sửa ĐƯỢC DUYỆT (Gửi cho Organizer)
     public void sendEditRequestApprovedEmail(String to, String username, String eventName, String eventSlug) {
         try {
             // Link dẫn đến trang quản lý sự kiện của Organizer để họ sửa
@@ -465,7 +464,6 @@ public class EmailService {
         }
     }
 
-    // 3. Gửi email thông báo yêu cầu chỉnh sửa BỊ TỪ CHỐI (Gửi cho Organizer)
     public void sendEditRequestRejectedEmail(String to, String username, String eventName, String reason) {
         try {
             Context context = new Context();

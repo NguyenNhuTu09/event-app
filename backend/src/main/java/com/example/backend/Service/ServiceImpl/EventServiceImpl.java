@@ -865,7 +865,6 @@ public class EventServiceImpl implements EventService {
 
         event.setEditRequestStatus(EditRequestStatus.PENDING);
         event.setEditRequestReason(reason);
-        event.setEditRequestReason(null);
         eventRepository.save(event);
         try {
             emailService.sendEditRequestPendingEmail(
