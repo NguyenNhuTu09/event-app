@@ -36,4 +36,6 @@ public class CheckInController {
     public ResponseEntity<String> checkInActivity(@RequestBody CheckInRequestDTO request) {
         return ResponseEntity.ok(checkInService.userCheckInActivity(request.getActivityQrCode()));
     }
+
+
 }

@@ -2,38 +2,143 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Nhắc nhở sự kiện</title>
+    <title>Nhắc nhở sự kiện - Webie Event</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { background-color: #000; color: #d4af37; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { padding: 20px; color: #333; line-height: 1.6; }
-        .highlight { color: #d4af37; font-weight: bold; }
-        .btn { display: inline-block; padding: 10px 20px; background-color: #000; color: #d4af37; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        
+        /* Header đồng bộ mẫu mới */
+        .header { 
+            background-color: #000000; 
+            padding: 40px 20px; 
+            text-align: center; 
+            border-bottom: 2px solid #d4af37; 
+        }
+        .logo { max-width: 140px; height: auto; margin-bottom: 10px; }
+        .header h2 { 
+            color: #d4af37; 
+            margin: 15px 0 0; 
+            font-family: 'Georgia', serif; 
+            font-size: 24px; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+        }
+
+        .content { padding: 40px 30px; color: #e0e0e0; }
+        
+        /* Vé điện tử với QR Code từ template mới */
+        .ticket-box {
+            background-color: #222;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            position: relative;
+        }
+        .ticket-box::before {
+            content: "";
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border: 1px dashed #444;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .qr-container {
+            background-color: #ffffff;
+            padding: 10px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ticket-code {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #d4af37;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Bảng thông tin sự kiện */
+        .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .info-table td { padding: 12px 0; border-bottom: 1px solid #333; color: #fff; vertical-align: top; }
+        .info-table td:first-child { width: 100px; color: #d4af37; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Nút xem chi tiết */
+        .btn {
+            display: inline-block;
+            background-color: #d4af37;
+            color: #000 !important;
+            padding: 12px 25px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer { background-color: #000; color: #444; text-align: center; padding: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h2>SỰ KIỆN SẮP DIỄN RA</h2>
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+            <h2>Hẹn gặp bạn ngày mai!</h2>
         </div>
+        
         <div class="content">
-            <p>Xin chào <strong th:text="${username}">User</strong>,</p>
-            <p>Đây là email nhắc nhở rằng sự kiện <strong class="highlight" th:text="${eventName}">Tên Sự Kiện</strong> mà bạn đã đăng ký sẽ diễn ra vào <strong>NGÀY MAI</strong>.</p>
+            <p style="text-align: center; font-size: 16px;">Xin chào <strong th:text="${username}" style="color: #d4af37;">User</strong>,</p>
+            <p style="text-align: center; color: #999; margin-top: 0;">Đừng quên chúng ta có hẹn tại sự kiện sẽ diễn ra vào <strong>ngày mai</strong>.</p>
             
-            <p><strong>🕒 Thời gian:</strong> <span th:text="${startTime}">08:00 20/10/2025</span></p>
-            <p><strong>📍 Địa điểm:</strong> <span th:text="${location}">Hội trường A</span></p>
-            <p><strong>🎟 Mã vé của bạn:</strong> <span th:text="${ticketCode}" style="font-family: monospace; background: #eee; padding: 2px 5px;">XYZ-123</span></p>
+            <!-- Phần Vé điện tử có QR Code -->
+            <div class="ticket-box">
+                <div class="qr-container">
+                    <!-- Biến qrCodeUrl chứa ảnh QR -->
+                    <img th:src="${qrCodeUrl}" 
+                         alt="QR Code" 
+                         style="width: 180px; height: 180px; display: block;" />
+                </div>
+                <div style="font-size: 12px; color: #666; text-transform: uppercase; margin-top:10px; position: relative; z-index: 2;">Check-in Code</div>
+                <div class="ticket-code" th:text="${ticketCode}">WEBIE-QR-12345</div>
+            </div>
 
-            <p>Vui lòng chuẩn bị sẵn mã QR (đã gửi ở email trước) để check-in nhanh chóng.</p>
-            
-            <div style="text-align: center;">
-                <a th:href="${eventLink}" class="btn">Xem chi tiết sự kiện</a>
+            <!-- Bảng thông tin sự kiện -->
+            <table class="info-table">
+                <tr>
+                    <td>Sự kiện</td>
+                    <td th:text="${eventName}" style="font-size: 18px; font-family: 'Georgia', serif;">Tên Sự Kiện Của Bạn</td>
+                </tr>
+                <tr>
+                    <td>Thời gian</td>
+                    <td>
+                        <span th:text="${startTime}">08:00 - 20/10/2025</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Địa điểm</td>
+                    <td th:text="${location}">Hội trường A, Trung tâm hội nghị</td>
+                </tr>
+            </table>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #999; font-size: 14px;">Vui lòng chuẩn bị sẵn mã QR này để check-in nhanh chóng tại lối vào.</p>
+                <a th:href="${eventLink}" class="btn">Chi tiết sự kiện</a>
             </div>
         </div>
+        
         <div class="footer">
-            &copy; 2025 Webie Event. Hẹn gặp bạn vào ngày mai!
+            &copy; 2025 Webie Event Management System
         </div>
     </div>
 </body>
