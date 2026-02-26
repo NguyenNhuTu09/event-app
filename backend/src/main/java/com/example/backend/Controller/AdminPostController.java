@@ -39,8 +39,7 @@ public class AdminPostController {
     @PostMapping
     @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<PostResponseDTO> createPost(@RequestBody PostRequestDTO request) {
-        // Lấy userId từ SecurityContext (Token)
-        Long userId = 1L; // Thay bằng hàm getCurrentUserId() của bạn
+        Long userId = 1L; 
         return ResponseEntity.ok(postService.createPost(request, userId));
     }
 
@@ -53,11 +52,13 @@ public class AdminPostController {
         return ResponseEntity.ok(postService.updatePost(id, request));
     }
 
-    @Operation(summary = "Lấy chi tiết bài viết theo ID")
+    @Operation(summary = "Lấy chi tiết bài viết theo ID (Dùng cho Admin Edit)")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPostById(id));
+    public ResponseEntity<PostResponseDTO> getPostById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "vi") String lang) { 
+        return ResponseEntity.ok(postService.getPostById(id, lang));
     }
 
     @Operation(summary = "Xóa một tin tức/bài viết")
@@ -75,14 +76,11 @@ public class AdminPostController {
             if (file.isEmpty()) {
                 return ResponseEntity.ok(Map.of("success", 0)); 
             }
-
             String imageUrl = cloudinaryService.uploadImage(file);
-
             return ResponseEntity.ok(Map.of(
                 "success", 1,
                 "file", Map.of("url", imageUrl)
             ));
-
         } catch (IOException e) {
             return ResponseEntity.ok(Map.of("success", 0));
         }
