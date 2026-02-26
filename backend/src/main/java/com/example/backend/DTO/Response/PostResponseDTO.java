@@ -1,6 +1,7 @@
 package com.example.backend.DTO.Response;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class PostResponseDTO {
     private String content;
     private String seoTitle;
     private String seoDescription;
+
+    private Map<String, String> alternateSlugs;
     
     private String thumbnailUrl;
     private String authorName;

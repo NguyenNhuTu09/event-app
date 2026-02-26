@@ -2,7 +2,9 @@
 package com.example.backend.Service.ServiceImpl;
 
 import java.text.Normalizer;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -161,6 +163,13 @@ public class PostServiceImpl {
     }
 
     private PostResponseDTO mapTranslationToDTO(Post post, PostTranslation translation) {
+        Map<String, String> alternateSlugs = new HashMap<>();
+        if (post.getTranslations() != null) {
+            for (PostTranslation pt : post.getTranslations()) {
+                alternateSlugs.put(pt.getLanguageCode(), pt.getSlug()); 
+            }
+        }
+
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .languageCode(translation.getLanguageCode())
@@ -170,6 +179,7 @@ public class PostServiceImpl {
                 .content(translation.getContent())
                 .seoTitle(translation.getSeoTitle())
                 .seoDescription(translation.getSeoDescription())
+                .alternateSlugs(alternateSlugs) // <-- NHÉT BIẾN VÀO ĐÂY
                 .thumbnailUrl(post.getThumbnailUrl())
                 .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
                 .viewCount(post.getViewCount())
