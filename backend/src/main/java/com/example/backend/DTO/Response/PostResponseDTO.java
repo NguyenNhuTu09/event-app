@@ -9,10 +9,14 @@ import lombok.Data;
 @Builder
 public class PostResponseDTO {
     private Long id;
+    private String languageCode; 
     private String title;
     private String slug;
     private String summary;
     private String content;
+    private String seoTitle;
+    private String seoDescription;
+    
     private String thumbnailUrl;
     private String authorName;
     private Long viewCount;

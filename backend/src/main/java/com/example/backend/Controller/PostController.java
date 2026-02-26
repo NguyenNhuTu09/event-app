@@ -26,21 +26,26 @@ public class PostController {
 
     private final PostServiceImpl postService;
 
-    @Operation(summary = "Lấy danh sách tin tức/bài viết (có phân trang)")
+    @Operation(summary = "Lấy danh sách tin tức/bài viết theo ngôn ngữ")
     @SecurityRequirements()
     @GetMapping
     public ResponseEntity<Page<PostResponseDTO>> getPosts(
+            @RequestParam(defaultValue = "vi") String lang, 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+            
         return ResponseEntity.ok(postService.getAllPublishedPosts(
-                PageRequest.of(page, size, Sort.by("createdAt").descending())
+                PageRequest.of(page, size, Sort.by("createdAt").descending()), lang
         ));
     }
 
-    @Operation(summary = "Lấy chi tiết tin tức/bài viết")
+    @Operation(summary = "Lấy chi tiết bài viết qua Slug và Ngôn ngữ")
     @SecurityRequirements()
     @GetMapping("/{slug}")
-    public ResponseEntity<PostResponseDTO> getPostDetail(@PathVariable String slug) {
-        return ResponseEntity.ok(postService.getPostBySlug(slug));
+    public ResponseEntity<PostResponseDTO> getPostDetail(
+            @PathVariable String slug,
+            @RequestParam(defaultValue = "vi") String lang) {
+            
+        return ResponseEntity.ok(postService.getPostBySlugAndLang(slug, lang));
     }
 }
