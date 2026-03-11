@@ -1,5 +1,10 @@
 package com.example.backend.Models.Entity;
 
+import java.util.List;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,12 +43,21 @@ public class PostTranslation {
     private String slug;
 
     @Column(columnDefinition = "TEXT")
-    private String summary; 
+    private String summary;
 
-    @Lob 
+    @Lob
     @Column(columnDefinition = "LONGTEXT", nullable = false)
-    private String content; 
+    private String content;
 
     private String seoTitle;
     private String seoDescription;
+
+    // ===== 2 FIELD MỚI =====
+
+    @Column(name = "focus_keyword", length = 255)
+    private String focusKeyword;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "tags", columnDefinition = "JSON")
+    private List<String> tags;
 }
