@@ -76,56 +76,49 @@ public class PreviewController {
     // ── HELPER: Build HTML với đầy đủ OG + Twitter Card tags ─────────────────
 
     private String buildHtml(String title, String description, String image,
-                              String pageUrl, String lang) {
-        return """
-                <!DOCTYPE html>
-                <html lang="%s">
-                <head>
-                  <meta charset="UTF-8"/>
-                  <title>%s</title>
+                          String pageUrl, String lang) {
+    return """
+            <!DOCTYPE html>
+            <html lang="%s">
+            <head>
+              <meta charset="UTF-8"/>
+              <title>%s</title>
 
-                  <!-- ═══ Open Graph (Facebook, Zalo, LinkedIn) ═══ -->
-                  <meta property="og:type"         content="article"/>
-                  <meta property="og:site_name"    content="%s"/>
-                  <meta property="og:url"          content="%s"/>
-                  <meta property="og:title"        content="%s"/>
-                  <meta property="og:description"  content="%s"/>
-                  <meta property="og:image"        content="%s"/>
-                  <meta property="og:image:width"  content="1200"/>
-                  <meta property="og:image:height" content="630"/>
-                  <meta property="og:image:alt"    content="%s"/>
-                  <meta property="og:locale"       content="%s"/>
+              <!-- Open Graph -->
+              <meta property="og:type"         content="article"/>
+              <meta property="og:site_name"    content="%s"/>
+              <meta property="og:url"          content="%s"/>
+              <meta property="og:title"        content="%s"/>
+              <meta property="og:description"  content="%s"/>
+              <meta property="og:image"        content="%s"/>
+              <meta property="og:image:width"  content="1200"/>
+              <meta property="og:image:height" content="630"/>
+              <meta property="og:image:alt"    content="%s"/>
+              <meta property="og:locale"       content="%s"/>
 
-                  <!-- ═══ Twitter Card ═══ -->
-                  <meta name="twitter:card"        content="summary_large_image"/>
-                  <meta name="twitter:title"       content="%s"/>
-                  <meta name="twitter:description" content="%s"/>
-                  <meta name="twitter:image"       content="%s"/>
-
-                  <!-- ═══ Redirect user thường về React (crawler sẽ không follow) ═══ -->
-                  <meta http-equiv="refresh" content="0;url=%s"/>
-                </head>
-                <body>
-                  <p>Đang chuyển hướng... <a href="%s">Nhấn vào đây nếu không được chuyển tự động</a></p>
-                </body>
-                </html>
-                """.formatted(
-                        lang,
-                        title,
-                        SITE_NAME,
-                        pageUrl,
-                        title,
-                        description,
-                        image,
-                        title,
-                        lang.equals("vi") ? "vi_VN" : "en_US",
-                        title,
-                        description,
-                        image,
-                        pageUrl,
-                        pageUrl
-                );
-    }
+              <!-- Twitter Card -->
+              <meta name="twitter:card"        content="summary_large_image"/>
+              <meta name="twitter:title"       content="%s"/>
+              <meta name="twitter:description" content="%s"/>
+              <meta name="twitter:image"       content="%s"/>
+            </head>
+            <body></body>
+            </html>
+            """.formatted(
+                    lang,
+                    title,
+                    SITE_NAME,
+                    pageUrl,
+                    title,
+                    description,
+                    image,
+                    title,
+                    lang.equals("vi") ? "vi_VN" : "en_US",
+                    title,
+                    description,
+                    image
+            );
+}
 
     // ── HELPER: Escape ký tự đặc biệt tránh break HTML attribute ─────────────
 
