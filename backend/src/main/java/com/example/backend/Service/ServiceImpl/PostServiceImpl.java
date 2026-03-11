@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.DTO.Request.PostRequestDTO;
+import com.example.backend.DTO.Response.AdminPostResponseDTO;
 import com.example.backend.DTO.Response.PostResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Post;
@@ -33,29 +35,27 @@ public class PostServiceImpl {
     private final PostTranslationRepository translationRepository;
     private final UserRepository userRepository;
 
-    // 1. LẤY DANH SÁCH BÀI VIẾT (PUBLISHED)
+    // 1. LẤY DANH SÁCH BÀI VIẾT (PUBLISHED) — trả về thêm focusKeyword, tags
     public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable, String lang) {
         return postRepository.findByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED, pageable)
                 .map(post -> mapToDTO(post, lang));
     }
 
-    // 2. LẤY CHI TIẾT QUA SLUG (Dành cho User Frontend)
+    // 2. LẤY CHI TIẾT QUA SLUG — trả về thêm focusKeyword, tags
     @Transactional
     public PostResponseDTO getPostBySlugAndLang(String slug, String lang) {
         PostTranslation translation = translationRepository
                 .findBySlugAndLanguageCodeAndPostStatus(slug, lang, PostStatus.PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại ở ngôn ngữ này"));
-        
+
         Post post = translation.getPost();
-        
-        // Tăng view Count ở bảng cha
         post.setViewCount(post.getViewCount() + 1);
         postRepository.save(post);
-        
+
         return mapTranslationToDTO(post, translation);
     }
 
-    // 3. TẠO BÀI VIẾT (Dành cho Admin)
+    // 3. TẠO BÀI VIẾT — nhận thêm focusKeyword, tags
     @Transactional
     public PostResponseDTO createPost(PostRequestDTO request, Long userId) {
         User author = userRepository.findById(userId)
@@ -78,16 +78,18 @@ public class PostServiceImpl {
                         .content(transReq.getContent())
                         .seoTitle(transReq.getSeoTitle())
                         .seoDescription(transReq.getSeoDescription())
+                        .focusKeyword(transReq.getFocusKeyword())   // THÊM
+                        .tags(transReq.getTags())                   // THÊM
                         .build();
                 post.addTranslation(translation);
             });
         }
 
         Post savedPost = postRepository.save(post);
-        return mapToDTO(savedPost, "vi"); // Trả về mặc định bản tiếng việt sau khi tạo
+        return mapToDTO(savedPost, "vi");
     }
 
-    // 4. CẬP NHẬT BÀI VIẾT (HÀM ĐANG BỊ THIẾU)
+    // 4. CẬP NHẬT BÀI VIẾT — nhận thêm focusKeyword, tags
     @Transactional
     public PostResponseDTO updatePost(Long id, PostRequestDTO request) {
         Post post = postRepository.findById(id)
@@ -112,6 +114,8 @@ public class PostServiceImpl {
                     existingTrans.setContent(transReq.getContent());
                     existingTrans.setSeoTitle(transReq.getSeoTitle());
                     existingTrans.setSeoDescription(transReq.getSeoDescription());
+                    existingTrans.setFocusKeyword(transReq.getFocusKeyword()); // THÊM
+                    existingTrans.setTags(transReq.getTags());                 // THÊM
                 } else {
                     PostTranslation newTranslation = PostTranslation.builder()
                             .languageCode(langCode)
@@ -121,6 +125,8 @@ public class PostServiceImpl {
                             .content(transReq.getContent())
                             .seoTitle(transReq.getSeoTitle())
                             .seoDescription(transReq.getSeoDescription())
+                            .focusKeyword(transReq.getFocusKeyword())          // THÊM
+                            .tags(transReq.getTags())                          // THÊM
                             .build();
                     post.addTranslation(newTranslation);
                 }
@@ -130,7 +136,7 @@ public class PostServiceImpl {
         return mapToDTO(postRepository.save(post), "vi");
     }
 
-    // 5. XÓA BÀI VIẾT (HÀM ĐANG BỊ THIẾU)
+    // 5. XÓA BÀI VIẾT
     @Transactional
     public void deletePost(Long id) {
         if (!postRepository.existsById(id)) {
@@ -139,14 +145,21 @@ public class PostServiceImpl {
         postRepository.deleteById(id);
     }
 
-    // 6. LẤY CHI TIẾT THEO ID ĐỂ ADMIN SỬA (HÀM ĐANG BỊ THIẾU)
+    // 6. LẤY THEO ID CHO ADMIN — trả về AdminPostResponseDTO (1 call, đủ hết translations)
+    public AdminPostResponseDTO getPostByIdForAdmin(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại với ID: " + id));
+        return mapToAdminDTO(post);
+    }
+
+    // 7. GIỮ LẠI để PostController (user) vẫn dùng được
     public PostResponseDTO getPostById(Long id, String lang) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại với ID: " + id));
         return mapToDTO(post, lang);
     }
 
-    // --- CÁC HÀM MAPPER VÀ HELPER ---
+    // --- MAPPER ---
 
     private PostResponseDTO mapToDTO(Post post, String targetLang) {
         if (post.getTranslations() == null || post.getTranslations().isEmpty()) return null;
@@ -166,7 +179,7 @@ public class PostServiceImpl {
         Map<String, String> alternateSlugs = new HashMap<>();
         if (post.getTranslations() != null) {
             for (PostTranslation pt : post.getTranslations()) {
-                alternateSlugs.put(pt.getLanguageCode(), pt.getSlug()); 
+                alternateSlugs.put(pt.getLanguageCode(), pt.getSlug());
             }
         }
 
@@ -179,7 +192,9 @@ public class PostServiceImpl {
                 .content(translation.getContent())
                 .seoTitle(translation.getSeoTitle())
                 .seoDescription(translation.getSeoDescription())
-                .alternateSlugs(alternateSlugs) // <-- NHÉT BIẾN VÀO ĐÂY
+                .focusKeyword(translation.getFocusKeyword())   // THÊM
+                .tags(translation.getTags())                   // THÊM
+                .alternateSlugs(alternateSlugs)
                 .thumbnailUrl(post.getThumbnailUrl())
                 .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
                 .viewCount(post.getViewCount())
@@ -187,9 +202,38 @@ public class PostServiceImpl {
                 .build();
     }
 
+    // Mapper riêng cho Admin — trả về toàn bộ translations dạng Map
+    private AdminPostResponseDTO mapToAdminDTO(Post post) {
+        Map<String, AdminPostResponseDTO.TranslationDetail> translationMap = post.getTranslations().stream()
+                .collect(Collectors.toMap(
+                        PostTranslation::getLanguageCode,
+                        t -> AdminPostResponseDTO.TranslationDetail.builder()
+                                .title(t.getTitle())
+                                .slug(t.getSlug())
+                                .summary(t.getSummary())
+                                .content(t.getContent())
+                                .seoTitle(t.getSeoTitle())
+                                .seoDescription(t.getSeoDescription())
+                                .focusKeyword(t.getFocusKeyword())   // THÊM
+                                .tags(t.getTags())                   // THÊM
+                                .build()
+                ));
+
+        return AdminPostResponseDTO.builder()
+                .id(post.getId())
+                .thumbnailUrl(post.getThumbnailUrl())
+                .status(post.getStatus())
+                .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
+                .viewCount(post.getViewCount())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .translations(translationMap)
+                .build();
+    }
+
     private String generateSlug(String title) {
         if (title == null || title.isEmpty()) return "untitled-" + System.currentTimeMillis();
-        
+
         String slug = Normalizer.normalize(title, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         slug = pattern.matcher(slug).replaceAll("");
@@ -198,7 +242,7 @@ public class PostServiceImpl {
         slug = slug.replaceAll("\\s+", "-");
 
         if (translationRepository.existsBySlug(slug)) {
-            slug += "-" + System.currentTimeMillis(); 
+            slug += "-" + System.currentTimeMillis();
         }
         return slug;
     }
