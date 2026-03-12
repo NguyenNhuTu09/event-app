@@ -2,10 +2,10 @@ package com.example.backend.Models.Entity;
 
 import java.util.List;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import com.example.backend.Utils.JsonListConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -57,7 +57,7 @@ public class PostTranslation {
     @Column(name = "focus_keyword", length = 255)
     private String focusKeyword;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", columnDefinition = "JSON")
+    @Convert(converter = JsonListConverter.class)
+    @Column(name = "tags", columnDefinition = "TEXT")
     private List<String> tags;
 }
