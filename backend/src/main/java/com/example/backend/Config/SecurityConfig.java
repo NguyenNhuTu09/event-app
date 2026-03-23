@@ -27,15 +27,18 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler; 
     private final PasswordEncoder passwordEncoder;
+    private final HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                           JwtAuthFilter jwtAuthFilter,
-                          @Lazy OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler, 
-                          PasswordEncoder passwordEncoder) {
+                          @Lazy OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+                          PasswordEncoder passwordEncoder,
+                          HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.passwordEncoder = passwordEncoder;
+        this.authorizationRequestRepository = authorizationRequestRepository;
     }
 
 
@@ -79,10 +82,17 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .oauth2Login(oauth2 -> {
-                oauth2.successHandler(oAuth2AuthenticationSuccessHandler);
-            })
+            // .oauth2Login(oauth2 -> {
+            //     oauth2.successHandler(oAuth2AuthenticationSuccessHandler);
+            // })
+            .oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(endpoint -> endpoint
+                    .authorizationRequestRepository(authorizationRequestRepository)
+                )
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+            )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            
 
         return http.build();
     }
