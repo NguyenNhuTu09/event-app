@@ -45,6 +45,10 @@ public class Post {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
     
     public void addTranslation(PostTranslation translation) {
         translations.add(translation);
