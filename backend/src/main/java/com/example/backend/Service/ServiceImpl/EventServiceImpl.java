@@ -563,7 +563,13 @@ public class EventServiceImpl implements EventService {
     public List<EventResponseDTO> getFeaturedEvents() {
         List<Event> events = eventRepository.findByIsFeaturedTrueAndStatusAndVisibility(
                 EventStatus.PUBLISHED, EventVisibility.PUBLIC);
-        return events.stream().map(this::convertToDTO).collect(Collectors.toList());
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return events.stream()
+                .filter(event -> event.getEndDate().isAfter(now)) 
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -607,8 +613,15 @@ public class EventServiceImpl implements EventService {
     public List<EventResponseDTO> getUpcomingEvents() {
         List<Event> events = eventRepository.findByIsUpcomingTrueAndStatusAndVisibility(
                 EventStatus.PUBLISHED, EventVisibility.PUBLIC);
-        return events.stream().map(this::convertToDTO).collect(Collectors.toList());
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return events.stream()
+                .filter(event -> event.getEndDate().isAfter(now)) 
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional
