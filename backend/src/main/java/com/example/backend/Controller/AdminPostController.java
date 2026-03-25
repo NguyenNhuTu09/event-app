@@ -53,21 +53,21 @@ public class AdminPostController {
         return ResponseEntity.ok(postService.updatePost(id, request));
     }
 
-    // @Operation(summary = "Lấy chi tiết bài viết theo ID (Dùng cho Admin Edit)")
-    // @GetMapping("/{id}")
-    // @PreAuthorize("hasAuthority('SADMIN')")
-    // public ResponseEntity<PostResponseDTO> getPostById(
-    //         @PathVariable Long id,
-    //         @RequestParam(defaultValue = "vi") String lang) { 
-    //     return ResponseEntity.ok(postService.getPostById(id, lang));
-    // }
-
     @Operation(summary = "Lấy chi tiết bài viết theo ID (Dùng cho Admin Edit)")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('SADMIN')")
-    public ResponseEntity<AdminPostResponseDTO> getPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPostByIdForAdmin(id));
+    public ResponseEntity<PostResponseDTO> getPostById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "vi") String lang) { 
+        return ResponseEntity.ok(postService.getPostById(id, lang));
     }
+
+    // @Operation(summary = "Lấy chi tiết bài viết theo ID (Dùng cho Admin Edit)")
+    // @GetMapping("/{id}")
+    // @PreAuthorize("hasAuthority('SADMIN')")
+    // public ResponseEntity<AdminPostResponseDTO> getPostById(@PathVariable Long id) {
+    //     return ResponseEntity.ok(postService.getPostByIdForAdmin(id));
+    // }
 
     @Operation(summary = "Xóa một tin tức/bài viết")
     @DeleteMapping("/{id}")
