@@ -29,4 +29,8 @@ public class PostResponseDTO {
     private String authorName;
     private Long viewCount;
     private LocalDateTime createdAt;
+
+    private Long categoryId;
+    private String categorySlug;
+    private String categoryName;
 }
