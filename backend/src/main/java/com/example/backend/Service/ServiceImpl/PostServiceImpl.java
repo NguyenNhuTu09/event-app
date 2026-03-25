@@ -1,8 +1,8 @@
-// File: com.example.backend.Service.ServiceImpl.PostServiceImpl.java
 package com.example.backend.Service.ServiceImpl;
 
 import java.text.Normalizer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +19,7 @@ import com.example.backend.DTO.Response.AdminPostResponseDTO;
 import com.example.backend.DTO.Response.PostResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Category;
+import com.example.backend.Models.Entity.CategoryTranslation;
 import com.example.backend.Models.Entity.Post;
 import com.example.backend.Models.Entity.PostTranslation;
 import com.example.backend.Models.Entity.User;
@@ -39,9 +40,43 @@ public class PostServiceImpl {
     private final CategoryRepository categoryRepository;
 
     // 1. LẤY DANH SÁCH BÀI VIẾT (PUBLISHED) — trả về thêm focusKeyword, tags
+    // public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable, String lang) {
+    //     return postRepository.findByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED, pageable)
+    //             .map(post -> mapToDTO(post, lang));
+    // }
+
+    @Transactional
     public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable, String lang) {
-        return postRepository.findByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED, pageable)
-                .map(post -> mapToDTO(post, lang));
+        // Query 1: load post + translations + author
+        List<Post> postsWithTranslations = postRepository
+                .findPublishedWithTranslations(PostStatus.PUBLISHED);
+
+        // Query 2: load category + category.translations, map theo id
+        Map<Long, Post> postsWithCategory = postRepository
+                .findPublishedWithCategory(PostStatus.PUBLISHED)
+                .stream()
+                .collect(Collectors.toMap(Post::getId, p -> p));
+
+        // Gộp category vào post từ query 1
+        postsWithTranslations.forEach(post -> {
+            Post postWithCat = postsWithCategory.get(post.getId());
+            if (postWithCat != null) {
+                post.setCategory(postWithCat.getCategory());
+            }
+        });
+
+        // Phân trang thủ công
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), postsWithTranslations.size());
+        List<Post> pageContent = postsWithTranslations.subList(start, end);
+
+        return new org.springframework.data.domain.PageImpl<>(
+                pageContent.stream()
+                        .map(post -> mapToDTO(post, lang))
+                        .collect(Collectors.toList()),
+                pageable,
+                postsWithTranslations.size()
+        );
     }
 
     // 2. LẤY CHI TIẾT QUA SLUG — trả về thêm focusKeyword, tags
@@ -206,6 +241,23 @@ public class PostServiceImpl {
         String categorySlug = null;
         String categoryName = null;
 
+        if (post.getCategory() != null) {
+            Category category = post.getCategory();
+            categoryId = category.getId();
+            categorySlug = category.getSlug();
+
+            String lang = translation.getLanguageCode();
+            if (category.getTranslations() != null && !category.getTranslations().isEmpty()) {
+                CategoryTranslation catTrans = category.getTranslations().stream()
+                        .filter(t -> t.getLanguageCode().equalsIgnoreCase(lang))
+                        .findFirst()
+                        .orElseGet(() -> category.getTranslations().stream()
+                                .filter(t -> t.getLanguageCode().equalsIgnoreCase("vi"))
+                                .findFirst()
+                                .orElse(category.getTranslations().get(0)));
+                categoryName = catTrans.getName();
+            }
+        }
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .languageCode(translation.getLanguageCode())
