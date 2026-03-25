@@ -18,9 +18,11 @@ import com.example.backend.DTO.Request.PostRequestDTO;
 import com.example.backend.DTO.Response.AdminPostResponseDTO;
 import com.example.backend.DTO.Response.PostResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
+import com.example.backend.Models.Entity.Category;
 import com.example.backend.Models.Entity.Post;
 import com.example.backend.Models.Entity.PostTranslation;
 import com.example.backend.Models.Entity.User;
+import com.example.backend.Repository.CategoryRepository;
 import com.example.backend.Repository.PostRepository;
 import com.example.backend.Repository.PostTranslationRepository;
 import com.example.backend.Repository.UserRepository;
@@ -34,6 +36,7 @@ public class PostServiceImpl {
     private final PostRepository postRepository;
     private final PostTranslationRepository translationRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     // 1. LẤY DANH SÁCH BÀI VIẾT (PUBLISHED) — trả về thêm focusKeyword, tags
     public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable, String lang) {
@@ -61,10 +64,17 @@ public class PostServiceImpl {
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        Category category = null;
+        if (request.getCategoryId() != null) {
+            category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Category không tồn tại với ID: " + request.getCategoryId()));
+        }
         Post post = Post.builder()
                 .thumbnailUrl(request.getThumbnailUrl())
                 .status(request.getStatus() != null ? request.getStatus() : PostStatus.DRAFT)
                 .author(author)
+                .category(category)
                 .viewCount(0L)
                 .build();
 
@@ -97,6 +107,15 @@ public class PostServiceImpl {
 
         post.setThumbnailUrl(request.getThumbnailUrl());
         post.setStatus(request.getStatus());
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Category không tồn tại với ID: " + request.getCategoryId()));
+            post.setCategory(category);
+        } else {
+            post.setCategory(null);
+        }
 
         if (request.getTranslations() != null) {
             request.getTranslations().forEach((langCode, transReq) -> {
@@ -183,6 +202,10 @@ public class PostServiceImpl {
             }
         }
 
+        Long categoryId = null;
+        String categorySlug = null;
+        String categoryName = null;
+
         return PostResponseDTO.builder()
                 .id(post.getId())
                 .languageCode(translation.getLanguageCode())
@@ -199,6 +222,9 @@ public class PostServiceImpl {
                 .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
+                .categoryId(categoryId)        // THÊM
+                .categorySlug(categorySlug)    // THÊM
+                .categoryName(categoryName)    // THÊM
                 .build();
     }
 
