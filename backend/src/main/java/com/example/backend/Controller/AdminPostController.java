@@ -1,6 +1,7 @@
 package com.example.backend.Controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
@@ -17,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.DTO.Request.FeaturedPostRequestDTO;
 import com.example.backend.DTO.Request.PostRequestDTO;
-import com.example.backend.DTO.Response.AdminPostResponseDTO;
 import com.example.backend.DTO.Response.PostResponseDTO;
 import com.example.backend.Service.CloudinaryService;
 import com.example.backend.Service.ServiceImpl.PostServiceImpl;
@@ -77,20 +78,47 @@ public class AdminPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Tải lên hình ảnh cho trình soạn thảo")
+    @Operation(summary = "Tải lên hình ảnh/video cho trình soạn thảo")
     @PostMapping(value = "/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> uploadImageForEditor(@RequestParam("image") MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.ok(Map.of("success", 0)); 
             }
-            String imageUrl = cloudinaryService.uploadImage(file);
+            
+            // SỬA DÒNG NÀY: Gọi hàm uploadMedia thay vì uploadImage
+            String fileUrl = cloudinaryService.uploadMedia(file); 
+            
             return ResponseEntity.ok(Map.of(
                 "success", 1,
-                "file", Map.of("url", imageUrl)
+                "file", Map.of("url", fileUrl) // Trả về url như cũ cho Editor (CKEditor / EditorJS)
             ));
         } catch (IOException e) {
             return ResponseEntity.ok(Map.of("success", 0));
         }
+    }
+
+    @Operation(summary = "Lấy danh sách bài viết nổi bật hiện tại (Admin)")
+    @GetMapping("/featured")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<List<PostResponseDTO>> getFeaturedPostsForAdmin(
+            @RequestParam(defaultValue = "vi") String lang) {
+        return ResponseEntity.ok(postService.getFeaturedPosts(lang));
+    }
+
+    @Operation(summary = "Cập nhật danh sách bài viết nổi bật (Admin)")
+    @PutMapping("/featured")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<List<PostResponseDTO>> updateFeaturedPosts(
+            @RequestBody FeaturedPostRequestDTO request) {
+        return ResponseEntity.ok(postService.updateFeaturedPosts(request));
+    }
+
+
+    @Operation(summary = "Xóa một bài viết khỏi danh sách nổi bật (Admin)")
+    @DeleteMapping("/featured/{postId}")
+    @PreAuthorize("hasAuthority('SADMIN')")
+    public ResponseEntity<Map<String, Object>> removeFeaturedPost(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.removeFeaturedPost(postId));
     }
 }

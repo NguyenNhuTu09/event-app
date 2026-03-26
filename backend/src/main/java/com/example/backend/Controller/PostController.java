@@ -1,5 +1,7 @@
 package com.example.backend.Controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,5 +49,13 @@ public class PostController {
             @RequestParam(defaultValue = "vi") String lang) {
             
         return ResponseEntity.ok(postService.getPostBySlugAndLang(slug, lang));
+    }
+
+    @Operation(summary = "Lấy danh sách bài viết nổi bật")
+    @SecurityRequirements()
+    @GetMapping("/featured")
+    public ResponseEntity<List<PostResponseDTO>> getFeaturedPosts(
+            @RequestParam(defaultValue = "vi") String lang) {
+        return ResponseEntity.ok(postService.getFeaturedPosts(lang));
     }
 }
