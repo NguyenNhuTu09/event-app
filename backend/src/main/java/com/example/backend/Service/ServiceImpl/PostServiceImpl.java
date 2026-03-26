@@ -295,6 +295,7 @@ public class PostServiceImpl {
                 .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
+                .isFeatured(post.isFeatured())
                 .categoryId(categoryId)        // THÊM
                 .categorySlug(categorySlug)    // THÊM
                 .categoryName(categoryName)    // THÊM
