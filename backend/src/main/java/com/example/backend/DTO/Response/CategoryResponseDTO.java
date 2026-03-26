@@ -1,6 +1,7 @@
 package com.example.backend.DTO.Response;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ public class CategoryResponseDTO {
     private String seoDescription;
     private Integer displayOrder;
     private Boolean isActive;
-
+    private Map<String, String> alternateSlugs;
     private List<CategoryResponseDTO> children;
 
     private ParentInfo parent;
@@ -26,6 +27,7 @@ public class CategoryResponseDTO {
     public static class ParentInfo {
         private Long id;
         private String slug;
+        private Map<String, String> alternateSlugs;
         private String name;
     }
 }
