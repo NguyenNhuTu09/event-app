@@ -30,13 +30,13 @@ public class AdminCategoryResponseDTO {
     @Builder
     public static class ParentInfo {
         private Long id;
-        private String slug;
     }
 
     @Data
     @Builder
     public static class TranslationDetail {
         private String name;
+        private String slug; 
         private String seoTitle;
         private String seoDescription;
     }

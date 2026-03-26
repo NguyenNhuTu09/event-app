@@ -27,6 +27,9 @@ public class CategoryTranslation {
     @Column(nullable = false)
     private String name;
 
+    @Column(unique = true)       
+    private String slug;
+
     private String seoTitle;
     private String seoDescription;
 }

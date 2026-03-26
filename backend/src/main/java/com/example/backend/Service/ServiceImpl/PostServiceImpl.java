@@ -242,6 +242,15 @@ public class PostServiceImpl {
     }
 
     private PostResponseDTO mapTranslationToDTO(Post post, PostTranslation translation) {
+        Map<String, String> categoryAlternateSlugs = null;
+        if (post.getCategory() != null && post.getCategory().getTranslations() != null) {
+            categoryAlternateSlugs = post.getCategory().getTranslations().stream()
+                    .filter(t -> t.getSlug() != null)
+                    .collect(Collectors.toMap(
+                        CategoryTranslation::getLanguageCode,
+                        CategoryTranslation::getSlug
+                    ));
+        }
         Map<String, String> alternateSlugs = new HashMap<>();
         if (post.getTranslations() != null) {
             for (PostTranslation pt : post.getTranslations()) {
@@ -256,7 +265,6 @@ public class PostServiceImpl {
         if (post.getCategory() != null) {
             Category category = post.getCategory();
             categoryId = category.getId();
-            categorySlug = category.getSlug();
 
             String lang = translation.getLanguageCode();
             if (category.getTranslations() != null && !category.getTranslations().isEmpty()) {
@@ -268,6 +276,7 @@ public class PostServiceImpl {
                                 .findFirst()
                                 .orElse(category.getTranslations().get(0)));
                 categoryName = catTrans.getName();
+                categorySlug = catTrans.getSlug(); 
             }
         }
         return PostResponseDTO.builder()
@@ -289,6 +298,7 @@ public class PostServiceImpl {
                 .categoryId(categoryId)        // THÊM
                 .categorySlug(categorySlug)    // THÊM
                 .categoryName(categoryName)    // THÊM
+                .categoryAlternateSlugs(categoryAlternateSlugs)
                 .build();
     }
 

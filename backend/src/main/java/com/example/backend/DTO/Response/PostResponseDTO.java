@@ -34,4 +34,5 @@ public class PostResponseDTO {
     private Long categoryId;
     private String categorySlug;
     private String categoryName;
+    private Map<String, String> categoryAlternateSlugs;
 }
