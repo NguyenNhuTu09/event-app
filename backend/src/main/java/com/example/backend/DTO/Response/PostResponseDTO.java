@@ -30,6 +30,7 @@ public class PostResponseDTO {
     private Long viewCount;
     private LocalDateTime createdAt;
 
+    private boolean isFeatured;
     private Long categoryId;
     private String categorySlug;
     private String categoryName;

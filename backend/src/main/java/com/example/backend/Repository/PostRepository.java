@@ -28,7 +28,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Query 2: Load post + category + category.translations (riêng biệt)
     @Query("SELECT DISTINCT p FROM Post p " +
         "LEFT JOIN FETCH p.category c " +
-        "LEFT JOIN FETCH c.translations " +
         "WHERE p.status = :status")
     List<Post> findPublishedWithCategory(@Param("status") PostStatus status);
 
@@ -38,4 +37,30 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         "LEFT JOIN FETCH c.translations " +
         "WHERE p.id = :postId")
     Optional<Post> findByIdWithCategory(@Param("postId") Long postId);
+
+    
+
+    // --- LẤY BÀI VIẾT NỔI BẬT ---
+ 
+    // Query 1: Giữ nguyên, nhớ dùng @Param
+    @Query("SELECT DISTINCT p FROM Post p " +
+           "LEFT JOIN FETCH p.translations t " +
+           "LEFT JOIN FETCH p.author a " +
+           "WHERE p.isFeatured = true " +
+           "AND p.status = :status " +
+           "ORDER BY p.createdAt DESC")
+    List<Post> findFeaturedWithTranslations(@Param("status") PostStatus status);
+ 
+    // Query 2: ĐÃ SỬA LỖI MẤT BÀI VIẾT KHÔNG CÓ CATEGORY
+    @Query("SELECT DISTINCT p FROM Post p " +
+           "LEFT JOIN FETCH p.category c " +
+           "WHERE p.isFeatured = true " +
+           "AND p.status = :status")
+    List<Post> findFeaturedWithCategory(@Param("status") PostStatus status);
+
+    
+ 
+    // Lấy tất cả post đang nổi bật (để reset)
+    List<Post> findAllByIsFeaturedTrue();
 }
+

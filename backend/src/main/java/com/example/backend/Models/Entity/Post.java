@@ -54,4 +54,8 @@ public class Post {
         translations.add(translation);
         translation.setPost(this);
     }
+
+    @Column(name = "is_featured", nullable = false)
+    @Builder.Default
+    private boolean isFeatured = false;
 }

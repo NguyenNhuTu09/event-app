@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.backend.DTO.Request.FeaturedPostRequestDTO;
 import com.example.backend.DTO.Request.PostRequestDTO;
 import com.example.backend.DTO.Response.AdminPostResponseDTO;
 import com.example.backend.DTO.Response.PostResponseDTO;
@@ -48,12 +49,10 @@ public class PostServiceImpl {
     @Transactional
     public Page<PostResponseDTO> getAllPublishedPosts(Pageable pageable, String lang) {
         // Query 1: load post + translations + author
-        List<Post> postsWithTranslations = postRepository
-                .findPublishedWithTranslations(PostStatus.PUBLISHED);
+        List<Post> postsWithTranslations = postRepository.findPublishedWithTranslations(PostStatus.PUBLISHED);
 
         // Query 2: load category + category.translations, map theo id
-        Map<Long, Post> postsWithCategory = postRepository
-                .findPublishedWithCategory(PostStatus.PUBLISHED)
+        Map<Long, Post> postsWithCategory = postRepository.findPublishedWithCategory(PostStatus.PUBLISHED)
                 .stream()
                 .collect(Collectors.toMap(Post::getId, p -> p));
 
@@ -143,6 +142,10 @@ public class PostServiceImpl {
         post.setThumbnailUrl(request.getThumbnailUrl());
         post.setStatus(request.getStatus());
 
+        if (request.getStatus() != null && request.getStatus() != PostStatus.PUBLISHED) {
+            post.setFeatured(false);
+        }
+
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -213,10 +216,19 @@ public class PostServiceImpl {
         return mapToDTO(post, lang);
     }
 
-    // --- MAPPER ---
+    
 
     private PostResponseDTO mapToDTO(Post post, String targetLang) {
-        if (post.getTranslations() == null || post.getTranslations().isEmpty()) return null;
+        if (post.getTranslations() == null || post.getTranslations().isEmpty()) {
+            return PostResponseDTO.builder()
+                    .id(post.getId())
+                    .thumbnailUrl(post.getThumbnailUrl())
+                    .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
+                    .viewCount(post.getViewCount())
+                    .createdAt(post.getCreatedAt())
+                    .title("[No translation]")
+                    .build();
+        }
 
         PostTranslation currentTrans = post.getTranslations().stream()
                 .filter(t -> t.getLanguageCode().equalsIgnoreCase(targetLang))
@@ -324,4 +336,108 @@ public class PostServiceImpl {
         }
         return slug;
     }
+
+    @Transactional
+    public List<PostResponseDTO> getFeaturedPosts(String lang) {
+        List<Post> postsWithTranslations = postRepository.findFeaturedWithTranslations(PostStatus.PUBLISHED);
+
+
+        System.out.println(">>> Featured posts count: " + postsWithTranslations.size());
+        postsWithTranslations.forEach(p -> {
+            System.out.println(">>> Post id=" + p.getId()
+                + " | isFeatured=" + p.isFeatured()
+                + " | translations size=" + (p.getTranslations() != null ? p.getTranslations().size() : "NULL")
+                + " | author=" + (p.getAuthor() != null ? p.getAuthor().getUsername() : "NULL"));
+        });
+
+        if (postsWithTranslations.isEmpty()) return List.of();
+
+        Map<Long, Post> postsWithCategory = postRepository.findFeaturedWithCategory(PostStatus.PUBLISHED)
+                .stream()
+                .collect(Collectors.toMap(Post::getId, p -> p));
+
+        
+
+        postsWithTranslations.forEach(post -> {
+            Post postWithCat = postsWithCategory.get(post.getId());
+            if (postWithCat != null) {
+                post.setCategory(postWithCat.getCategory());
+            }
+            // LOG sau khi gộp category
+            System.out.println(">>> Post id=" + post.getId()
+                + " | category=" + (post.getCategory() != null ? post.getCategory().getId() : "NULL"));
+        });
+
+        List<PostResponseDTO> result = postsWithTranslations.stream()
+                .map(post -> {
+                    PostResponseDTO dto = mapToDTO(post, lang);
+                    // LOG kết quả map
+                    System.out.println(">>> mapToDTO post id=" + post.getId()
+                        + " | result=" + (dto != null ? "OK - title: " + dto.getTitle() : "NULL"));
+                    return dto;
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+
+        System.out.println(">>> Final result size: " + result.size());
+        return result;
+    }
+
+    // Set danh sách bài viết nổi bật (Admin)
+    @Transactional
+    public List<PostResponseDTO> updateFeaturedPosts(FeaturedPostRequestDTO request) {
+        if (request.getPostIds() == null || request.getPostIds().isEmpty()) {
+            // Reset tất cả về không nổi bật
+            List<Post> currentFeatured = postRepository.findAllByIsFeaturedTrue();
+            currentFeatured.forEach(p -> p.setFeatured(false));
+            postRepository.saveAll(currentFeatured);
+            return List.of();
+        }
+
+        // Bỏ nổi bật tất cả post hiện tại
+        List<Post> currentFeatured = postRepository.findAllByIsFeaturedTrue();
+        currentFeatured.forEach(p -> p.setFeatured(false));
+        postRepository.saveAll(currentFeatured);
+
+        // Set nổi bật cho danh sách mới
+        List<Post> newFeatured = postRepository.findAllById(request.getPostIds());
+
+        if (newFeatured.size() != request.getPostIds().size()) {
+            throw new ResourceNotFoundException("Một hoặc nhiều ID bài viết không tồn tại");
+        }
+
+        newFeatured.forEach(post -> {
+            if (post.getStatus() != PostStatus.PUBLISHED) {
+                throw new IllegalArgumentException(
+                    "Bài viết \"" + post.getId() + "\" chưa được publish, không thể set nổi bật");
+            }
+            post.setFeatured(true);
+        });
+
+        postRepository.saveAll(newFeatured);
+
+        return getFeaturedPosts("vi");
+    }
+
+
+    @Transactional
+    public Map<String, Object> removeFeaturedPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bài viết không tồn tại với ID: " + postId));
+
+        if (!post.isFeatured()) {
+            throw new IllegalArgumentException("Bài viết ID " + postId + " không nằm trong danh sách nổi bật");
+        }
+
+        post.setFeatured(false);
+        postRepository.save(post);
+
+        return Map.of(
+            "success", true,
+            "message", "Đã xóa bài viết ID " + postId + " khỏi danh sách nổi bật"
+        );
+    }
 }
+
+
+
