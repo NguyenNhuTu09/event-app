@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>[KHẨN] Báo cáo CSAE</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 2px solid #a94442; border-radius: 8px; overflow: hidden; }
+        .header { padding: 25px; text-align: center; background-color: #a94442; }
+        .header h2 { color: #fff; margin: 0; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; }
+        .content { padding: 30px; color: #cccccc; line-height: 1.6; }
+
+        .warning {
+            background-color: #2c1e1e;
+            border-left: 4px solid #a94442;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .info-table td { padding: 10px 0; border-bottom: 1px solid #333; color: #fff; vertical-align: top; font-family: 'Courier New', monospace; }
+        .info-table td:first-child { width: 150px; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-family: Arial, sans-serif; }
+
+        .checklist { background-color: #222; padding: 20px; border-radius: 4px; margin-top: 25px; }
+        .checklist-title { color: #d4af37; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: block; }
+        .checklist ol { margin: 0; padding-left: 20px; color: #ccc; font-size: 14px; }
+        .checklist li { margin-bottom: 8px; }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Báo cáo CSAE — Xử lý ngay</h2>
+        </div>
+        <div class="content">
+            <div class="warning">
+                Một bài đăng vừa bị báo cáo với lý do CSAE (Child Sexual Abuse and
+                Exploitation). Bài đã được tự động ẩn khỏi feed công khai.
+            </div>
+
+            <table class="info-table">
+                <tr>
+                    <td>Moment ID</td>
+                    <td th:text="${momentId}">123</td>
+                </tr>
+                <tr>
+                    <td>Event ID</td>
+                    <td th:text="${eventId}">1</td>
+                </tr>
+                <tr>
+                    <td>Người đăng (ID)</td>
+                    <td th:text="${ownerId}">45</td>
+                </tr>
+                <tr>
+                    <td>Người báo cáo (ID)</td>
+                    <td th:text="${reporterId}">67</td>
+                </tr>
+                <tr>
+                    <td>Thời điểm</td>
+                    <td th:text="${reportedAt}">12:00 20/01/2026</td>
+                </tr>
+                <tr>
+                    <td>Ảnh</td>
+                    <td><a th:href="${imageUrl}" th:text="${imageUrl}" style="color:#d4af37; word-break: break-all;">url</a></td>
+                </tr>
+            </table>
+
+            <div class="checklist">
+                <span class="checklist-title">Việc cần làm</span>
+                <ol>
+                    <li>Xem xét nội dung ngay, không chờ hết 24 giờ như báo cáo thường.</li>
+                    <li>Nếu xác nhận vi phạm: gọi <code>POST /api/admin/moments/{id}/remove</code>
+                        và <code>POST /api/admin/users/{id}/suspend</code>.</li>
+                    <li>Lưu lại bằng chứng trước khi gỡ.</li>
+                    <li>Báo cáo cho cơ quan chức năng theo quy định pháp luật hiện hành.</li>
+                    <li>Nếu là báo cáo sai: gọi <code>POST /api/admin/moments/{id}/restore</code>.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Webie Event Management System — Cảnh báo tự động</p>
+        </div>
+    </div>
+</body>
+</html>

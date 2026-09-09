@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạm khoá quyền đăng nội dung - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { padding: 30px; text-align: center; background-color: #000; border-bottom: 2px solid #b8860b; }
+        .logo { max-width: 120px; height: auto; }
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+
+        .until-box {
+            background-color: #222;
+            border: 1px solid #b8860b;
+            border-radius: 4px;
+            padding: 25px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        .until-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        .until-value { font-size: 20px; color: #d4af37; font-weight: bold; font-family: 'Georgia', serif; }
+
+        .reason-section { background-color: #222; padding: 15px; border-radius: 4px; margin-top: 20px; }
+        .reason-label { color: #888; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .reason-text { color: #fff; }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}" style="color: #fff;">User</strong>,</p>
+
+            <p>Quyền đăng khoảnh khắc của bạn đã bị tạm khoá do vi phạm Quy tắc cộng đồng.
+               Các chức năng khác của tài khoản không bị ảnh hưởng — bạn vẫn đăng ký và
+               tham dự sự kiện bình thường.</p>
+
+            <div class="until-box">
+                <span class="until-label">Được đăng bài trở lại từ</span>
+                <span class="until-value" th:text="${until}">12:00 20/01/2026</span>
+            </div>
+
+            <div class="reason-section">
+                <span class="reason-label">Lý do</span>
+                <span class="reason-text" th:text="${reason}">Vi phạm Quy tắc cộng đồng.</span>
+            </div>
+
+            <p style="font-size: 13px; color: #888; margin-top: 25px;">
+                Nếu bạn cho rằng đây là nhầm lẫn, hãy phản hồi email này để chúng tôi xem xét lại.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Event Management System</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,10 +29,12 @@ import com.example.backend.Repository.EventAttendeesRepository;
 import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
+import com.example.backend.Utils.AuthProvider;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.EventStatus;
 import com.example.backend.Utils.EventVisibility;
 import com.example.backend.Utils.RegistrationStatus;
+import com.example.backend.Utils.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
@@ -39,6 +42,7 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional 
+@ActiveProfiles("test")
 public class CheckInIntegrationTest {
 
     @Autowired private MockMvc mockMvc; 
@@ -65,12 +69,15 @@ public class CheckInIntegrationTest {
         orgUser.setEmail(ORG_EMAIL);
         orgUser.setUsername("Org Test");
         orgUser.setPassword("pass");
+        orgUser.setProvider(AuthProvider.LOCAL);
+        orgUser.setRole(Role.ORGANIZER);
         orgUser = userRepository.save(orgUser);
 
         Organizers organizer = new Organizers();
         organizer.setUser(orgUser);
         organizer.setName("Test Org");
         organizer.setApproved(true);
+        organizer.setSlug("test-org-slug");
         organizer = organizersRepository.save(organizer);
 
         // 2. Tạo User tham gia
@@ -78,6 +85,8 @@ public class CheckInIntegrationTest {
         attendeeUser.setEmail(USER_EMAIL);
         attendeeUser.setUsername("User Test");
         attendeeUser.setPassword("pass");
+        attendeeUser.setProvider(AuthProvider.LOCAL);
+        attendeeUser.setRole(Role.USER);
         attendeeUser = userRepository.save(attendeeUser);
 
         // 3. Tạo Event
@@ -123,7 +132,7 @@ public class CheckInIntegrationTest {
 
     // --- TEST CASE 1: ORGANIZER CHECK-IN USER ---
     @Test
-    @WithMockUser(username = ORG_EMAIL, authorities = {"ORGANIZER"}) // Giả lập đang đăng nhập là Organizer
+    @WithMockUser(username = ORG_EMAIL, authorities = {"ORGANIZER"}) 
     public void testOrganizerCheckInSuccess() throws Exception {
         // Tạo JSON Body
         String jsonBody = "{\"ticketCode\": \"" + testTicketCode + "\"}";
@@ -133,11 +142,11 @@ public class CheckInIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonBody))
                 // Kiểm tra kết quả mong đợi
-                .andExpect(status().isOk()) // Mong đợi HTTP 200
-                .andExpect(jsonPath("$.email").value(USER_EMAIL)) // Mong đợi trả về đúng email user
-                .andExpect(jsonPath("$.eventCheckInStatus").value("CHECKED_IN")); // Mong đợi trạng thái đổi thành CHECKED_IN
+                .andExpect(status().isOk()) 
+                // CẢ HAI dòng này đều phải có $.attendee. ở phía trước
+                .andExpect(jsonPath("$.attendee.email").value(USER_EMAIL)) 
+                .andExpect(jsonPath("$.attendee.eventCheckInStatus").value("CHECKED_IN"));
     }
-
     // --- TEST CASE 2: USER TỰ CHECK-IN ACTIVITY ---
     @Test
     @WithMockUser(username = USER_EMAIL, authorities = {"USER"}) // Giả lập đang đăng nhập là User
