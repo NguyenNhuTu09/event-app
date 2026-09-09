@@ -63,7 +63,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/forgot-password").permitAll()
                 .requestMatchers("/api/users/reset-password").permitAll()
                 .requestMatchers("/api/users/verify").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // .requestMatchers("/scalar/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/scalar",
+                    "/scalar.html",
+                    "/scalar/**",
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/webjars/**"
+                ).permitAll()
                 .requestMatchers("/api/events/public").permitAll()
                 .requestMatchers("/api/events/{slug}").permitAll()
                 .requestMatchers("/api/events/featured").permitAll()

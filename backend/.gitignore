@@ -45,3 +45,5 @@ build/
 *.secret
 secrets/
 config/*.secret.json
+
+application-test.properties

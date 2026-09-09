@@ -24,7 +24,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         "WHERE p.status = :status " +
         "ORDER BY p.createdAt DESC")
     List<Post> findPublishedWithTranslations(@Param("status") PostStatus status);
-
+    
     // Query 2: Load post + category + category.translations (riêng biệt)
     @Query("SELECT DISTINCT p FROM Post p " +
         "LEFT JOIN FETCH p.category c " +

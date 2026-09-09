@@ -37,21 +37,21 @@ public class User {
     private String username;
 
     @Column(nullable = true, unique = true)
-    private String password; 
-    
+    private String password;
+
     @Column(nullable = false, unique = true)
     private String email;
-    
+
     @Column(name = "is_enabled", nullable = false)
     private boolean isEnabled = true;
 
     private String address;
-    
+
     @Enumerated(EnumType.STRING)
-    private Gender gender; 
-    
+    private Gender gender;
+
     private LocalDate dateOfBirth;
-    
+
     private String phoneNumber;
 
     private String avatarUrl;
@@ -60,9 +60,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;  
+    private Role role;
 
-    @Enumerated(EnumType.STRING) 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuthProvider provider;
 
@@ -85,12 +85,37 @@ public class User {
     private String verificationCode;
 
     @Column(name = "is_subscribed_news")
-    private boolean isSubscribedNews = false;   
+    private boolean isSubscribedNews = false;
+
+    // =================================================================
+    // Kiểm duyệt nội dung do người dùng đăng (UGC)
+    // Cột đã được tạo sẵn ở migration V2__moderation.sql
+    // =================================================================
+
+    /**
+     * Thời điểm hết hạn cấm đăng khoảnh khắc. NULL = không bị cấm.
+     * Đặt bởi POST /api/admin/users/{userId}/suspend.
+     */
+    @Column(name = "moment_suspended_until")
+    private LocalDateTime momentSuspendedUntil;
+
+    /** Phiên bản Quy tắc cộng đồng người dùng đã đồng ý (dùng ở bước 6). */
+    @Column(name = "content_policy_accepted_version", length = 20)
+    private String contentPolicyAcceptedVersion;
+
+    /** Thời điểm đồng ý Quy tắc cộng đồng (dùng ở bước 6). */
+    @Column(name = "content_policy_accepted_at")
+    private LocalDateTime contentPolicyAcceptedAt;
 
     @PrePersist
     protected void onCreate() {
         if (this.uid == null) {
             this.uid = UUID.randomUUID().toString();
         }
+    }
+
+    /** Tiện ích: user có đang bị cấm đăng bài tại thời điểm này không. */
+    public boolean isMomentSuspended() {
+        return momentSuspendedUntil != null && momentSuspendedUntil.isAfter(LocalDateTime.now());
     }
 }

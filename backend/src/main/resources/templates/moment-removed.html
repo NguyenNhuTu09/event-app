@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bài đăng đã bị gỡ - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { padding: 30px; text-align: center; background-color: #000; border-bottom: 2px solid #a94442; }
+        .logo { max-width: 120px; height: auto; }
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+
+        .alert-box {
+            background-color: #2c1e1e;
+            border: 1px solid #a94442;
+            color: #d9534f;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .post-card {
+            background-color: #222;
+            border-left: 3px solid #a94442;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .post-meta { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+        .post-caption { color: #fff; font-style: italic; }
+
+        .reason-section { margin-top: 20px; background-color: #222; padding: 15px; border-radius: 4px; }
+        .reason-label { color: #888; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .reason-text { color: #fff; }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 12px; }
+        .footer a { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}" style="color: #fff;">User</strong>,</p>
+
+            <div class="alert-box">BÀI ĐĂNG ĐÃ BỊ GỠ</div>
+
+            <p>Một bài đăng của bạn tại sự kiện
+               <strong th:text="${eventName}" style="color:#fff;">Tên sự kiện</strong>
+               đã được đội ngũ kiểm duyệt xem xét và gỡ khỏi hệ thống.</p>
+
+            <div class="post-card" th:if="${caption != null and !caption.isEmpty()}">
+                <span class="post-meta">Nội dung bài đăng</span>
+                <span class="post-caption" th:text="${caption}">Nội dung caption</span>
+            </div>
+
+            <div class="reason-section">
+                <span class="reason-label">Lý do</span>
+                <span class="reason-text" th:text="${note}">Vi phạm Quy tắc cộng đồng.</span>
+            </div>
+
+            <p style="font-size: 13px; color: #888; margin-top: 25px;">
+                Thời điểm xử lý: <span th:text="${removedAt}">12:00 20/01/2026</span>
+            </p>
+
+            <p style="font-size: 13px; color: #888;">
+                Nếu bạn cho rằng đây là nhầm lẫn, hãy phản hồi email này để chúng tôi
+                xem xét lại. Việc tiếp tục đăng nội dung vi phạm có thể dẫn đến tạm khoá
+                quyền đăng bài.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Event Management System</p>
+        </div>
+    </div>
+</body>
+</html>
