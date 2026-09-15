@@ -38,6 +38,13 @@ public class AdminReportResponseDTO {
 
     // --- Nội dung bị báo cáo ---
     private Long eventId;
+
+    /**
+     * Tên sự kiện, cho màn hình admin khỏi phải tra thêm.
+     * Có thể null nếu sự kiện đã bị xoá khỏi hệ thống.
+     */
+    private String eventName;
+
     private Long momentId;
     private MomentStatus momentStatus;
     private String momentImageUrl;

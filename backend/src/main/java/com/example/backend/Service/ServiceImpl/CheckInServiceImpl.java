@@ -10,6 +10,7 @@ import com.example.backend.DTO.Response.ActivityResponseDTO;
 import com.example.backend.DTO.Response.EventAttendeeResponseDTO;
 import com.example.backend.DTO.Response.EventCheckInResultDTO;
 import com.example.backend.DTO.Response.EventResponseDTO;
+import com.example.backend.Exception.ForbiddenException;
 import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.Models.Entity.Activity;
 import com.example.backend.Models.Entity.ActivityAttendees;
@@ -24,6 +25,7 @@ import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.ActivityService;
 import com.example.backend.Service.Interface.CheckInService;
 import com.example.backend.Service.Interface.EventService;
+import com.example.backend.Utils.AppTime;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.RegistrationStatus;
 
@@ -64,7 +66,7 @@ public class CheckInServiceImpl implements CheckInService {
 
         Organizers currentOrganizer = getCurrentOrganizer();
         if (!ticket.getEvent().getOrganizer().getOrganizerId().equals(currentOrganizer.getOrganizerId())) {
-            throw new RuntimeException("Bạn không có quyền check-in cho sự kiện này.");
+            throw new ForbiddenException("Bạn không có quyền check-in cho sự kiện này.");
         }
 
         if (ticket.getStatus() != RegistrationStatus.APPROVED) {
@@ -100,7 +102,7 @@ public class CheckInServiceImpl implements CheckInService {
         Activity activity = activityRepository.findByActivityQrCode(activityQrCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Mã hoạt động không hợp lệ."));
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         if (now.isBefore(activity.getStartTime().minusMinutes(15))) {
             throw new IllegalArgumentException("Chưa đến giờ điểm danh cho hoạt động này.");
         }

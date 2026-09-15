@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.backend.Models.Entity.EventAttendees;
 import com.example.backend.Repository.EventAttendeesRepository;
 import com.example.backend.Service.EmailService;
+import com.example.backend.Utils.AppTime;
 import com.example.backend.Utils.RegistrationStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,21 @@ public class EventReminderScheduler {
     private final EventAttendeesRepository eventAttendeesRepository;
     private final EmailService emailService;
 
-    @Scheduled(cron = "0 0 7 * * *") 
+    /**
+     * Chạy 7h sáng giờ Việt Nam.
+     *
+     * Thiếu thuộc tính zone thì cron chạy theo múi giờ JVM — hiện là UTC, nên
+     * job vốn bắn lúc 14h chiều giờ VN chứ không phải 7h sáng.
+     */
+    @Scheduled(cron = "0 0 7 * * *", zone = "Asia/Ho_Chi_Minh")
     @Transactional // Quan trọng: Giữ kết nối DB để lấy thông tin Lazy loading (User, Event)
     public void scanAndSendEventReminders() {
         System.out.println(">>> Bắt đầu Job quét sự kiện ngày mai...");
 
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        // AppTime: khoảng thời gian này được đem so với event.startDate, mà
+        // startDate là giờ VN do organizer nhập. Dùng LocalDate.now() sẽ lấy
+        // ngày theo lịch UTC — lệch ngày trong khoảng 00:00-07:00 giờ VN.
+        LocalDate tomorrow = AppTime.today().plusDays(1);
         LocalDateTime startOfDay = tomorrow.atStartOfDay(); // 00:00:00 ngày mai
         LocalDateTime endOfDay = tomorrow.atTime(LocalTime.MAX); // 23:59:59.999 ngày mai
 

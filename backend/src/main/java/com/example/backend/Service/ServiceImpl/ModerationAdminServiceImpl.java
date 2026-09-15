@@ -2,6 +2,12 @@ package com.example.backend.Service.ServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,10 +17,12 @@ import org.springframework.stereotype.Service;
 
 import com.example.backend.DTO.Response.AdminReportResponseDTO;
 import com.example.backend.Exception.ResourceNotFoundException;
+import com.example.backend.Models.Entity.Event;
 import com.example.backend.Models.Entity.EventMoment;
 import com.example.backend.Models.Entity.MomentReport;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.EventMomentRepository;
+import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.MomentReportRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.Interface.ModerationAdminService;
@@ -34,6 +42,7 @@ public class ModerationAdminServiceImpl implements ModerationAdminService {
     private final MomentReportRepository reportRepository;
     private final EventMomentRepository momentRepository;
     private final UserRepository userRepository;
+    private final EventRepository eventRepository;
     private final ModerationEmailService moderationEmailService;
 
     /** Dùng nhờ hai tiện ích công khai: toDTO() và publishMomentEvent(). */
@@ -49,10 +58,36 @@ public class ModerationAdminServiceImpl implements ModerationAdminService {
                 ? reportRepository.findAllForAdmin(pageable)
                 : reportRepository.findByStatusForAdmin(status, pageable);
 
-        return reports.map(this::mapToAdminDTO);
+        // Nạp tên sự kiện cho cả trang bằng MỘT query, thay vì mỗi dòng một lần.
+        Map<Long, String> eventNames = loadEventNames(reports.getContent());
+
+        return reports.map(r -> mapToAdminDTO(r, eventNames));
     }
 
-    private AdminReportResponseDTO mapToAdminDTO(MomentReport r) {
+    /**
+     * Gom eventId của cả trang rồi tra một lượt.
+     *
+     * Không dùng moment.getEvent().getEventName() được, vì với báo cáo có moment
+     * đã bị xoá thì quan hệ đó là null — chỉ còn eventId trong bản snapshot.
+     */
+    private Map<Long, String> loadEventNames(List<MomentReport> reports) {
+        Set<Long> eventIds = reports.stream()
+                .map(MomentReport::getEventId)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (eventIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<Long, String> names = new HashMap<>();
+        for (Event e : eventRepository.findAllById(eventIds)) {
+            names.put(e.getEventId(), e.getEventName());
+        }
+        return names;
+    }
+
+    private AdminReportResponseDTO mapToAdminDTO(MomentReport r, Map<Long, String> eventNames) {
         EventMoment moment = r.getMoment();
         boolean deleted = (moment == null);
 
@@ -99,6 +134,7 @@ public class ModerationAdminServiceImpl implements ModerationAdminService {
                 .resolvedByUsername(r.getResolvedBy() != null ? r.getResolvedBy().getUsername() : null)
                 .hoursPending(hoursPending)
                 .eventId(r.getEventId())
+                .eventName(r.getEventId() == null ? null : eventNames.get(r.getEventId()))
                 .momentId(deleted ? null : moment.getId())
                 .momentStatus(deleted ? null : moment.getStatus())
                 .momentImageUrl(imageUrl)

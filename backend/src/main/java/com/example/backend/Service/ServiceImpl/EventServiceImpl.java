@@ -32,6 +32,7 @@ import com.example.backend.Repository.OrganizersRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.EmailService;
 import com.example.backend.Service.Interface.EventService;
+import com.example.backend.Utils.AppTime;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.EditRequestStatus;
 import com.example.backend.Utils.EventStatus;
@@ -42,6 +43,18 @@ import com.github.slugify.Slugify;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * GHI CHÚ VỀ MÚI GIỜ
+ * ==================
+ * startDate / endDate / registrationDeadline là giờ Việt Nam (organizer nhập,
+ * client gửi thẳng con số không quy đổi). JVM đang chạy UTC nên
+ * LocalDateTime.now() lùi 7 tiếng so với chúng.
+ *
+ * Vì vậy mọi phép so sánh với ba trường đó đều dùng AppTime.now().
+ *
+ * Ngược lại createdAt và registeredAt do server tự sinh, đang là giờ UTC —
+ * giữ nguyên LocalDateTime.now() để không tạo lệch mới trong dữ liệu.
+ */
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -108,7 +121,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Thời gian bắt đầu phải trước thời gian kết thúc.");
         }
 
-        if (requestDTO.getStartDate().isBefore(LocalDateTime.now())) {
+        // AppTime: startDate là giờ VN do organizer nhập
+        if (requestDTO.getStartDate().isBefore(AppTime.now())) {
             throw new IllegalArgumentException("Thời gian bắt đầu phải ở tương lai.");
         }
 
@@ -116,8 +130,9 @@ public class EventServiceImpl implements EventService {
             if (requestDTO.getRegistrationDeadline().isAfter(requestDTO.getStartDate())) {
                 throw new IllegalArgumentException("Deadline đăng ký phải trước hoặc bằng thời gian bắt đầu sự kiện.");
             }
-            
-            if (requestDTO.getRegistrationDeadline().isBefore(LocalDateTime.now())) {
+
+            // AppTime: registrationDeadline là giờ VN do organizer nhập
+            if (requestDTO.getRegistrationDeadline().isBefore(AppTime.now())) {
                 throw new IllegalArgumentException("Deadline đăng ký phải ở tương lai.");
             }
         }
@@ -145,6 +160,8 @@ public class EventServiceImpl implements EventService {
         event.setBannerImageUrl(requestDTO.getBannerImageUrl());
         event.setRegistrationDeadline(requestDTO.getRegistrationDeadline());
         event.setVisibility(requestDTO.getVisibility() != null ? requestDTO.getVisibility() : EventVisibility.PUBLIC);
+        // GIỮ NGUYÊN: createdAt do server sinh, so với sevenDaysAgo cũng do
+        // server sinh. Cả hai cùng hệ UTC.
         event.setCreatedAt(LocalDateTime.now());
         event.setStatus(EventStatus.DRAFT); 
         event.setEditLocked(false); 
@@ -245,7 +262,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventResponseDTO> getPublicEvents() {
         List<Event> events = eventRepository.findByStatusAndVisibility(EventStatus.PUBLISHED, EventVisibility.PUBLIC);
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
         
         return events.stream()
                 .filter(event -> event.getEndDate().isAfter(now)) // Lọc bỏ sự kiện đã qua
@@ -369,7 +387,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Sự kiện chưa được công bố.");
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate và registrationDeadline, đều là giờ VN
+        LocalDateTime now = AppTime.now();
 
         
         if (now.isAfter(event.getEndDate())) {
@@ -564,7 +583,8 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findByIsFeaturedTrueAndStatusAndVisibility(
                 EventStatus.PUBLISHED, EventVisibility.PUBLIC);
 
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
 
         return events.stream()
                 .filter(event -> event.getEndDate().isAfter(now)) 
@@ -587,7 +607,8 @@ public class EventServiceImpl implements EventService {
 
         List<Event> newFeatured = eventRepository.findAllById(eventIds);
 
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
         
         if (newFeatured.size() != eventIds.size()) {
             throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
@@ -614,7 +635,8 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findByIsUpcomingTrueAndStatusAndVisibility(
                 EventStatus.PUBLISHED, EventVisibility.PUBLIC);
 
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
 
         return events.stream()
                 .filter(event -> event.getEndDate().isAfter(now)) 
@@ -642,7 +664,8 @@ public class EventServiceImpl implements EventService {
             throw new ResourceNotFoundException("Một hoặc nhiều ID sự kiện không tồn tại.");
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
 
         for (Event event : newUpcoming) {
             if (event.getStatus() != EventStatus.PUBLISHED) {
@@ -689,7 +712,9 @@ public class EventServiceImpl implements EventService {
                 organizerEmail,
                 organizerName,
                 savedEvent.getEventName(),
-                java.time.LocalDateTime.now()
+                // AppTime: mốc này chỉ để hiển thị trong email cho organizer đọc,
+                // nên phải là giờ VN chứ không phải giờ UTC của JVM.
+                AppTime.now()
             );
         } catch (Exception e) {
             System.err.println("Lỗi gửi email chờ duyệt: " + e.getMessage());
@@ -749,7 +774,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Vé của bạn đã bị từ chối, không thể đăng ký thêm hoạt động.");
         }
         
-        LocalDateTime now = LocalDateTime.now();
+        // AppTime: so với endDate là giờ VN
+        LocalDateTime now = AppTime.now();
         if (event.getEndDate().isBefore(now)) {
             throw new IllegalArgumentException("Sự kiện đã kết thúc.");
         }
@@ -781,7 +807,9 @@ public class EventServiceImpl implements EventService {
                 newActAttendee.setEventAttendee(registration);
                 newActAttendee.setActivity(activity);
                 newActAttendee.setActCheckInStatus(CheckInStatus.NOT_CHECKED_IN);
-                newActAttendee.setRegisteredAt(LocalDateTime.now()); // Set thời gian đăng ký
+                // GIỮ NGUYÊN: registeredAt do server sinh, cùng hệ UTC với
+                // registrationDate của các bản ghi đăng ký khác.
+                newActAttendee.setRegisteredAt(LocalDateTime.now());
 
                 if (registration.getEventCheckInStatus() == CheckInStatus.CHECKED_IN) {
                     newActAttendee.setStatus(RegistrationStatus.APPROVED);
@@ -858,7 +886,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Chỉ có thể gửi yêu cầu chỉnh sửa cho sự kiện ĐÃ CÔNG BỐ.");
         }
 
-        if (LocalDateTime.now().isAfter(event.getStartDate())) {
+        // AppTime: so với startDate là giờ VN
+        if (AppTime.now().isAfter(event.getStartDate())) {
             throw new IllegalArgumentException("Sự kiện đã hoặc đang diễn ra, không thể yêu cầu chỉnh sửa.");
         }
 
