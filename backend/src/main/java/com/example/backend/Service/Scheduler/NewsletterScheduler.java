@@ -23,11 +23,21 @@ public class NewsletterScheduler {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    @Scheduled(cron = "0 0 8 * * MON") 
+    /**
+     * Chạy 8h sáng thứ Hai giờ Việt Nam.
+     *
+     * Thiếu thuộc tính zone thì cron chạy theo múi giờ JVM — hiện là UTC, nên
+     * job vốn bắn lúc 15h chiều thứ Hai giờ VN.
+     */
+    @Scheduled(cron = "0 0 8 * * MON", zone = "Asia/Ho_Chi_Minh")
     @Transactional
     public void sendWeeklyDigest() {
         System.out.println(">>> Bắt đầu Job gửi Newsletter hàng tuần...");
 
+        // GIỮ NGUYÊN LocalDateTime.now(): mốc này được đem so với e.createdAt
+        // trong findNewAndOpenEvents, mà createdAt do server sinh ra nên cũng
+        // đang là giờ UTC. Hai vế cùng hệ. Đổi sang AppTime.now() sẽ làm cửa
+        // sổ 7 ngày bị xê dịch.
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
         List<Event> newEvents = eventRepository.findNewAndOpenEvents(sevenDaysAgo);

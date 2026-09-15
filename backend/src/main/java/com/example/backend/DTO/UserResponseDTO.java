@@ -15,6 +15,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseDTO {
+
+    /**
+     * Khoá chính dạng số.
+     *
+     * Client cần trường này để biết bài viết nào là của chính mình:
+     * MomentResponseDTO.userId là số, trong khi trước đây /users/me chỉ trả uid
+     * dạng UUID nên không đối chiếu được. Hệ quả là app hiện nút "Báo cáo" trên
+     * bài của chính người dùng, và chủ bài không nhận ra bài UNDER_REVIEW của
+     * mình — vi phạm đúng hành vi Google yêu cầu.
+     *
+     * uid vẫn giữ nguyên cho các endpoint quản trị đang dùng nó.
+     */
+    private Long id;
+
     private String uid;
     private String username;
     private String email;
@@ -37,14 +51,13 @@ public class UserResponseDTO {
      *
      * AuthService đang gọi new UserResponseDTO(uid, username, email, address,
      * gender, dateOfBirth, phoneNumber, avatarUrl, role) ở vài chỗ. Nếu chỉ
-     * thêm field mới thì @AllArgsConstructor sẽ sinh constructor 10 tham số và
+     * thêm field mới thì @AllArgsConstructor sẽ sinh constructor 11 tham số và
      * toàn bộ những lời gọi đó vỡ. Giữ overload này để không phải sửa
      * AuthService.
      *
-     * Payload đăng nhập vì vậy sẽ có contentPolicyAcceptedVersion = null.
-     * Không sao: client lấy giá trị thật từ GET /api/users/me. Nếu muốn trả
-     * luôn trong lúc đăng nhập thì chuyển các lời gọi trong AuthService sang
-     * dùng builder.
+     * Payload đăng nhập vì vậy có id = null và contentPolicyAcceptedVersion =
+     * null. Frontend đã xác nhận không cần hai trường này lúc đăng nhập, họ lấy
+     * từ GET /users/me.
      */
     public UserResponseDTO(String uid, String username, String email, String address,
                            Gender gender, LocalDate dateOfBirth, String phoneNumber,

@@ -28,6 +28,7 @@ import com.example.backend.Repository.EventRepository;
 import com.example.backend.Repository.MomentReportRepository;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.ModerationEmailService;
+import com.example.backend.Utils.AppTime;
 import com.example.backend.Utils.CheckInStatus;
 import com.example.backend.Utils.MomentStatus;
 import com.example.backend.Utils.ReportReason;
@@ -38,6 +39,20 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * GHI CHÚ VỀ MÚI GIỜ
+ * ==================
+ * File này có CẢ HAI loại thời gian, đọc kỹ trước khi sửa:
+ *
+ *   - event.endDate là giờ Việt Nam (organizer nhập)
+ *     -> mọi phép so sánh với nó dùng AppTime.now()
+ *
+ *   - moment.postedAt là giờ UTC (server sinh qua @PrePersist, JVM chạy UTC)
+ *     -> calculateTimeAgo() giữ nguyên LocalDateTime.now()
+ *
+ * Đổi calculateTimeAgo() sang AppTime.now() sẽ làm mọi bài hiển thị
+ * "7 giờ trước" — đúng lỗi bên frontend vừa xử lý xong ở client.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -68,7 +83,8 @@ public class EventMomentServiceImpl {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        if (LocalDateTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
+        // AppTime: so với endDate là giờ VN
+        if (AppTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
             throw new IllegalArgumentException("Sự kiện đã kết thúc quá 3 ngày, tính năng này đã đóng.");
         }
 
@@ -82,6 +98,8 @@ public class EventMomentServiceImpl {
         User user = attendee.getUser();
 
         // Chặn người đang bị admin tạm khoá quyền đăng nội dung (§5).
+        // isMomentSuspended() so momentSuspendedUntil (server sinh) với
+        // LocalDateTime.now() — cùng hệ UTC, không đụng vào.
         if (user.isMomentSuspended()) {
             throw new IllegalArgumentException(
                     "Tài khoản của bạn đang bị tạm khoá quyền đăng nội dung đến "
@@ -114,7 +132,8 @@ public class EventMomentServiceImpl {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        if (LocalDateTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
+        // AppTime: so với endDate là giờ VN
+        if (AppTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
             return Page.empty(pageable);
         }
 
@@ -126,7 +145,8 @@ public class EventMomentServiceImpl {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        if (LocalDateTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
+        // AppTime: so với endDate là giờ VN
+        if (AppTime.now().isAfter(event.getEndDate().plusDays(DAYS_TO_KEEP_MOMENTS))) {
             return List.of();
         }
 
@@ -291,10 +311,12 @@ public class EventMomentServiceImpl {
     // JOB DỌN DẸP
     // =================================================================
 
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0 2 * * ?", zone = "Asia/Ho_Chi_Minh")
     @Transactional
     public void cleanupExpiredMoments() {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(DAYS_TO_KEEP_MOMENTS);
+        // AppTime: threshold được đem so với event.endDate trong
+        // findExpiredMoments, mà endDate là giờ VN.
+        LocalDateTime threshold = AppTime.now().minusDays(DAYS_TO_KEEP_MOMENTS);
 
         List<EventMoment> expiredMoments = momentRepository.findExpiredMoments(threshold);
         if (expiredMoments.isEmpty()) {
@@ -346,6 +368,14 @@ public class EventMomentServiceImpl {
                 .build();
     }
 
+    /**
+     * KHÔNG ĐỔI SANG AppTime.now().
+     *
+     * postedAt do @PrePersist sinh bằng LocalDateTime.now(), mà JVM đang chạy
+     * UTC — nên nó là giờ UTC. Hai vế cùng hệ, kết quả đang đúng. Dùng
+     * AppTime.now() ở đây sẽ cộng thêm 7 tiếng vào mọi khoảng thời gian và
+     * bài vừa đăng sẽ hiển thị "7 giờ trước".
+     */
     private String calculateTimeAgo(LocalDateTime postedAt) {
         if (postedAt == null) {
             return "";
