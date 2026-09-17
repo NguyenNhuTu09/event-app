@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tài khoản đã được xoá - Webie Event</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111111; font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .header { padding: 30px; text-align: center; background-color: #000; border-bottom: 2px solid #555; }
+        .logo { max-width: 120px; height: auto; }
+        .content { padding: 40px 30px; color: #cccccc; line-height: 1.6; }
+
+        .status-box { background-color: #222; border: 1px solid #555; border-radius: 4px; padding: 20px; text-align: center; margin: 25px 0; }
+        .status-title { font-size: 18px; color: #fff; font-weight: bold; display: block; margin-bottom: 6px; }
+        .status-time { font-size: 13px; color: #888; }
+
+        .info-section { background-color: #222; padding: 15px 20px; border-radius: 4px; margin-top: 20px; }
+        .info-label { color: #888; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        .info-section ul { margin: 0; padding-left: 18px; color: #ddd; }
+        .info-section li { margin-bottom: 4px; }
+
+        .footer { background-color: #000000; color: #444; text-align: center; padding: 20px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dozs7ggs4/image/upload/v1765964213/LOGO_WEBIE_ENENT-01_s6nfna.png" alt="Webie Logo" class="logo">
+        </div>
+        <div class="content">
+            <p>Xin chào <strong th:text="${username}" style="color: #fff;">User</strong>,</p>
+
+            <p th:if="${!deletedByAdmin}">Theo yêu cầu của bạn, tài khoản Webie Event đã được xoá.
+               Cảm ơn bạn đã đồng hành cùng chúng tôi.</p>
+            <p th:if="${deletedByAdmin}">Tài khoản Webie Event của bạn đã được quản trị viên xoá khỏi hệ thống.</p>
+
+            <div class="status-box">
+                <span class="status-title">Tài khoản đã được xoá</span>
+                <span class="status-time">Thời điểm: <span th:text="${deletedAt}">12:00 20/01/2026</span></span>
+            </div>
+
+            <div class="info-section">
+                <span class="info-label">Đã xoá</span>
+                <ul>
+                    <li>Thông tin cá nhân: email, họ tên, số điện thoại, địa chỉ, ngày sinh, ảnh đại diện.</li>
+                    <li>Các khoảnh khắc bạn đã đăng, danh sách chặn và diễn giả yêu thích.</li>
+                    <li>Vé của các sự kiện chưa kết thúc.</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <span class="info-label">Được giữ lại ở dạng ẩn danh</span>
+                <ul>
+                    <li>Lịch sử tham dự các sự kiện đã kết thúc, phục vụ thống kê của nhà tổ chức.</li>
+                    <li>Hồ sơ báo cáo vi phạm nội dung liên quan đến tài khoản, phục vụ an toàn cộng đồng.</li>
+                </ul>
+            </div>
+
+            <p style="font-size: 13px; color: #888; margin-top: 25px;">
+                Bạn có thể đăng ký tài khoản mới bằng địa chỉ email này bất cứ lúc nào.
+                Nếu bạn không yêu cầu xoá tài khoản, hãy phản hồi email này để chúng tôi hỗ trợ.
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Webie Event Management System</p>
+        </div>
+    </div>
+</body>
+</html>

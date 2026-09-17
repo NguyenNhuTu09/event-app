@@ -107,6 +107,38 @@ public class User {
     @Column(name = "content_policy_accepted_at")
     private LocalDateTime contentPolicyAcceptedAt;
 
+    // =================================================================
+    // Xoá tài khoản (yêu cầu Google Play account deletion)
+    // Cột tạo ở V3__account_deletion.sql
+    //
+    // Xoá = ẩn danh hoá, KHÔNG xoá dòng: event_attendees, moment_reports...
+    // vẫn giữ khoá ngoại tới users. Các cột kiểm duyệt ở trên được giữ
+    // nguyên sau khi xoá vì có giá trị audit và không phải dữ liệu cá nhân.
+    //
+    // Tất cả mốc thời gian dưới đây do server sinh (giờ UTC) -> so sánh bằng
+    // LocalDateTime.now(), KHÔNG dùng AppTime.now().
+    // =================================================================
+
+    /** Thời điểm tài khoản bị xoá. NULL = tài khoản đang hoạt động. */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    /**
+     * BCrypt hash của OTP xác nhận xoá, sinh bằng PasswordEncoder sẵn có.
+     * Không lưu OTP dạng thô: người đọc được DB không tự xoá được tài khoản
+     * của người khác.
+     */
+    @Column(name = "deletion_otp_hash", length = 100)
+    private String deletionOtpHash;
+
+    /** Hạn dùng của OTP xác nhận xoá. */
+    @Column(name = "deletion_otp_expiry")
+    private LocalDateTime deletionOtpExpiry;
+
+    /** Số lần nhập sai OTP của mã hiện tại. Reset về 0 mỗi khi cấp mã mới. */
+    @Column(name = "deletion_otp_attempts", nullable = false)
+    private int deletionOtpAttempts = 0;
+
     @PrePersist
     protected void onCreate() {
         if (this.uid == null) {
@@ -117,5 +149,10 @@ public class User {
     /** Tiện ích: user có đang bị cấm đăng bài tại thời điểm này không. */
     public boolean isMomentSuspended() {
         return momentSuspendedUntil != null && momentSuspendedUntil.isAfter(LocalDateTime.now());
+    }
+
+    /** Tiện ích: tài khoản đã bị xoá (ẩn danh hoá) chưa. */
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

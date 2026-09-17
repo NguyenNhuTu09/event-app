@@ -105,4 +105,37 @@ public interface EventMomentRepository extends JpaRepository<EventMoment, Long> 
     @Modifying
     @Query("DELETE FROM EventMoment m WHERE m.id IN :ids")
     void deleteByIds(@Param("ids") List<Long> ids);
+
+    // =================================================================
+    // XOÁ TÀI KHOẢN
+    // =================================================================
+
+    /**
+     * Dữ liệu tối thiểu để dọn bài của một user:
+     *   - id       -> detachFromMoments + deleteByIds
+     *   - eventId  -> phát WS "DELETE" lên đúng topic sự kiện
+     *   - imageUrl -> xoá file Cloudinary (trừ ảnh đang là bằng chứng báo cáo)
+     */
+    interface MomentCleanupView {
+        Long getId();
+        Long getEventId();
+        String getImageUrl();
+    }
+
+    /**
+     * MỌI bài của user, kể cả UNDER_REVIEW và REMOVED: xoá tài khoản thì xoá
+     * hết, không lọc theo trạng thái kiểm duyệt.
+     *
+     * Trả projection thay vì entity để không phải nạp Event (LAZY) cho từng
+     * dòng chỉ để lấy eventId.
+     *
+     * Kết quả có thể rỗng: service phải kiểm tra trước khi truyền danh sách id
+     * vào detachFromMoments / deleteByIds (mệnh đề IN rỗng sinh SQL không hợp lệ).
+     */
+    @Query("""
+            SELECT m.id AS id, m.event.eventId AS eventId, m.imageUrl AS imageUrl
+              FROM EventMoment m
+             WHERE m.user.id = :userId
+            """)
+    List<MomentCleanupView> findCleanupViewsByUserId(@Param("userId") Long userId);
 }

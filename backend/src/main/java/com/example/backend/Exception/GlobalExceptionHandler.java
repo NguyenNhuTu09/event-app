@@ -4,14 +4,19 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend.DTO.Response.ErrorResponse;
 
@@ -72,6 +77,29 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+        // Exception tự khai báo HTTP status bằng @ResponseStatus
+        // (DuplicateReportException -> 409, ForbiddenException -> 403, ...).
+        //
+        // Spring luôn chạy @ExceptionHandler TRƯỚC cơ chế đọc @ResponseStatus,
+        // nên handler Exception.class này từng nuốt hết và trả 500 cho mọi
+        // exception loại đó. findMergedAnnotation bắt được cả annotation đặt
+        // ở lớp cha.
+        ResponseStatus declared = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
+        if (declared != null) {
+            HttpStatus status = declared.code();
+            String message = StringUtils.hasText(declared.reason()) ? declared.reason() : ex.getMessage();
+            return new ResponseEntity<>(
+                    new ErrorResponse(status.value(), message, LocalDateTime.now()),
+                    status);
+        }
+
+        if (ex instanceof ResponseStatusException rse) {
+            HttpStatusCode status = rse.getStatusCode();
+            return new ResponseEntity<>(
+                    new ErrorResponse(status.value(), rse.getReason(), LocalDateTime.now()),
+                    status);
+        }
+
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Lỗi hệ thống: " + ex.getMessage() + " Kiểm tra lại thông tin các trường đã điền.",

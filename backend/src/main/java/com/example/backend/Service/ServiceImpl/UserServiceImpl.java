@@ -18,6 +18,7 @@ import com.example.backend.DTO.UserUpdateDTO;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Repository.UserRepository;
 import com.example.backend.Service.EmailService;
+import com.example.backend.Service.Interface.AccountDeletionService;
 import com.example.backend.Service.Interface.UserService;
 import com.example.backend.Utils.Role;
 
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AccountDeletionService accountDeletionService;
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -70,11 +72,20 @@ public class UserServiceImpl implements UserService {
         return convertToDto(updatedUser);
     }
 
+    /**
+     * SADMIN xoá tài khoản theo UID.
+     *
+     * Trước đây gọi userRepository.delete(user): xoá cứng luôn vỡ khoá ngoại
+     * (event_attendees, event_moments, moment_reports...) và trả 500 với bất kỳ
+     * user nào đã từng đăng ký sự kiện. Giờ dùng chung luồng ẩn danh hoá với
+     * người dùng tự xoá — cùng quy tắc chặn, cùng dọn dữ liệu, cùng email báo.
+     *
+     * Lỗi có thể ném ra: ResourceNotFoundException (404), ForbiddenException (403),
+     * AccountDeletionBlockedException (409).
+     */
     @Override
     public void deleteUser(String uid) {
-        User user = userRepository.findByUid(uid)
-             .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với UID: " + uid));
-        userRepository.delete(user);
+        accountDeletionService.deleteAccountByAdmin(uid);
     }
 
     private UserResponseDTO convertToDto(User user) {
