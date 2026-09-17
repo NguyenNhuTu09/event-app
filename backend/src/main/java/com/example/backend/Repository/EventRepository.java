@@ -40,4 +40,28 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.editRequestStatus = :editStatus ORDER BY e.createdAt DESC")
     List<Event> findByEditRequestStatus(@Param("editStatus") com.example.backend.Utils.EditRequestStatus editStatus);
 
+    /**
+     * Xoá tài khoản — điều kiện chặn organizer.
+     *
+     * Tên các sự kiện CHƯA KẾT THÚC ở trạng thái PENDING_APPROVAL / PUBLISHED /
+     * IN_PROGRESS thuộc bất kỳ organizer nào của user. Danh sách rỗng = được
+     * phép xoá. Trả tên thay vì boolean để thông báo 409 nói rõ sự kiện nào
+     * đang chặn.
+     *
+     * - :now PHẢI là AppTime.now(): endDate là giờ VN.
+     * - Lọc endDate để sự kiện có status bị "kẹt" (ví dụ vẫn IN_PROGRESS dù đã
+     *   qua ngày) không chặn oan người dùng.
+     * - Sự kiện DRAFT / REJECTED / CANCELLED / COMPLETED không chặn.
+     */
+    @Query("""
+            SELECT e.eventName FROM Event e
+             WHERE e.organizer.user.id = :userId
+               AND e.status IN (com.example.backend.Utils.EventStatus.PENDING_APPROVAL,
+                                com.example.backend.Utils.EventStatus.PUBLISHED,
+                                com.example.backend.Utils.EventStatus.IN_PROGRESS)
+               AND e.endDate > :now
+             ORDER BY e.startDate ASC
+            """)
+    List<String> findActiveEventNamesOwnedByUser(@Param("userId") Long userId,
+                                                 @Param("now") LocalDateTime now);
 }

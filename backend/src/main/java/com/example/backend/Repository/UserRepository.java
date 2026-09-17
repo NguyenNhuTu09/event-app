@@ -25,4 +25,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByRole(Role role);
     User findByVerificationCode(String code);
     List<User> findByIsSubscribedNewsTrue();
+
+    // =================================================================
+    // Xoá tài khoản — danh sách cho SADMIN chỉ hiện tài khoản còn hoạt động.
+    // findByRole ở trên giữ nguyên vì notifyAdminsOfCsae đang dùng, và
+    // SADMIN không bao giờ ở trạng thái đã xoá.
+    // =================================================================
+
+    List<User> findByDeletedAtIsNull();
+
+    List<User> findByRoleAndDeletedAtIsNull(Role role);
 }

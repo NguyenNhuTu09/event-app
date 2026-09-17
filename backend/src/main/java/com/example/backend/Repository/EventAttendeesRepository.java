@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import com.example.backend.Models.Entity.Event;
 import com.example.backend.Models.Entity.EventAttendees;
 import com.example.backend.Models.Entity.User;
 import com.example.backend.Utils.RegistrationStatus;
 
-@Repository
 public interface EventAttendeesRepository extends JpaRepository<EventAttendees, Long> {
     
     boolean existsByEventAndUser(Event event, User user);
@@ -42,4 +41,33 @@ public interface EventAttendeesRepository extends JpaRepository<EventAttendees, 
     );
 
     long countByEvent_EventId(Long eventId);
+
+    // =================================================================
+    // Xoá tài khoản
+    //
+    // Huỷ các vé PENDING / APPROVED của user cho sự kiện CHƯA KẾT THÚC.
+    // Vé của sự kiện đã kết thúc được giữ nguyên làm lịch sử (user đã ẩn danh).
+    //
+    // - :now PHẢI là AppTime.now(): endDate là giờ VN do organizer nhập.
+    // - Sự kiện đang diễn ra cũng tính là chưa kết thúc: tài khoản đã xoá
+    //   thì vé không còn giá trị, kể cả khi đã check-in cổng.
+    // - Vé CANCELLED tự động bị organizerCheckInUser từ chối (chỉ nhận APPROVED)
+    //   và bị EventReminderScheduler bỏ qua (chỉ lấy APPROVED).
+    // - Bulk update bỏ qua persistence context: gọi xong đừng dùng lại các
+    //   EventAttendees đã nạp trong cùng transaction.
+    // =================================================================
+
+    @Modifying
+    @Query("""
+            UPDATE EventAttendees ea
+               SET ea.status = com.example.backend.Utils.RegistrationStatus.CANCELLED
+             WHERE ea.user.id = :userId
+               AND ea.status IN (com.example.backend.Utils.RegistrationStatus.PENDING,
+                                 com.example.backend.Utils.RegistrationStatus.APPROVED)
+               AND ea.event.eventId IN (
+                     SELECT e.eventId FROM Event e
+                      WHERE e.endDate > :now)
+            """)
+    int cancelUnfinishedRegistrationsOfUser(@Param("userId") Long userId,
+                                            @Param("now") LocalDateTime now);
 }

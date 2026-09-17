@@ -94,7 +94,17 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUserProfile(userUpdateDTO));
     }
 
-    @Operation(summary = "Xóa người dùng theo UID (SADMIN)")
+    @Operation(
+        summary = "Xóa người dùng theo UID (SADMIN)",
+        description = """
+            Xoá tài khoản bằng cách ẩn danh hoá (không xoá cứng), cùng luồng với người dùng tự xoá:
+            huỷ vé sự kiện chưa kết thúc, xoá khoảnh khắc, khoá organizer, gửi email báo cho người dùng.
+
+            - 200: đã xoá
+            - 403: không thể xoá tài khoản SADMIN
+            - 404: không tồn tại hoặc đã bị xoá trước đó
+            - 409: người dùng còn sự kiện đang hoạt động (message nêu tên sự kiện)
+            """)
     @DeleteMapping("/{uid}")
     @PreAuthorize("hasAuthority('SADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String uid) { 

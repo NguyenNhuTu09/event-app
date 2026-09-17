@@ -97,4 +97,28 @@ public interface MomentReportRepository extends JpaRepository<MomentReport, Long
 
     /** Số báo cáo đang chờ — hiển thị trên dashboard admin. */
     long countByStatus(ReportStatus status);
+
+    // =================================================================
+    // Dùng cho xoá tài khoản
+    // =================================================================
+
+    /**
+     * Các URL ảnh đang được giữ làm bằng chứng trong hồ sơ báo cáo nhắm vào
+     * bài của một người đăng.
+     *
+     * Khi xoá tài khoản, file Cloudinary nào nằm trong tập này sẽ KHÔNG bị xoá:
+     * nếu xoá, momentImageUrl trong báo cáo (nhất là CSAE) thành link chết.
+     * Ngoại lệ lưu giữ này cần được công bố trong Data safety form.
+     *
+     * Lọc theo cột snapshot momentOwnerId / momentImageUrl, không theo quan hệ
+     * moment: bài có thể đã bị sửa ảnh sau khi bị báo cáo, và bằng chứng là
+     * ảnh tại thời điểm báo cáo. Không tham số danh sách nên không dính lỗi
+     * mệnh đề IN rỗng.
+     */
+    @Query("""
+            SELECT DISTINCT r.momentImageUrl FROM MomentReport r
+             WHERE r.momentOwnerId = :ownerId
+               AND r.momentImageUrl IS NOT NULL
+            """)
+    List<String> findEvidenceImageUrlsByOwner(@Param("ownerId") Long ownerId);
 }
