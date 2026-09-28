@@ -33,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
     private static final List<String> ALLOWED_REDIRECT_URIS = List.of(
         "https://ems.webie.com.vn/oauth2/redirect",   // web
-        "myapp://oauth2/redirect"                      // Android deep link
+        "ems-app://oauth2/redirect"                      // Android deep link
     );
 
     @Override
